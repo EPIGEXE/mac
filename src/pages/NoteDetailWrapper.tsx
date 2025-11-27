@@ -1,83 +1,74 @@
-import { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useNoteStore } from '../stores/noteStore';
-import { useTheme } from '../contexts';
-import { NoteDetailPage } from './NoteDetailPage';
+import { useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useNoteStore } from '../stores/noteStore'
+import { NoteDetailPage } from './NoteDetailPage'
+import { useTheme } from '../contexts/useTheme'
 
 export function NoteDetailWrapper() {
-    const navigate = useNavigate();
-    const { noteId } = useParams<{ noteId: string }>();
-    const { theme, toggleTheme } = useTheme();
-    const { notes, isLoading, loadNotes, updateNote, deleteNote, isEditing, setEditing } = useNoteStore();
+    // ==================================== Hooks =====================================
+    const navigate = useNavigate() // 네비게이션
+    const { noteId } = useParams<{ noteId: string }>() // 노트 ID
+    const { theme, toggleTheme } = useTheme() // 테마
+    const {
+        notes, // 노트 목록
+        isLoading, // 로딩 상태
+        loadNotes, // 노트 로드
+        updateNote, // 노트 업데이트
+        deleteNote, // 노트 삭제
+        isEditing, // 편집 상태
+        setEditing, // 편집 상태 설정
+    } = useNoteStore()
 
+    // ==================================== useEffect =====================================
+    // 노트 로드
     useEffect(() => {
-        loadNotes();
-    }, [loadNotes]);
+        loadNotes()
+    }, [loadNotes])
 
-    const note = notes.find((n) => n.id === noteId);
+    // ==================================== 상수 =====================================
+    const note = notes.find((n) => n.id === noteId) // 보여줄 노트 찾기
 
+    // ==================================== 핸들러 =====================================
+    // 닫기
     const handleClose = () => {
-        navigate('/');
-    };
+        navigate('/')
+    }
 
-    const handleUpdateNote = async (updates: Parameters<typeof updateNote>[1]) => {
-        if (noteId) {
-            await updateNote(noteId, updates);
+    // 노트 업데이트
+    const handleUpdateNote = async (updates: Partial<Omit<typeof note, 'id'>>) => {
+        if (noteId && note) {
+            await updateNote(noteId, note.type, updates)
         }
-    };
+    }
 
+    // 노트 삭제
     const handleDeleteNote = async () => {
-        if (noteId) {
-            await deleteNote(noteId);
-            navigate('/');
+        if (noteId && note) {
+            await deleteNote(noteId, note.type)
+            navigate('/')
         }
-    };
+    }
 
     if (isLoading) {
         return (
-            <div
-                style={{
-                    minHeight: '100vh',
-                    backgroundColor: 'var(--bg-primary)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <div style={{ color: 'var(--text-secondary)' }}>로딩 중...</div>
+            <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
+                <div className="text-[var(--text-secondary)]">로딩 중...</div>
             </div>
-        );
+        )
     }
 
     if (!note) {
         return (
-            <div
-                style={{
-                    minHeight: '100vh',
-                    backgroundColor: 'var(--bg-primary)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexDirection: 'column',
-                    gap: '16px',
-                }}
-            >
-                <div style={{ color: 'var(--text-secondary)' }}>노트를 찾을 수 없습니다.</div>
+            <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center flex-col gap-4">
+                <div className="text-[var(--text-secondary)]">노트를 찾을 수 없습니다.</div>
                 <button
                     onClick={() => navigate('/')}
-                    style={{
-                        padding: '10px 20px',
-                        backgroundColor: 'var(--accent)',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                    }}
+                    className="px-5 py-2.5 bg-[var(--accent)] text-white border-none rounded-lg cursor-pointer"
                 >
                     메인으로 돌아가기
                 </button>
             </div>
-        );
+        )
     }
 
     return (
@@ -91,5 +82,5 @@ export function NoteDetailWrapper() {
             isEditing={isEditing}
             onEditingChange={setEditing}
         />
-    );
+    )
 }

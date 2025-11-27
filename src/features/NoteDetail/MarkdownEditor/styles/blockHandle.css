@@ -1,0 +1,46 @@
+/**
+ * 블록 핸들 스타일 (노션 스타일)
+ * BlockHandle.tsx에서 사용
+ */
+
+.pm-block-handle-wrapper {
+    gap: 2px;
+    transition: top 150ms cubic-bezier(0.25, 0.1, 0.25, 1);
+    cursor: grab;
+}
+
+.pm-block-handle-wrapper:active {
+    cursor: grabbing;
+}
+
+.pm-block-handle,
+.pm-block-add {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    color: var(--text-tertiary);
+    transition: background-color 100ms, color 100ms;
+    user-select: none;
+    pointer-events: auto;
+}
+
+.pm-block-handle {
+    cursor: grab;
+}
+
+.pm-block-handle:active {
+    cursor: grabbing;
+}
+
+.pm-block-add {
+    cursor: pointer;
+}
+
+.pm-block-handle:hover,
+.pm-block-add:hover {
+    background-color: var(--bg-hover);
+    color: var(--text-secondary);
+}

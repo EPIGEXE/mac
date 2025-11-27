@@ -1,17 +1,9 @@
-// Legacy Note 타입 (마이그레이션 전용)
-// 새 시스템에서는 src/data/systemNotes.ts를 사용합니다.
+import type { SystemNote } from '../lib/db';
 
-interface LegacyNote {
-    id: string;
-    title: string;
-    content: string;
-    category: string;
-    tags: string[];
-    createdAt: number;
-    updatedAt: number;
-}
-
+// ============================================================================
 // 카테고리 목록
+// ============================================================================
+
 export const categories = [
     'HTML',
     'CSS',
@@ -25,14 +17,23 @@ export const categories = [
 
 export type Category = (typeof categories)[number];
 
-// 기본 노트 데이터 (마크다운) - Legacy, 마이그레이션 참조용
-export const defaultNotes: LegacyNote[] = [
+// ============================================================================
+// 시스템 노트 데이터 (제공 문서)
+// - version: 패치 시 버전 비교용
+// - order: 카테고리 내 정렬 순서
+// ============================================================================
+
+export const systemNotesData: SystemNote[] = [
+    // ========================================================================
     // HTML
+    // ========================================================================
     {
-        id: 'default-html-1',
+        id: 'sys-html-semantic',
+        version: 1,
         title: 'Semantic HTML',
         category: 'HTML',
         tags: ['기초', 'SEO'],
+        order: 1,
         content: `시맨틱 HTML은 의미를 가진 태그를 사용하여 문서 구조를 명확하게 표현하는 방법입니다.
 
 ## 주요 시맨틱 태그
@@ -51,14 +52,15 @@ export const defaultNotes: LegacyNote[] = [
 - SEO 최적화
 - 코드 가독성 증가
 - 유지보수 용이`,
-        createdAt: Date.now() - 86400000 * 10,
-        updatedAt: Date.now() - 86400000 * 10,
+        createdAt: Date.now(),
     },
     {
-        id: 'default-html-2',
+        id: 'sys-html-html5',
+        version: 1,
         title: 'HTML5 주요 기능',
         category: 'HTML',
         tags: ['HTML5', '기초'],
+        order: 2,
         content: `HTML5는 웹 표준의 최신 버전으로 다양한 멀티미디어 기능을 제공합니다.
 
 ## 새로운 기능
@@ -72,16 +74,19 @@ export const defaultNotes: LegacyNote[] = [
 ## 입력 타입 추가
 
 - email, url, tel, number, date, color 등`,
-        createdAt: Date.now() - 86400000 * 9,
-        updatedAt: Date.now() - 86400000 * 9,
+        createdAt: Date.now(),
     },
 
+    // ========================================================================
     // CSS
+    // ========================================================================
     {
-        id: 'default-css-1',
+        id: 'sys-css-boxmodel',
+        version: 1,
         title: 'CSS Box Model',
         category: 'CSS',
         tags: ['기초', '레이아웃'],
+        order: 1,
         content: `Box Model은 모든 HTML 요소를 박스로 취급하는 CSS의 기본 개념입니다.
 
 ## 구성 요소
@@ -99,14 +104,15 @@ export const defaultNotes: LegacyNote[] = [
 ## 실무 팁
 
 보통 \`* { box-sizing: border-box; }\`를 사용하여 크기 계산을 단순화합니다.`,
-        createdAt: Date.now() - 86400000 * 8,
-        updatedAt: Date.now() - 86400000 * 8,
+        createdAt: Date.now(),
     },
     {
-        id: 'default-css-2',
+        id: 'sys-css-flexbox',
+        version: 1,
         title: 'Flexbox',
         category: 'CSS',
         tags: ['레이아웃', '중급'],
+        order: 2,
         content: `Flexbox는 1차원 레이아웃을 위한 강력한 CSS 모듈입니다.
 
 ## 주요 속성 (컨테이너)
@@ -127,16 +133,19 @@ export const defaultNotes: LegacyNote[] = [
 ## 사용 예시
 
 가운데 정렬: \`display: flex; justify-content: center; align-items: center;\``,
-        createdAt: Date.now() - 86400000 * 7,
-        updatedAt: Date.now() - 86400000 * 7,
+        createdAt: Date.now(),
     },
 
+    // ========================================================================
     // JavaScript
+    // ========================================================================
     {
-        id: 'default-js-1',
+        id: 'sys-js-closure',
+        version: 1,
         title: '클로저 (Closure)',
         category: 'JavaScript',
         tags: ['핵심개념', '중급'],
+        order: 1,
         content: `클로저는 함수와 그 함수가 선언된 렉시컬 환경의 조합입니다.
 
 ## 핵심 개념
@@ -154,14 +163,15 @@ export const defaultNotes: LegacyNote[] = [
 ## 주의사항
 
 메모리 누수를 방지하기 위해 불필요한 클로저는 정리해야 합니다.`,
-        createdAt: Date.now() - 86400000 * 6,
-        updatedAt: Date.now() - 86400000 * 6,
+        createdAt: Date.now(),
     },
     {
-        id: 'default-js-2',
+        id: 'sys-js-eventloop',
+        version: 1,
         title: '이벤트 루프',
         category: 'JavaScript',
         tags: ['핵심개념', '비동기'],
+        order: 2,
         content: `이벤트 루프는 JavaScript의 비동기 처리 메커니즘입니다.
 
 ## 구성 요소
@@ -182,14 +192,15 @@ export const defaultNotes: LegacyNote[] = [
 ## 중요
 
 Microtask는 Task보다 우선순위가 높습니다. Promise는 Microtask, setTimeout은 Task입니다.`,
-        createdAt: Date.now() - 86400000 * 5,
-        updatedAt: Date.now() - 86400000 * 5,
+        createdAt: Date.now(),
     },
     {
-        id: 'default-js-3',
+        id: 'sys-js-promise',
+        version: 1,
         title: 'Promise와 async/await',
         category: 'JavaScript',
         tags: ['비동기', '중급'],
+        order: 3,
         content: `Promise는 비동기 작업의 완료 또는 실패를 나타내는 객체입니다.
 
 ## Promise 상태
@@ -211,16 +222,19 @@ Microtask는 Task보다 우선순위가 높습니다. Promise는 Microtask, setT
 - async 함수는 항상 Promise 반환
 - await는 Promise가 처리될 때까지 대기
 - try-catch로 에러 처리`,
-        createdAt: Date.now() - 86400000 * 4,
-        updatedAt: Date.now() - 86400000 * 4,
+        createdAt: Date.now(),
     },
 
+    // ========================================================================
     // React
+    // ========================================================================
     {
-        id: 'default-react-1',
+        id: 'sys-react-usestate',
+        version: 1,
         title: 'React Hooks - useState',
         category: 'React',
         tags: ['Hooks', '기초'],
+        order: 1,
         content: `useState는 함수 컴포넌트에서 상태를 관리하는 Hook입니다.
 
 ## 기본 사용법
@@ -241,14 +255,15 @@ Microtask는 Task보다 우선순위가 높습니다. Promise는 Microtask, setT
 
 - 상태는 불변성을 유지해야 합니다
 - 객체/배열 업데이트 시 새로운 참조를 생성해야 합니다`,
-        createdAt: Date.now() - 86400000 * 3,
-        updatedAt: Date.now() - 86400000 * 3,
+        createdAt: Date.now(),
     },
     {
-        id: 'default-react-2',
+        id: 'sys-react-virtualdom',
+        version: 1,
         title: 'Virtual DOM',
         category: 'React',
         tags: ['핵심개념', '중급'],
+        order: 2,
         content: `Virtual DOM은 React의 핵심 개념으로 성능 최적화를 위한 메커니즘입니다.
 
 ## 동작 원리
@@ -268,16 +283,19 @@ Microtask는 Task보다 우선순위가 높습니다. Promise는 Microtask, setT
 
 - 서로 다른 타입의 엘리먼트는 완전히 새로 렌더링
 - key prop을 통해 리스트 최적화`,
-        createdAt: Date.now() - 86400000 * 2,
-        updatedAt: Date.now() - 86400000 * 2,
+        createdAt: Date.now(),
     },
 
+    // ========================================================================
     // TypeScript
+    // ========================================================================
     {
-        id: 'default-ts-1',
+        id: 'sys-ts-basics',
+        version: 1,
         title: 'TypeScript 기본 타입',
         category: 'TypeScript',
         tags: ['기초', '타입'],
+        order: 1,
         content: `TypeScript의 기본 타입 시스템입니다.
 
 ## 원시 타입
@@ -297,14 +315,15 @@ Microtask는 Task보다 우선순위가 높습니다. Promise는 Microtask, setT
 
 - \`number[]\`, \`Array<number>\`
 - \`[string, number]\`: 고정된 길이와 타입`,
-        createdAt: Date.now() - 86400000 * 1,
-        updatedAt: Date.now() - 86400000 * 1,
+        createdAt: Date.now(),
     },
     {
-        id: 'default-ts-2',
+        id: 'sys-ts-generics',
+        version: 1,
         title: 'TypeScript 제네릭',
         category: 'TypeScript',
         tags: ['중급', '타입'],
+        order: 2,
         content: `제네릭은 재사용 가능한 컴포넌트를 만들기 위한 도구입니다.
 
 ## 기본 문법
@@ -327,15 +346,18 @@ Microtask는 Task보다 우선순위가 높습니다. Promise는 Microtask, setT
 - API 응답 타입
 - 컬렉션 자료구조`,
         createdAt: Date.now(),
-        updatedAt: Date.now(),
     },
 
+    // ========================================================================
     // CS
+    // ========================================================================
     {
-        id: 'default-cs-1',
+        id: 'sys-cs-bigo',
+        version: 1,
         title: 'Big O 표기법',
         category: 'CS',
         tags: ['알고리즘', '기초'],
+        order: 1,
         content: `Big O는 알고리즘의 시간/공간 복잡도를 나타내는 표기법입니다.
 
 ## 주요 복잡도 (빠른 순)
@@ -352,14 +374,15 @@ Microtask는 Task보다 우선순위가 높습니다. Promise는 Microtask, setT
 - 최악의 경우를 기준으로 평가
 - 상수와 낮은 차수 항은 무시
 - 가장 큰 차수만 고려`,
-        createdAt: Date.now() - 86400000 * 8,
-        updatedAt: Date.now() - 86400000 * 8,
+        createdAt: Date.now(),
     },
     {
-        id: 'default-cs-2',
+        id: 'sys-cs-http',
+        version: 1,
         title: 'HTTP와 HTTPS',
         category: 'CS',
         tags: ['네트워크', '기초'],
+        order: 2,
         content: `HTTP와 HTTPS는 웹 통신의 기본 프로토콜입니다.
 
 ## HTTP (HyperText Transfer Protocol)
@@ -381,16 +404,19 @@ Microtask는 Task보다 우선순위가 높습니다. Promise는 Microtask, setT
 - HTTP + SSL/TLS 암호화
 - 포트: 443
 - 데이터 암호화로 보안 강화`,
-        createdAt: Date.now() - 86400000 * 7,
-        updatedAt: Date.now() - 86400000 * 7,
+        createdAt: Date.now(),
     },
 
+    // ========================================================================
     // Performance
+    // ========================================================================
     {
-        id: 'default-perf-1',
+        id: 'sys-perf-webvitals',
+        version: 1,
         title: 'Web Vitals',
         category: 'Performance',
         tags: ['최적화', '측정'],
+        order: 1,
         content: `Core Web Vitals는 Google의 핵심 성능 지표입니다.
 
 ## LCP (Largest Contentful Paint)
@@ -414,16 +440,19 @@ Microtask는 Task보다 우선순위가 높습니다. Promise는 Microtask, setT
 - 폰트 최적화
 - JavaScript 최소화
 - 크기 명시로 CLS 방지`,
-        createdAt: Date.now() - 86400000 * 5,
-        updatedAt: Date.now() - 86400000 * 5,
+        createdAt: Date.now(),
     },
 
+    // ========================================================================
     // Security
+    // ========================================================================
     {
-        id: 'default-sec-1',
+        id: 'sys-sec-xss',
+        version: 1,
         title: 'XSS (Cross-Site Scripting)',
         category: 'Security',
         tags: ['보안', '중요'],
+        order: 1,
         content: `XSS는 악성 스크립트를 삽입하는 공격입니다.
 
 ## Stored XSS
@@ -448,14 +477,15 @@ Microtask는 Task보다 우선순위가 높습니다. Promise는 Microtask, setT
 - React의 자동 이스케이프 활용
 
 > 주의: \`dangerouslySetInnerHTML\` 사용 시 주의 필요`,
-        createdAt: Date.now() - 86400000 * 3,
-        updatedAt: Date.now() - 86400000 * 3,
+        createdAt: Date.now(),
     },
     {
-        id: 'default-sec-2',
+        id: 'sys-sec-cors',
+        version: 1,
         title: 'CORS (Cross-Origin Resource Sharing)',
         category: 'Security',
         tags: ['보안', '네트워크'],
+        order: 2,
         content: `CORS는 다른 출처의 리소스 접근을 제어하는 보안 메커니즘입니다.
 
 ## 동일 출처 정책
@@ -477,7 +507,6 @@ Microtask는 Task보다 우선순위가 높습니다. Promise는 Microtask, setT
 
 - 서버에서 CORS 헤더 설정
 - 프록시 서버 사용`,
-        createdAt: Date.now() - 86400000 * 2,
-        updatedAt: Date.now() - 86400000 * 2,
+        createdAt: Date.now(),
     },
 ];

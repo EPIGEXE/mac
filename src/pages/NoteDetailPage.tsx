@@ -1,74 +1,21 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { IconSun, IconMoon, IconArrowLeft } from '@tabler/icons-react';
-import type { Note } from '../lib/db';
-import { MarkdownEditor, MarkdownViewer } from '../components/features/NoteDetail/MarkdownEditor';
+import { useState, useCallback, useRef, useEffect } from 'react'
+import { IconSun, IconMoon, IconArrowLeft } from '@tabler/icons-react'
+import type { Note } from '../lib/db'
+import { TerminalButton } from '../components/common/TerminalButton'
+import { MarkdownEditor } from '../features/NoteDetail/MarkdownEditor/MarkdownEditor'
 
 interface NoteDetailPageProps {
-    note: Note;
-    theme: 'light' | 'dark';
-    onThemeToggle: () => void;
-    onClose: () => void;
-    onUpdate: (updates: Partial<Omit<Note, 'id'>>) => void;
-    onDelete: () => void;
-    isEditing: boolean;
-    onEditingChange: (editing: boolean) => void;
+    note: Note
+    theme: 'light' | 'dark'
+    onThemeToggle: () => void
+    onClose: () => void
+    onUpdate: (updates: Partial<Omit<Note, 'id'>>) => void
+    onDelete: () => void
+    isEditing: boolean
+    onEditingChange: (editing: boolean) => void
 }
 
-type Difficulty = 'word' | 'sentence' | 'paragraph';
-
-// 터미널 스타일 버튼 컴포넌트
-function TerminalButton({
-    children,
-    onClick,
-    active = false,
-    variant = 'default',
-}: {
-    children: React.ReactNode;
-    onClick: () => void;
-    active?: boolean;
-    variant?: 'default' | 'accent' | 'danger';
-}) {
-    const getColors = () => {
-        if (active) {
-            return { color: 'var(--accent)', borderColor: 'var(--accent)' };
-        }
-        if (variant === 'danger') {
-            return { color: 'var(--warning)', borderColor: 'var(--border-light)' };
-        }
-        return { color: 'var(--text-tertiary)', borderColor: 'var(--border-light)' };
-    };
-
-    const colors = getColors();
-
-    return (
-        <button
-            onClick={onClick}
-            style={{
-                background: 'none',
-                border: `1px solid ${colors.borderColor}`,
-                padding: '6px 12px',
-                fontFamily: 'var(--font-mono)',
-                fontSize: '12px',
-                color: colors.color,
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-            }}
-            onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = variant === 'danger' ? 'var(--warning)' : 'var(--accent)';
-                e.currentTarget.style.color = variant === 'danger' ? 'var(--warning)' : 'var(--accent)';
-            }}
-            onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = colors.borderColor;
-                e.currentTarget.style.color = colors.color;
-            }}
-        >
-            {children}
-        </button>
-    );
-}
+type Difficulty = 'word' | 'sentence' | 'paragraph'
 
 export function NoteDetailPage({
     note,
@@ -80,286 +27,162 @@ export function NoteDetailPage({
     isEditing,
     onEditingChange,
 }: NoteDetailPageProps) {
-    const [isBlindMode, setIsBlindMode] = useState(false);
-    const [difficulty, setDifficulty] = useState<Difficulty>('word');
-    const [title, setTitle] = useState(note.title);
-    const [pendingContent, setPendingContent] = useState<string | null>(null);
-    const titleInputRef = useRef<HTMLInputElement>(null);
+    // ==================================== 상태 관리 =====================================
+    const [isBlindMode, setIsBlindMode] = useState(false) // 블라인드 모드
+    const [difficulty, setDifficulty] = useState<Difficulty>('word') // 난이도
+    const [title, setTitle] = useState(note.title) // 제목
+    const [pendingContent, setPendingContent] = useState<string | null>(null) // 임시 콘텐츠
 
+    // ==================================== useRef =====================================
+    const titleInputRef = useRef<HTMLInputElement>(null) // 제목 입력 참조
+
+    // ==================================== useEffect =====================================
+    // 제목 설정
     useEffect(() => {
-        setTitle(note.title);
-    }, [note.title]);
+        setTitle(note.title)
+    }, [note.title])
 
+    // 수정 모드로 들어가면 제목 입력 포커스
     useEffect(() => {
         if (isEditing && titleInputRef.current) {
-            titleInputRef.current.focus();
+            titleInputRef.current.focus()
         }
-    }, [isEditing]);
+    }, [isEditing])
 
+    // ==================================== 핸들러 =====================================
+    // 콘텐츠 변경
     const handleContentChange = useCallback((content: string) => {
-        setPendingContent(content);
-    }, []);
+        setPendingContent(content)
+    }, [])
 
+    // 저장
     const handleSave = useCallback(() => {
         const updates: Partial<Omit<Note, 'id'>> = {
             title: title.trim() || '제목 없음',
-        };
-        if (pendingContent !== null) {
-            updates.content = pendingContent;
         }
-        onUpdate(updates);
-        onEditingChange(false);
-        setPendingContent(null);
-    }, [title, pendingContent, onUpdate, onEditingChange]);
+        if (pendingContent !== null) {
+            updates.content = pendingContent
+        }
+        onUpdate(updates)
+        onEditingChange(false)
+        setPendingContent(null)
+    }, [title, pendingContent, onUpdate, onEditingChange])
 
+    // 삭제
     const handleDelete = useCallback(() => {
         if (window.confirm('정말로 이 노트를 삭제하시겠습니까?')) {
-            onDelete();
+            onDelete()
         }
-    }, [onDelete]);
+    }, [onDelete])
 
     return (
-        <div
-            style={{
-                height: '100vh',
-                display: 'flex',
-                flexDirection: 'column',
-                backgroundColor: 'var(--bg-primary)',
-            }}
-        >
+        <div className="h-screen flex flex-col bg-[var(--bg-primary)]">
             {/* Top bar - 터미널 스타일 */}
-            <header
-                style={{
-                    borderBottom: '1px solid var(--border-light)',
-                    backgroundColor: 'var(--bg-paper)',
-                }}
-            >
-                <div
-                    style={{
-                        maxWidth: '1000px',
-                        margin: '0 auto',
-                        padding: '16px 24px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                    }}
-                >
-                {/* 좌측: 뒤로가기 */}
-                <button
-                    onClick={onClose}
-                    style={{
-                        background: 'none',
-                        border: 'none',
-                        padding: '8px 12px',
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '13px',
-                        color: 'var(--text-tertiary)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        transition: 'color 0.15s',
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.color = 'var(--accent)';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.color = 'var(--text-tertiary)';
-                    }}
-                >
-                    <IconArrowLeft size={16} />
-                    {'<'} back
-                </button>
-
-                {/* 우측: 컨트롤 */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    {/* Blind 모드 컨트롤 - 뷰 모드에서만 */}
-                    {!isEditing && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            {/* 난이도 선택 - 터미널 스타일 */}
-                            <span
-                                style={{
-                                    fontFamily: 'var(--font-mono)',
-                                    fontSize: '12px',
-                                    color: 'var(--text-tertiary)',
-                                    marginRight: '4px',
-                                }}
-                            >
-                                level:
-                            </span>
-                            {(['word', 'sentence', 'paragraph'] as const).map((level, idx) => (
-                                <span key={level} style={{ display: 'flex', alignItems: 'center' }}>
-                                    {idx > 0 && (
-                                        <span
-                                            style={{
-                                                fontFamily: 'var(--font-mono)',
-                                                fontSize: '12px',
-                                                color: 'var(--text-tertiary)',
-                                                margin: '0 2px',
-                                            }}
-                                        >
-                                            |
-                                        </span>
-                                    )}
-                                    <button
-                                        onClick={() => setDifficulty(level)}
-                                        style={{
-                                            background: 'none',
-                                            border: 'none',
-                                            padding: '4px 8px',
-                                            fontFamily: 'var(--font-mono)',
-                                            fontSize: '12px',
-                                            color: difficulty === level ? 'var(--accent)' : 'var(--text-tertiary)',
-                                            cursor: 'pointer',
-                                            position: 'relative',
-                                        }}
-                                    >
-                                        {level === 'word' ? 'w' : level === 'sentence' ? 's' : 'p'}
-                                        {difficulty === level && (
-                                            <span
-                                                style={{
-                                                    position: 'absolute',
-                                                    bottom: '0',
-                                                    left: '8px',
-                                                    right: '8px',
-                                                    height: '1px',
-                                                    backgroundColor: 'var(--accent)',
-                                                }}
-                                            />
-                                        )}
-                                    </button>
-                                </span>
-                            ))}
-
-                            {/* Blind 토글 */}
-                            <span
-                                style={{
-                                    fontFamily: 'var(--font-mono)',
-                                    fontSize: '12px',
-                                    color: 'var(--text-tertiary)',
-                                    margin: '0 8px 0 16px',
-                                }}
-                            >
-                                blind:
-                            </span>
-                            <button
-                                onClick={() => setIsBlindMode(!isBlindMode)}
-                                style={{
-                                    background: 'none',
-                                    border: `1px solid ${isBlindMode ? 'var(--accent)' : 'var(--border-light)'}`,
-                                    padding: '4px 10px',
-                                    fontFamily: 'var(--font-mono)',
-                                    fontSize: '12px',
-                                    color: isBlindMode ? 'var(--accent)' : 'var(--text-tertiary)',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.15s',
-                                }}
-                            >
-                                {isBlindMode ? 'ON' : 'OFF'}
-                            </button>
-
-                            {/* 구분선 */}
-                            <div
-                                style={{
-                                    width: '1px',
-                                    height: '20px',
-                                    backgroundColor: 'var(--border-light)',
-                                    margin: '0 8px',
-                                }}
-                            />
-                        </div>
-                    )}
-
-                    {/* 편집/저장 버튼 */}
-                    {isEditing ? (
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                            <TerminalButton onClick={handleSave} active>
-                                :w save
-                            </TerminalButton>
-                            <TerminalButton
-                                onClick={() => {
-                                    setTitle(note.title);
-                                    setPendingContent(null);
-                                    onEditingChange(false);
-                                }}
-                            >
-                                :q cancel
-                            </TerminalButton>
-                        </div>
-                    ) : (
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                            <TerminalButton onClick={() => onEditingChange(true)}>
-                                :e edit
-                            </TerminalButton>
-                            <TerminalButton onClick={handleDelete} variant="danger">
-                                :d delete
-                            </TerminalButton>
-                        </div>
-                    )}
-
-                    {/* 테마 토글 */}
+            <header className="border-b border-[var(--border-light)] bg-[var(--bg-paper)]">
+                <div className="max-w-[1000px] mx-auto px-6 py-4 flex items-center justify-between">
+                    {/* 좌측: 뒤로가기 */}
                     <button
-                        onClick={onThemeToggle}
-                        style={{
-                            width: '32px',
-                            height: '32px',
-                            border: '1px solid var(--border-light)',
-                            backgroundColor: 'transparent',
-                            color: 'var(--text-tertiary)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            transition: 'all 0.15s',
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = 'var(--accent)';
-                            e.currentTarget.style.color = 'var(--accent)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = 'var(--border-light)';
-                            e.currentTarget.style.color = 'var(--text-tertiary)';
-                        }}
+                        onClick={onClose}
+                        className="bg-transparent border-none px-4 py-2.5 font-mono text-sm text-[var(--text-tertiary)] cursor-pointer flex items-center gap-2 transition-colors duration-150 hover:text-[var(--accent)]"
                     >
-                        {theme === 'light' ? <IconMoon size={16} /> : <IconSun size={16} />}
+                        <IconArrowLeft size={18} />
+                        {'<'} back
                     </button>
-                </div>
+
+                    {/* 우측: 컨트롤 */}
+                    <div className="flex items-center gap-4">
+                        {/* Blind 모드 컨트롤 - 뷰 모드에서만 */}
+                        {!isEditing && (
+                            <div className="flex items-center gap-2">
+                                {/* 난이도 선택 - 터미널 스타일 */}
+                                <span className="font-mono text-sm text-[var(--text-tertiary)] mr-1">
+                                    level:
+                                </span>
+                                {(['word', 'sentence', 'paragraph'] as const).map((level, idx) => (
+                                    <span key={level} className="flex items-center">
+                                        {idx > 0 && (
+                                            <span className="font-mono text-sm text-[var(--text-tertiary)] mx-0.5">
+                                                |
+                                            </span>
+                                        )}
+                                        <button
+                                            onClick={() => setDifficulty(level)}
+                                            className={`bg-transparent border-none px-2.5 py-1.5 font-mono text-sm cursor-pointer relative ${
+                                                difficulty === level ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)]'
+                                            }`}
+                                        >
+                                            {level === 'word' ? 'w' : level === 'sentence' ? 's' : 'p'}
+                                            {difficulty === level && (
+                                                <span className="absolute bottom-0 left-2.5 right-2.5 h-px bg-[var(--accent)]" />
+                                            )}
+                                        </button>
+                                    </span>
+                                ))}
+
+                                {/* Blind 토글 */}
+                                <span className="font-mono text-sm text-[var(--text-tertiary)] mx-2 ml-4">
+                                    blind:
+                                </span>
+                                <button
+                                    onClick={() => setIsBlindMode(!isBlindMode)}
+                                    className={`bg-transparent px-3.5 py-[5px] text-sm cursor-pointer transition-all duration-150 border ${
+                                        isBlindMode
+                                            ? 'border-[var(--accent)] text-[var(--accent)]'
+                                            : 'border-[var(--border-light)] text-[var(--text-tertiary)]'
+                                    }`}
+                                    style={{ fontFamily: 'var(--font-mono)' }}
+                                >
+                                    {isBlindMode ? 'ON' : 'OFF'}
+                                </button>
+
+                                {/* 구분선 */}
+                                <div className="w-px h-5 bg-[var(--border-light)] mx-2" />
+                            </div>
+                        )}
+
+                        {/* 편집/저장 버튼 */}
+                        {isEditing ? (
+                            <div className="flex gap-2">
+                                <TerminalButton onClick={handleSave} active>
+                                    :w save
+                                </TerminalButton>
+                                <TerminalButton
+                                    onClick={() => {
+                                        setTitle(note.title)
+                                        setPendingContent(null)
+                                        onEditingChange(false)
+                                    }}
+                                >
+                                    :q cancel
+                                </TerminalButton>
+                            </div>
+                        ) : (
+                            <div className="flex gap-2">
+                                <TerminalButton onClick={() => onEditingChange(true)}>:e edit</TerminalButton>
+                                <TerminalButton onClick={handleDelete} variant="danger">
+                                    :d delete
+                                </TerminalButton>
+                            </div>
+                        )}
+
+                        {/* 테마 토글 */}
+                        <button
+                            onClick={onThemeToggle}
+                            className="w-8 h-8 border border-[var(--border-light)] bg-transparent text-[var(--text-tertiary)] flex items-center justify-center cursor-pointer transition-all duration-150 hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                        >
+                            {theme === 'light' ? <IconMoon size={16} /> : <IconSun size={16} />}
+                        </button>
+                    </div>
                 </div>
             </header>
 
             {/* Content */}
-            <div
-                style={{
-                    flex: 1,
-                    overflowY: 'auto',
-                }}
-            >
-                <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '48px 24px' }}>
-                    {/* 카테고리 - 터미널 스타일 */}
-                    <div
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            marginBottom: '20px',
-                        }}
-                    >
-                        <span
-                            style={{
-                                fontFamily: 'var(--font-mono)',
-                                fontSize: '13px',
-                                color: 'var(--accent)',
-                            }}
-                        >
-                            #
-                        </span>
-                        <span
-                            style={{
-                                fontFamily: 'var(--font-mono)',
-                                fontSize: '13px',
-                                color: 'var(--text-tertiary)',
-                            }}
-                        >
+            <div className="flex-1 overflow-y-auto">
+                <div className="max-w-[1000px] mx-auto px-6 py-12">
+                    {/* 카테고리 */}
+                    <div className="flex items-center gap-2 mb-5">
+                        <span className="font-mono text-[13px] text-[var(--accent)]">#</span>
+                        <span className="font-mono text-[13px] text-[var(--text-tertiary)]">
                             {note.category}
                         </span>
                     </div>
@@ -372,57 +195,19 @@ export function NoteDetailPage({
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="제목을 입력하세요"
-                            style={{
-                                width: '100%',
-                                fontFamily: 'var(--font-display)',
-                                fontSize: '32px',
-                                fontWeight: 'var(--font-weight-regular)',
-                                color: 'var(--text-primary)',
-                                marginBottom: '24px',
-                                lineHeight: '1.3',
-                                letterSpacing: '0.02em',
-                                border: 'none',
-                                borderBottom: '1px solid var(--border-light)',
-                                outline: 'none',
-                                backgroundColor: 'transparent',
-                                paddingBottom: '12px',
-                            }}
+                            className="w-full font-display text-[32px] font-normal text-[var(--text-primary)] mb-6 leading-[1.3] tracking-wide border-none border-b border-b-[var(--border-light)] outline-none bg-transparent pb-3"
                         />
                     ) : (
-                        <h1
-                            style={{
-                                fontFamily: 'var(--font-display)',
-                                fontSize: '32px',
-                                fontWeight: 'var(--font-weight-regular)',
-                                color: 'var(--text-primary)',
-                                marginBottom: '24px',
-                                lineHeight: '1.3',
-                                letterSpacing: '0.02em',
-                            }}
-                        >
+                        <h1 className="font-display text-[32px] font-normal text-[var(--text-primary)] mb-6 leading-[1.3] tracking-wide">
                             {note.title}
                         </h1>
                     )}
 
-                    {/* 태그 - 터미널 스타일 */}
+                    {/* 태그 */}
                     {note.tags.length > 0 && (
-                        <div
-                            style={{
-                                display: 'flex',
-                                gap: '12px',
-                                marginBottom: '32px',
-                                flexWrap: 'wrap',
-                            }}
-                        >
+                        <div className="flex gap-3 mb-8 flex-wrap">
                             {note.tags.map((tag) => (
-                                <span
-                                    key={tag}
-                                    style={{
-                                        fontFamily: 'var(--font-mono)',
-                                        fontSize: '12px',
-                                        color: 'var(--text-tertiary)',
-                                    }}
-                                >
+                                <span key={tag} className="font-mono text-xs text-[var(--text-tertiary)]">
                                     @{tag}
                                 </span>
                             ))}
@@ -430,51 +215,16 @@ export function NoteDetailPage({
                     )}
 
                     {/* 구분선 */}
-                    <div
-                        style={{
-                            borderTop: '1px dashed var(--border-light)',
-                            marginBottom: '32px',
-                        }}
-                    />
+                    <div className="border-t border-dashed border-[var(--border-light)] mb-8" />
 
                     {/* 콘텐츠 */}
-                    {isEditing ? (
-                        <MarkdownEditor
-                            initialContent={note.content || ''}
-                            onChange={handleContentChange}
-                            editable={true}
-                        />
-                    ) : (
-                        <article
-                            style={{
-                                fontFamily: 'var(--font-system)',
-                                fontSize: '16px',
-                                lineHeight: '1.8',
-                                color: 'var(--text-primary)',
-                                letterSpacing: '0.01em',
-                            }}
-                        >
-                            {note.content ? (
-                                <MarkdownViewer
-                                    content={note.content}
-                                    isBlindMode={isBlindMode}
-                                    difficulty={difficulty}
-                                />
-                            ) : (
-                                <p
-                                    style={{
-                                        fontFamily: 'var(--font-mono)',
-                                        fontSize: '14px',
-                                        color: 'var(--text-tertiary)',
-                                    }}
-                                >
-                                    // 내용이 없습니다
-                                </p>
-                            )}
-                        </article>
-                    )}
+                    <MarkdownEditor
+                        initialContent={note.content || ''}
+                        onChange={handleContentChange}
+                        editable={true}
+                    />
                 </div>
             </div>
         </div>
-    );
+    )
 }

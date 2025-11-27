@@ -2,7 +2,10 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useNoteStore } from '../stores/noteStore'
 import { categories } from '../data/defaultNotes'
-import { Header, ListView, RoadmapView, type ViewMode, type TopicFilter } from '../components'
+import { Header } from '../features/Main/Header'
+import { ListView } from '../features/Main/ListView/ListView'
+import { RoadmapView } from '../features/Main/roadmap/RoadmapView'
+import type { ViewMode, TopicFilter } from '../features/Main/Header'
 
 // 대주제별 카테고리 매핑
 const topicCategories: Record<TopicFilter, string[]> = {
@@ -52,16 +55,8 @@ export function MainPage() {
 
     if (isLoading) {
         return (
-            <div
-                style={{
-                    minHeight: '100vh',
-                    backgroundColor: 'var(--bg-primary)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <div style={{ color: 'var(--text-secondary)' }}>로딩 중...</div>
+            <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
+                <div className="text-[var(--text-secondary)]">로딩 중...</div>
             </div>
         )
     }
@@ -70,15 +65,7 @@ export function MainPage() {
     const isRoadmapView = viewMode === 'roadmap'
 
     return (
-        <div
-            style={{
-                height: '100vh',
-                backgroundColor: 'var(--bg-primary)',
-                display: 'flex',
-                flexDirection: 'column',
-                overflow: isRoadmapView ? 'hidden' : 'auto',
-            }}
-        >
+        <div className={`h-screen bg-[var(--bg-primary)] flex flex-col ${isRoadmapView ? 'overflow-hidden' : 'overflow-auto'}`}>
             <Header
                 viewMode={viewMode}
                 onViewModeChange={setViewMode}
@@ -87,7 +74,7 @@ export function MainPage() {
             />
 
             {isRoadmapView ? (
-                <div style={{ flex: 1, minHeight: 0 }}>
+                <div className="flex-1 min-h-0">
                     <RoadmapView
                         notes={filteredNotes}
                         onNoteClick={handleNoteClick}
@@ -95,7 +82,7 @@ export function MainPage() {
                     />
                 </div>
             ) : (
-                <div style={{ padding: '32px 24px' }}>
+                <div className="py-8 px-6">
                     <ListView
                         notes={filteredNotes}
                         categories={filteredCategories}
