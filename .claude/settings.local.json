@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss init:*)",
+      "Bash(dir:*)",
+      "Bash(npx tsc:*)",
+      "Bash(del tailwind.config.js)",
+      "Bash(del \"c:\\Users\\catis\\Desktop\\Study\\notree\\src\\components\\NoteEditor.tsx\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
