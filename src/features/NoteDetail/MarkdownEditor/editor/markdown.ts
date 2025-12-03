@@ -593,7 +593,6 @@ function serializeOrderedList(node: Node, startOrder: number): string {
 function serializeTable(node: Node): string {
     const rows: string[][] = []
     let isFirstRow = true
-    let columnCount = 0
 
     // 각 행 처리
     node.forEach((row) => {
@@ -611,7 +610,6 @@ function serializeTable(node: Node): string {
         rows.push(cells)
 
         if (isFirstRow) {
-            columnCount = cells.length
             isFirstRow = false
         }
     })

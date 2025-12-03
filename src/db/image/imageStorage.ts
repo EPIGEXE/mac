@@ -4,7 +4,8 @@
  * - local:// URL 스킴으로 참조
  * - ObjectURL 캐싱으로 성능 최적화
  */
-import { db, type ImageBlob } from './db';
+import { db } from '../db';
+import type { ImageBlob } from '../schema/image';
 
 // ObjectURL 캐시 (메모리에서 관리)
 const objectURLCache = new Map<string, string>();

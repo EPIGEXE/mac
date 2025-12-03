@@ -1,4 +1,5 @@
-import { db, type Note, type UserNote, type UserOverride, type SystemNote } from '../../lib/db';
+import { db } from '../db';
+import type { Note, UserNote, UserOverride, SystemNote } from '../schema/note';
 import { initializeSystemNotes, getAllSystemNotes, getSystemNoteById } from './systemNoteService';
 import type { CreateNoteInput, UpdateNoteInput, GetAllNotesOptions } from './types';
 

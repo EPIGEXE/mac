@@ -1,4 +1,5 @@
-import { db, type StudyRecord, type StudySession } from '../../lib/db';
+import { db } from '../db';
+import type { StudyRecord, StudySession } from '../schema/study';
 
 // ============================================================================
 // Study Service

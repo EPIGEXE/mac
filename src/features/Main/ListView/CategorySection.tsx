@@ -1,5 +1,8 @@
-import { forwardRef } from 'react'
-import type { Note } from '../../../lib/db'
+import { forwardRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import type { Note } from '../../../db/schema/note'
+import type { StudyModeType } from '../../Study/types'
+import { StudyModeSelector } from '../../Study/components'
 
 // 노트 콘텐츠 첫 라인 추출
 function getFirstLine(content: string): string {
@@ -17,8 +20,28 @@ export interface CategorySectionProps {
 
 export const CategorySection = forwardRef<HTMLDivElement, CategorySectionProps>(
     ({ category, notes, onNoteClick, onCreateNote }, ref) => {
+        const navigate = useNavigate()
+        const [studyModalOpen, setStudyModalOpen] = useState(false)
+        const [studyMode, setStudyMode] = useState<StudyModeType>('word')
+
+        // 학습 시작
+        const handleStudyStart = () => {
+            setStudyModalOpen(false)
+            navigate(`/study?category=${encodeURIComponent(category)}&mode=${studyMode}`)
+        }
+
         return (
             <div ref={ref} className="mb-12 scroll-mt-[100px]">
+                {/* 학습 모드 선택 모달 */}
+                <StudyModeSelector
+                    open={studyModalOpen}
+                    onOpenChange={setStudyModalOpen}
+                    selectedMode={studyMode}
+                    onModeChange={setStudyMode}
+                    onStart={handleStudyStart}
+                    isLoading={false}
+                />
+
                 {/* 카테고리 헤더 - 터미널 스타일 */}
                 <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-light)]">
                     <div className="flex items-baseline gap-2">
@@ -32,6 +55,19 @@ export const CategorySection = forwardRef<HTMLDivElement, CategorySectionProps>(
                         <span className="font-mono text-[13px] text-[var(--text-tertiary)]">
                             [{notes.length}]
                         </span>
+                        {/* 카테고리 전체 학습 - 강조 스타일 */}
+                        {notes.length > 0 && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setStudyModalOpen(true)
+                                }}
+                                className="flex items-center gap-1.5 px-2.5 py-1 font-mono text-[12px] bg-[var(--accent)] text-white border-none cursor-pointer transition-all duration-150 hover:opacity-90"
+                            >
+                                <span className="text-[10px] opacity-80">▶</span>
+                                study
+                            </button>
+                        )}
                         {/* 터미널 스타일 새 노트 버튼 */}
                         <button
                             onClick={() => onCreateNote(category)}
@@ -45,12 +81,12 @@ export const CategorySection = forwardRef<HTMLDivElement, CategorySectionProps>(
                 {/* 노트 리스트 */}
                 <div className="flex flex-col">
                     {notes.map((note, idx) => (
-                        <button
+                        <div
                             key={note.id}
-                            onClick={() => onNoteClick(note.id)}
-                            className={`group px-3 py-4 bg-transparent border-none text-left cursor-pointer transition-all duration-150 flex justify-between items-start gap-5 hover:bg-[var(--bg-hover)] ${
+                            className={`group px-3 py-4 bg-transparent text-left cursor-pointer transition-all duration-150 flex justify-between items-start gap-5 hover:bg-[var(--bg-hover)] ${
                                 idx < notes.length - 1 ? 'border-b border-dashed border-[var(--border-light)]' : ''
                             }`}
+                            onClick={() => onNoteClick(note.id)}
                         >
                             <div className="flex gap-3 flex-1 min-w-0">
                                 {/* 터미널 스타일 화살표 */}
@@ -77,7 +113,7 @@ export const CategorySection = forwardRef<HTMLDivElement, CategorySectionProps>(
                                     </span>
                                 ))}
                             </div>
-                        </button>
+                        </div>
                     ))}
                 </div>
             </div>

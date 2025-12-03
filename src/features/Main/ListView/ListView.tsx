@@ -1,8 +1,8 @@
 import { useRef, useState, useEffect } from 'react'
-import type { Note } from '../../../lib/db'
 import { mainCategories } from '../../../data/categories'
 import { CategorySection } from './CategorySection'
 import { SidebarNav } from './SidebarNav'
+import type { Note } from '../../../db/schema/note'
 
 interface ListViewProps {
     notes: Note[] // 노트 목록

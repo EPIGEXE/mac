@@ -1,6 +1,6 @@
 import { Position, MarkerType, type Node, type Edge } from 'reactflow';
 import dagre from 'dagre';
-import type { Note } from '../../../lib/db';
+import type { Note } from '../../../db/schema/note';
 import type { RoadmapData, LayoutData, SectionDef, CategoryNodeDef } from './types';
 import {
     categoryMapping,

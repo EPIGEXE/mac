@@ -1,4 +1,4 @@
-import type { Note } from '../../lib/db';
+import type { Note } from '../schema/note';
 
 // ============================================================================
 // Note Service Input Types
@@ -32,9 +32,3 @@ export interface NoteListResult {
     systemCount: number;
     userCount: number;
 }
-
-// ============================================================================
-// Re-export Note type for convenience
-// ============================================================================
-
-export type { Note } from '../../lib/db';

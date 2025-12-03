@@ -1,0 +1,13 @@
+/**
+ * Cloud Functions Entry Point
+ * Study Mode API Functions
+ */
+import * as admin from 'firebase-admin'
+
+// Firebase Admin 초기화
+admin.initializeApp()
+
+// 퀴즈 관련 함수들
+export { generateQuiz } from './quiz/generateQuiz'
+export { evaluateAnswer } from './quiz/evaluateAnswer'
+export { getHint } from './quiz/getHint'

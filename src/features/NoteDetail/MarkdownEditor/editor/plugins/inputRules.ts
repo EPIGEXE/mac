@@ -47,7 +47,7 @@ function headingRule(level: number) {
  * findWrapping이 자동으로 bullet_list > list_item > paragraph 구조 생성
  */
 function bulletListRule(nodeType: NodeType) {
-  return new InputRule(/^\s*([-*])\s$/, (state, match, start, end) => {
+  return new InputRule(/^\s*([-*])\s$/, (state, _match, start, end) => {
     const tr = state.tr.delete(start, end);
     const $start = tr.doc.resolve(start);
     const blockRange = $start.blockRange();
@@ -111,7 +111,7 @@ function blockquoteRule(nodeType: NodeType) {
 // 예: ``` + Space → 자동 감지 코드 블록
 function codeBlockRule(nodeType: NodeType) {
   // 스페이스로만 트리거 (엔터는 새 문단이 먼저 생성됨)
-  return new InputRule(/^```(\w*)\s$/, (state, match, start, end) => {
+  return new InputRule(/^```(\w*)\s$/, (state, match, start, _end) => {
     const language = match[1] || null;
     const tr = state.tr;
     const codeBlock = nodeType.create({ language });
@@ -122,7 +122,7 @@ function codeBlockRule(nodeType: NodeType) {
     const blockEnd = $pos.end($pos.depth);
 
     tr.replaceWith(blockStart, blockEnd, codeBlock);
-    tr.setSelection(state.selection.constructor.near(tr.doc.resolve(blockStart + 1)));
+    tr.setSelection(TextSelection.near(tr.doc.resolve(blockStart + 1)));
 
     return tr;
   });
@@ -130,7 +130,7 @@ function codeBlockRule(nodeType: NodeType) {
 
 // 가로선 변환 (---)
 function horizontalRuleRule(): InputRule {
-  return new InputRule(/^---$/, (state, _match, start, end) => {
+  return new InputRule(/^---$/, (state, _match, start, _end) => {
     const hr = schema.nodes.horizontal_rule.create();
     const paragraph = schema.nodes.paragraph.create();
 
@@ -142,7 +142,7 @@ function horizontalRuleRule(): InputRule {
     const tr = state.tr.replaceWith(blockStart, blockEnd, [hr, paragraph]);
 
     // 커서를 새 paragraph로 이동
-    tr.setSelection(state.selection.constructor.near(tr.doc.resolve(blockStart + hr.nodeSize + 1)));
+    tr.setSelection(TextSelection.near(tr.doc.resolve(blockStart + hr.nodeSize + 1)));
 
     return tr;
   });
@@ -159,8 +159,6 @@ function markInputRule(
 ): InputRule {
   return new InputRule(regexp, (state, match, start, end) => {
     const attrs = getAttrs ? getAttrs(match) : {};
-    const textStart = start + match[1].length;
-    const textEnd = end - match[3].length;
     const text = match[2];
 
     if (!text) return null;

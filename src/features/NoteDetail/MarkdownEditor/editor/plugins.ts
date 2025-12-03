@@ -1,7 +1,7 @@
 import { Plugin, PluginKey, NodeSelection, TextSelection } from 'prosemirror-state'
 import { Decoration, DecorationSet, EditorView } from 'prosemirror-view'
 import { schema } from './schema'
-import { saveImageFromFile } from '../../../../lib/imageStorage'
+import { saveImageFromFile } from '../../../../db/image/imageStorage'
 
 /**
  * 슬래시 커맨드 메뉴 아이템 정의
@@ -407,18 +407,21 @@ export function slashCommandPlugin(onStateChange?: (state: SlashCommandState) =>
 
                     if (textBefore) {
                         // 정규식으로 슬래시 매치
-                        const regexp = /(?:^)?\/[^\s/]*/gm
-                        const matches = Array.from(textBefore.matchAll(regexp))
-                        const match = matches.pop() // 마지막 매치 사용
+                        // Tiptap 방식: 줄 시작 또는 공백 뒤의 슬래시만 매치
+                        // 캡처 그룹 1: 앞의 공백 (있으면), 캡처 그룹 2: 슬래시 명령어
+                        const regexp = /(?:^|(\s))(\/[^\s/]*)$/
+                        const match = textBefore.match(regexp)
 
-                        if (match && match.index !== undefined) {
-                            const query = match[0].slice(1) // '/' 제외
+                        if (match && match[2]) {
+                            const query = match[2].slice(1) // '/' 제외
 
                             // 쿼리에 공백이 있으면 무시
                             if (!query.includes(' ')) {
                                 // triggerPos 계산: parent 시작 + slash index
+                                // match.index는 전체 매치 시작, 공백이 있으면 +1
                                 const parentStart = $from.start($from.depth)
-                                const triggerPos = parentStart + match.index
+                                const slashOffset = match.index! + (match[1] ? match[1].length : 0)
+                                const triggerPos = parentStart + slashOffset
 
                                 // 좌표 계산 (슬래시 위치 기준)
                                 let position = value.position
@@ -545,7 +548,7 @@ function filterCommands(commands: SlashCommandItem[], query: string): SlashComma
     )
 }
 
-function executeCommand(view: EditorView, pluginState: SlashCommandState, command: SlashCommandItem) {
+function executeCommand(view: EditorView, _pluginState: SlashCommandState, command: SlashCommandItem) {
     // 슬래시와 쿼리 삭제
     const { state, dispatch } = view
     const { $from } = state.selection
@@ -599,7 +602,7 @@ export function blockDragDropPlugin() {
 
                         // 에디터 내의 모든 블록을 순회하며 해당 위치의 블록 찾기
                         let targetPos: number | null = null
-                        view.state.doc.forEach((node, pos) => {
+                        view.state.doc.forEach((_node, pos) => {
                             try {
                                 const dom = view.nodeDOM(pos)
                                 if (dom && dom instanceof HTMLElement) {
@@ -662,31 +665,25 @@ export function blockDragDropPlugin() {
  */
 export function autoJoinListsPlugin() {
     return new Plugin({
-        appendTransaction(transactions, oldState, newState) {
+        appendTransaction(transactions, _oldState, newState) {
             // 문서가 변경되지 않았으면 리턴
-            if (!transactions.some(tr => tr.docChanged)) {
+            if (!transactions.some((tr) => tr.docChanged)) {
                 return null
             }
 
             let tr = newState.tr
             let modified = false
 
-            console.log('=== autoJoinListsPlugin checking ===')
-
             // 문서의 최상위 레벨 노드들만 순회 (doc의 직접 자식들)
             for (let i = 0; i < newState.doc.childCount - 1; i++) {
                 const node = newState.doc.child(i)
                 const nextNode = newState.doc.child(i + 1)
 
-                console.log(`Node ${i}:`, node.type.name)
-                console.log(`Node ${i+1}:`, nextNode.type.name)
-
                 // bullet_list 또는 ordered_list인 경우
-                if ((node.type === schema.nodes.bullet_list || node.type === schema.nodes.ordered_list) &&
-                    node.type === nextNode.type) {
-
-                    console.log('Found adjacent lists to join!')
-
+                if (
+                    (node.type === schema.nodes.bullet_list || node.type === schema.nodes.ordered_list) &&
+                    node.type === nextNode.type
+                ) {
                     // 현재 노드의 시작 위치 계산
                     let pos = 0
                     for (let j = 0; j < i; j++) {
@@ -699,17 +696,10 @@ export function autoJoinListsPlugin() {
                     const secondListStart = pos + node.nodeSize
                     const secondListEnd = secondListStart + nextNode.nodeSize
 
-                    console.log('Join positions:', {
-                        firstListEnd,
-                        secondListStart,
-                        secondListEnd,
-                        firstListContent: node.content.size,
-                        secondListContent: nextNode.content.size
-                    })
-
                     // 첫 번째 리스트에 두 번째 리스트의 아이템들을 추가하고, 두 번째 리스트를 삭제
-                    tr = tr.insert(firstListEnd, nextNode.content)
-                         .delete(secondListStart + nextNode.content.size, secondListEnd + nextNode.content.size)
+                    tr = tr
+                        .insert(firstListEnd, nextNode.content)
+                        .delete(secondListStart + nextNode.content.size, secondListEnd + nextNode.content.size)
 
                     modified = true
 
@@ -717,9 +707,7 @@ export function autoJoinListsPlugin() {
                 }
             }
 
-            console.log('Modified:', modified)
-
             return modified ? tr : null
-        }
+        },
     })
 }

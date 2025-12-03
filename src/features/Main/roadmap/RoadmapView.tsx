@@ -4,8 +4,8 @@ import { filterToSections } from './config';
 import { buildRoadmapData } from './layout';
 import { SectionNode } from './nodes/SectionNode';
 import { CategoryNode } from './nodes/CategoryNode';
-import type { Note } from '../../../services';
 import type { TopicFilter } from '../Header';
+import type { Note } from '../../../db/schema/note';
 
 
 // 컴포넌트 Props

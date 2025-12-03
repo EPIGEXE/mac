@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { type Note } from '../lib/db';
+import type { Note } from '../db/schema/note';
 import {
     initializeNoteService,
     getAllNotes,
@@ -7,7 +7,7 @@ import {
     updateNote as updateNoteService,
     deleteNote as deleteNoteService,
     resetToOriginal as resetToOriginalService,
-} from '../services/note';
+} from '../db/note/noteService';
 
 interface NoteStore {
     notes: Note[];

@@ -1,4 +1,4 @@
-import type { SystemNote } from '../lib/db';
+import type { SystemNote } from '../db/schema/note';
 
 // ============================================================================
 // 카테고리 목록

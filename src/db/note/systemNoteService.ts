@@ -1,4 +1,5 @@
-import { db, type SystemNote } from '../../lib/db';
+import { db } from '../db';
+import type { SystemNote } from '../schema/note';
 import { systemNotesData } from '../../data/systemNotes';
 
 // ============================================================================

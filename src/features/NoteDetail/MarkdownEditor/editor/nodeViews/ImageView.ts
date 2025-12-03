@@ -6,7 +6,7 @@
  */
 import type { Node } from 'prosemirror-model'
 import type { EditorView, NodeView } from 'prosemirror-view'
-import { isLocalURL, resolveLocalURL } from '../../../../../lib/imageStorage'
+import { isLocalURL, resolveLocalURL } from '../../../../../db/image/imageStorage'
 
 export class ImageView implements NodeView {
     dom: HTMLElement

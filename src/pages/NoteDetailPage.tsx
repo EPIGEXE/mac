@@ -1,8 +1,11 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { IconSun, IconMoon, IconArrowLeft } from '@tabler/icons-react'
-import type { Note } from '../lib/db'
 import { TerminalButton } from '../components/common/TerminalButton'
 import { MarkdownEditor } from '../features/NoteDetail/MarkdownEditor/MarkdownEditor'
+import { StudyModeSelector } from '../features/Study/components'
+import type { StudyModeType } from '../features/Study/types'
+import type { Note } from '../db/schema/note'
 
 interface NoteDetailPageProps {
     note: Note
@@ -27,11 +30,15 @@ export function NoteDetailPage({
     isEditing,
     onEditingChange,
 }: NoteDetailPageProps) {
+    const navigate = useNavigate()
+
     // ==================================== 상태 관리 =====================================
     const [isBlindMode, setIsBlindMode] = useState(false) // 블라인드 모드
     const [difficulty, setDifficulty] = useState<Difficulty>('word') // 난이도
     const [title, setTitle] = useState(note.title) // 제목
     const [pendingContent, setPendingContent] = useState<string | null>(null) // 임시 콘텐츠
+    const [studyModalOpen, setStudyModalOpen] = useState(false) // 학습 모달
+    const [studyMode, setStudyMode] = useState<StudyModeType>('word') // 학습 모드
 
     // ==================================== useRef =====================================
     const titleInputRef = useRef<HTMLInputElement>(null) // 제목 입력 참조
@@ -50,6 +57,12 @@ export function NoteDetailPage({
     }, [isEditing])
 
     // ==================================== 핸들러 =====================================
+    // 학습 시작
+    const handleStudyStart = useCallback(() => {
+        setStudyModalOpen(false)
+        navigate(`/study?noteId=${note.id}&mode=${studyMode}`)
+    }, [navigate, note.id, studyMode])
+
     // 콘텐츠 변경
     const handleContentChange = useCallback((content: string) => {
         setPendingContent(content)
@@ -77,6 +90,16 @@ export function NoteDetailPage({
 
     return (
         <div className="h-screen flex flex-col bg-[var(--bg-primary)]">
+            {/* 학습 모드 선택 모달 */}
+            <StudyModeSelector
+                open={studyModalOpen}
+                onOpenChange={setStudyModalOpen}
+                selectedMode={studyMode}
+                onModeChange={setStudyMode}
+                onStart={handleStudyStart}
+                isLoading={false}
+            />
+
             {/* Top bar - 터미널 스타일 */}
             <header className="border-b border-[var(--border-light)] bg-[var(--bg-paper)]">
                 <div className="max-w-[1000px] mx-auto px-6 py-4 flex items-center justify-between">
@@ -158,6 +181,14 @@ export function NoteDetailPage({
                             </div>
                         ) : (
                             <div className="flex gap-2">
+                                {/* 학습 버튼 - 강조 스타일 */}
+                                <button
+                                    onClick={() => setStudyModalOpen(true)}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 font-mono text-[13px] bg-[var(--accent)] text-white border-none cursor-pointer transition-all duration-150 hover:opacity-90"
+                                >
+                                    <span className="text-[11px] opacity-80">▶</span>
+                                    study
+                                </button>
                                 <TerminalButton onClick={() => onEditingChange(true)}>:e edit</TerminalButton>
                                 <TerminalButton onClick={handleDelete} variant="danger">
                                     :d delete

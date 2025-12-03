@@ -1,4 +1,5 @@
-import { db, type WeakPoint } from '../../lib/db';
+import { db } from '../db';
+import type { WeakPoint } from '../schema/study';
 
 // ============================================================================
 // WeakPoint Service

@@ -163,6 +163,20 @@ function isInListItem(state: EditorState): boolean {
 const handleBackspaceFirst: Command = (state, dispatch) => {
     const { selection } = state
 
+    // DEBUG: Backspace 키 상태 로깅
+    console.log('[Backspace] ======================')
+    const { $from: $f } = selection
+    console.log('[Backspace] selection type:', selection.constructor.name)
+    console.log('[Backspace] $from.pos:', $f.pos)
+    console.log('[Backspace] $from.depth:', $f.depth)
+    console.log('[Backspace] $from.parentOffset:', $f.parentOffset)
+    console.log('[Backspace] parent.type:', $f.parent.type.name)
+    console.log('[Backspace] parent.content.size:', $f.parent.content.size)
+    console.log('[Backspace] doc structure:')
+    state.doc.forEach((node, offset, index) => {
+        console.log(`  [${index}] ${node.type.name} at ${offset}, size=${node.nodeSize}, content="${node.textContent?.slice(0, 50)}"`)
+    })
+
     // NodeSelection(가로선 등)이면 삭제
     if (selection instanceof NodeSelection) {
         return deleteNodeSelection(state, dispatch)

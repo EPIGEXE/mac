@@ -1,6 +1,5 @@
 import type { Node, Edge } from 'reactflow';
 import type dagre from 'dagre';
-import type { Note } from '../../../lib/db';
 
 // 필터 타입
 export type TopicFilter = 'all' | 'cs' | 'frontend' | 'backend';

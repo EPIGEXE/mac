@@ -1,4 +1,5 @@
-import { db, type StudyRecord, type WeakPoint, type StudySession } from '../../lib/db';
+import { db } from '../db';
+import type { StudyRecord, WeakPoint, StudySession } from '../schema/study';
 
 // ============================================================================
 // Statistics Service

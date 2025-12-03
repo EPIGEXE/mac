@@ -7,7 +7,7 @@
 import { Plugin } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
 import { terminalToast } from '../../../../Toast/toast'
-import { saveImageFromFile } from '../../../../../lib/imageStorage'
+import { saveImageFromFile } from '../../../../../db/image/imageStorage'
 
 /**
  * 파일 목록에서 이미지 파일만 필터링

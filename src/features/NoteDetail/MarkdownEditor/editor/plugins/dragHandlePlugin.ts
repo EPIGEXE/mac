@@ -1,6 +1,6 @@
 import { Plugin, PluginKey, TextSelection } from 'prosemirror-state';
 import type { EditorView } from 'prosemirror-view';
-import { Slice, Fragment, Node as ProseMirrorNode } from 'prosemirror-model';
+import { Node as ProseMirrorNode } from 'prosemirror-model';
 
 /**
  * 드래그 핸들 플러그인 상태
@@ -32,7 +32,7 @@ interface DragHandlePluginOptions {
  */
 function findBlockFromCoords(
   view: EditorView,
-  x: number,
+  _x: number,
   y: number
 ): { pos: number; dom: HTMLElement; node: ProseMirrorNode } | null {
   // 에디터 영역 내 좌표로 변환
@@ -205,7 +205,7 @@ export function createDragHandlePlugin(options: DragHandlePluginOptions) {
       },
     },
 
-    view(editorView) {
+    view(_editorView) {
       return {
         update(view) {
           // 핸들 요소에 view 참조 저장
@@ -219,8 +219,8 @@ export function createDragHandlePlugin(options: DragHandlePluginOptions) {
             rafId = null;
           }
           if (handleElement) {
-            handleElement.removeEventListener('dragstart', onDragStart);
-            handleElement.removeEventListener('dragend', onDragEnd);
+            (handleElement as HTMLElement).removeEventListener('dragstart', onDragStart);
+            (handleElement as HTMLElement).removeEventListener('dragend', onDragEnd);
           }
         },
       };
