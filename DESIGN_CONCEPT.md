@@ -13,15 +13,11 @@
 | 용도 | 폰트 | CSS 변수 | 설명 |
 |------|------|----------|------|
 | 본문 | Pretendard | `--font-system` | 가독성이 뛰어난 한글 산세리프 |
-| 제목/강조 | Cafe24ClassicType | `--font-display` | 세리프 스타일의 고급스러운 한글 |
 | 코드/UI | D2Coding | `--font-mono` | 개발자 친화적 모노스페이스 |
 
 ### 사용 가이드
 
 ```css
-/* 메인 제목 - 브랜드 아이덴티티 */
-font-family: var(--font-display);
-
 /* 본문, 설명 텍스트 */
 font-family: var(--font-system);
 
@@ -42,6 +38,8 @@ font-family: var(--font-mono);
 view: list | map    (명령어 스타일 토글)
 *all, cs, fe, be    (접두사 스타일 필터)
 [3]                 (배열 인덱스 스타일 카운트)
+
+등등 필요한 UI에 코드/터미널 스타일 적용
 ```
 
 ### 2. 인터랙션 패턴
@@ -78,7 +76,6 @@ view: list | map    (명령어 스타일 토글)
 └─────────────────────────────────────────────────────┘
 ```
 
-- 로고: `Cafe24ClassicType`, 32px
 - 서브타이틀: `D2Coding`, 12px, 주석 스타일 (`//`)
 - 토글: 터미널 명령어 스타일 (`view: list | map`)
 - 필터 탭: 모노 접두사 + 라벨

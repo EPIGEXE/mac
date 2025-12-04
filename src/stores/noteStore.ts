@@ -19,7 +19,7 @@ interface NoteStore {
     // Actions
     loadNotes: () => Promise<void>;
     createNote: (category: string) => Promise<string>;
-    updateNote: (id: string, type: 'system' | 'user', updates: Partial<Pick<Note, 'title' | 'content' | 'category' | 'tags'>>) => Promise<void>;
+    updateNote: (id: string, type: 'system' | 'user', updates: Partial<Pick<Note, 'title' | 'content' | 'category'>>) => Promise<void>;
     deleteNote: (id: string, type: 'system' | 'user') => Promise<void>;
     selectNote: (id: string | null, type?: 'system' | 'user' | null) => void;
     setEditing: (editing: boolean) => void;
@@ -58,7 +58,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
         return newNote.id;
     },
 
-    updateNote: async (id: string, type: 'system' | 'user', updates: Partial<Pick<Note, 'title' | 'content' | 'category' | 'tags'>>) => {
+    updateNote: async (id: string, type: 'system' | 'user', updates: Partial<Pick<Note, 'title' | 'content' | 'category'>>) => {
         const updatedNote = await updateNoteService(id, type, updates);
 
         if (updatedNote) {

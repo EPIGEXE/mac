@@ -5,7 +5,9 @@ import { schema } from './schema'
  * 마크다운 → ProseMirror Doc 변환
  */
 export function parseMarkdown(markdown: string): Node {
-    const lines = markdown.split('\n')
+    // Windows 줄바꿈(\r\n)을 Unix 줄바꿈(\n)으로 정규화
+    const normalizedMarkdown = markdown.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+    const lines = normalizedMarkdown.split('\n')
     const blocks: Node[] = []
     let i = 0
 
@@ -23,10 +25,18 @@ export function parseMarkdown(markdown: string): Node {
         // 코드 블록 (언어 지정 지원)
         const codeBlockMatch = trimmed.match(/^```(\w*)$/)
         if (codeBlockMatch) {
-            const language = codeBlockMatch[1] || null
+            const language = codeBlockMatch[1] || 'plaintext'
             const codeLines: string[] = []
+            const startIndex = i
             i++
+            // 안전장치: 최대 반복 횟수 제한 (무한 루프 방지)
+            const maxIterations = lines.length - startIndex
+            let iterations = 0
             while (i < lines.length && !lines[i].trim().startsWith('```')) {
+                if (++iterations > maxIterations) {
+                    console.error('Code block parsing exceeded max iterations, breaking loop')
+                    break
+                }
                 codeLines.push(lines[i])
                 i++
             }
@@ -86,7 +96,14 @@ export function parseMarkdown(markdown: string): Node {
         // 인용문
         if (trimmed.startsWith('>')) {
             const quoteLines: string[] = []
+            const startIndex = i
+            const maxIterations = lines.length - startIndex
+            let iterations = 0
             while (i < lines.length && lines[i].trim().startsWith('>')) {
+                if (++iterations > maxIterations) {
+                    console.error('Blockquote parsing exceeded max iterations')
+                    break
+                }
                 quoteLines.push(lines[i].trim().replace(/^>\s*/, ''))
                 i++
             }
@@ -214,7 +231,13 @@ function parseTable(lines: string[], startIndex: number): { node: Node; nextInde
     let i = startIndex
 
     // 테이블 줄 수집 (| 로 시작하는 연속된 줄들)
+    const maxIterations = lines.length - startIndex
+    let iterations = 0
     while (i < lines.length && lines[i].trim().startsWith('|')) {
+        if (++iterations > maxIterations) {
+            console.error('Table parsing exceeded max iterations')
+            break
+        }
         tableLines.push(lines[i].trim())
         i++
     }
@@ -288,8 +311,14 @@ function parseBulletList(
 ): { node: Node; nextIndex: number } {
     const items: Node[] = []
     let i = startIndex
+    const maxIterations = lines.length - startIndex
+    let iterations = 0
 
     while (i < lines.length) {
+        if (++iterations > maxIterations) {
+            console.error('Bullet list parsing exceeded max iterations')
+            break
+        }
         const line = lines[i]
         const match = line.match(/^(\s*)([-*])\s+(.*)$/)
 
@@ -351,8 +380,14 @@ function parseOrderedList(
     const items: Node[] = []
     let i = startIndex
     let startOrder = 1
+    const maxIterations = lines.length - startIndex
+    let iterations = 0
 
     while (i < lines.length) {
+        if (++iterations > maxIterations) {
+            console.error('Ordered list parsing exceeded max iterations')
+            break
+        }
         const line = lines[i]
         const match = line.match(/^(\s*)(\d+)\.\s+(.*)$/)
 

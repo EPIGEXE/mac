@@ -15,7 +15,6 @@ export interface UpdateNoteInput {
     title?: string;
     content?: string;
     category?: string;
-    tags?: string[];
 }
 
 // ============================================================================

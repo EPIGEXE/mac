@@ -1,17 +1,19 @@
 /**
  * 퀴즈 생성 Cloud Function
  * - 2단계 파이프라인: Stage 1 (개념 추출) → Stage 2 (퀴즈 생성)
- * - Groq API로 퀴즈 생성
+ * - LLM API로 퀴즈 생성 (Groq 또는 Gemini)
  * - 정답은 클라이언트에 직접 반환 (IndexedDB에서 관리)
  */
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
-import { callGroqJson, MODELS, groqApiKey } from '../llm/groqClient'
+import { callLLMJson, getModelPresets, getRequiredSecrets } from '../llm'
 import {
     SYSTEM_PROMPTS,
     buildConceptExtractionPrompt,
     buildBlindQuizPrompt,
     buildEssayQuizPrompt,
+    buildSentenceQuizPrompt,
     type ExtractedConcepts,
+    type SentenceQuestion,
 } from '../llm/prompts'
 import { validateGenerateQuizRequest } from '../utils/validation'
 
@@ -25,12 +27,23 @@ interface BlindQuizLLMResponse {
         position: number
         section?: string
         type?: string
+        strategy?: string // 변형 전략 (방안 2)
     }[]
 }
 
+// 서술형 모드 LLM 응답 타입 (한국 테크기업 면접 스타일)
 interface EssayQuizLLMResponse {
+    company: string
     question: string
+    questionType: 'concept' | 'comparison' | 'application' | 'optimization' | 'troubleshooting' | 'architecture'
+    followUpQuestions: string[]
     expectedPoints: string[]
+    answerGuide: string
+}
+
+// 문장 모드 LLM 응답 타입 (Q&A 형식)
+interface SentenceQuizLLMResponse {
+    questions: SentenceQuestion[]
 }
 
 // 클라이언트 응답 타입 (정답 포함)
@@ -38,13 +51,29 @@ interface GenerateQuizResponse {
     quizId: string
     mode: 'word' | 'sentence' | 'essay'
     blindedContent?: string
+    // 단어 모드용 blanks
     blanks?: {
         id: string
         answer: string
         hint: string
     }[]
-    question?: string
-    expectedPoints?: string[]
+    // 문장 모드용 questions (Q&A 형식)
+    questions?: {
+        id: string
+        question: string
+        answer: string
+        hint: string
+        keyPoints: string[]
+    }[]
+    // 서술형 모드 (한국 테크기업 면접 스타일)
+    essay?: {
+        company: string
+        question: string
+        questionType: string
+        followUpQuestions: string[]
+        expectedPoints: string[]
+        answerGuide: string
+    }
     // 디버그용: 추출된 개념 정보 및 검증 결과
     _debug?: {
         extractedConcepts?: ExtractedConcepts
@@ -60,8 +89,9 @@ async function extractConcepts(
     content: string
 ): Promise<ExtractedConcepts> {
     const prompt = buildConceptExtractionPrompt({ title, content })
+    const MODELS = getModelPresets()
 
-    const result = await callGroqJson<ExtractedConcepts>(
+    const result = await callLLMJson<ExtractedConcepts>(
         prompt,
         SYSTEM_PROMPTS.CONCEPT_EXTRACTOR,
         { model: MODELS.ACCURATE }
@@ -115,9 +145,9 @@ function validateQuizQuality(
         issues.push(`Answers too long: ${longAnswers.map(b => b.answer).join(', ')}`)
     }
 
-    // 3. critical 개념 커버리지 검증
+    // 3. critical 개념 커버리지 검증 (abstract 제외)
     const criticalConcepts = extractedConcepts.concepts
-        .filter(c => c.importance === 'critical')
+        .filter(c => c.importance === 'critical' && c.specificity !== 'abstract')
         .map(c => c.term.toLowerCase())
     const answersLower = answers.map(a => a.toLowerCase())
     const missingCritical = criticalConcepts.filter(c =>
@@ -133,7 +163,7 @@ function validateQuizQuality(
         warnings.push(`Low type diversity: only ${types.length} type(s) used`)
     }
 
-    // 5. 금지된 추상적 답변 검증 (NEW)
+    // 5. 금지된 추상적 답변 검증
     const forbiddenAnswers = blanks.filter(b => {
         const answer = b.answer.toLowerCase()
         // 금지 패턴 체크
@@ -146,7 +176,7 @@ function validateQuizQuality(
         warnings.push(`Abstract/forbidden answers: ${forbiddenAnswers.map(b => b.answer).join(', ')}`)
     }
 
-    // 6. 섹션 제목이 그대로 답변으로 사용된 경우 (NEW)
+    // 6. 섹션 제목이 그대로 답변으로 사용된 경우
     const sectionTitles = extractedConcepts.sections.map(s => s.name.toLowerCase())
     const sectionAsAnswer = blanks.filter(b =>
         sectionTitles.some(title => b.answer.toLowerCase() === title)
@@ -155,10 +185,32 @@ function validateQuizQuality(
         warnings.push(`Section titles used as answers: ${sectionAsAnswer.map(b => b.answer).join(', ')}`)
     }
 
+    // 7. abstract 개념이 답변으로 사용된 경우 (방안 1 검증)
+    const abstractConcepts = extractedConcepts.concepts
+        .filter(c => c.specificity === 'abstract')
+        .map(c => c.term.toLowerCase())
+    const abstractAsAnswer = blanks.filter(b =>
+        abstractConcepts.some(abs => b.answer.toLowerCase() === abs)
+    )
+    if (abstractAsAnswer.length > 0) {
+        warnings.push(`Abstract concepts used as blanks: ${abstractAsAnswer.map(b => b.answer).join(', ')}`)
+    }
+
+    // 8. 변형 전략 다양성 검증 (방안 2 검증)
+    const strategies = [...new Set(blanks.map(b => b.strategy).filter(Boolean))]
+    if (strategies.length < 2 && blanks.length >= 5) {
+        warnings.push(`Low strategy diversity: only ${strategies.length} strategy(s) used. Consider using more variation strategies.`)
+    }
+
     console.log('[Stage 3] Validation result:', {
         isValid: issues.length === 0,
         issues,
         warnings,
+        stats: {
+            types: types.length,
+            strategies: strategies.length,
+            abstractExcluded: abstractConcepts.length,
+        }
     })
 
     return {
@@ -174,7 +226,7 @@ function validateQuizQuality(
 export const generateQuiz = onCall(
     {
         region: 'asia-northeast3',
-        secrets: [groqApiKey],
+        secrets: getRequiredSecrets(),
         timeoutSeconds: 120, // 2단계이므로 시간 늘림
         memory: '256MiB',
     },
@@ -182,88 +234,128 @@ export const generateQuiz = onCall(
         // 입력 검증
         const data = validateGenerateQuizRequest(request.data)
         const { noteContent, noteTitle, mode, difficulty, blankCount } = data
+        const MODELS = getModelPresets()
 
         try {
             let response: GenerateQuizResponse
 
-            if (mode === 'word' || mode === 'sentence') {
-                // ========== 2단계 파이프라인 ==========
+            if (mode === 'word') {
+                // ========== 단어 모드: 2단계 파이프라인 ==========
 
                 // Stage 1: 개념 추출
-                console.log('[Quiz Generation] Starting Stage 1: Concept Extraction')
+                console.log('[Word Mode] Starting Stage 1: Concept Extraction')
                 const extractedConcepts = await extractConcepts(noteTitle, noteContent)
 
                 // 빈칸 수 계산: 섹션 수 기반으로 최소 보장
                 const minBlanks = Math.max(
                     blankCount || 5,
-                    extractedConcepts.sections.length // 각 섹션당 최소 1개
+                    extractedConcepts.sections.length
                 )
 
                 // Stage 2: 퀴즈 생성 (개념 기반)
-                console.log('[Quiz Generation] Starting Stage 2: Quiz Generation')
+                console.log('[Word Mode] Starting Stage 2: Quiz Generation')
                 const prompt = buildBlindQuizPrompt({
-                    mode,
+                    mode: 'word',
                     title: noteTitle,
                     content: noteContent,
                     blankCount: minBlanks,
                     difficulty: difficulty || 'medium',
-                    extractedConcepts, // Stage 1 결과 전달
+                    extractedConcepts,
                 })
 
-                const llmResponse = await callGroqJson<BlindQuizLLMResponse>(
+                const llmResponse = await callLLMJson<BlindQuizLLMResponse>(
                     prompt,
                     SYSTEM_PROMPTS.QUIZ_GENERATOR,
                     { model: MODELS.ACCURATE }
                 )
 
-                console.log('[Stage 2] Generated quiz with', llmResponse.blanks.length, 'blanks')
+                console.log('[Word Mode] Generated quiz with', llmResponse.blanks.length, 'blanks')
 
                 // Stage 3: 품질 검증
-                console.log('[Quiz Generation] Starting Stage 3: Quality Validation')
+                console.log('[Word Mode] Starting Stage 3: Quality Validation')
                 const validationResult = validateQuizQuality(llmResponse, extractedConcepts)
 
-                // 검증 결과 로깅 (경고만, 실패해도 진행)
                 if (!validationResult.isValid) {
-                    console.warn('[Stage 3] Quality issues detected:', validationResult.issues)
+                    console.warn('[Word Mode] Quality issues detected:', validationResult.issues)
                 } else {
-                    console.log('[Stage 3] Quiz passed quality validation')
+                    console.log('[Word Mode] Quiz passed quality validation')
                 }
 
                 // 클라이언트에 정답 포함하여 반환 (클라이언트에서 채점)
                 response = {
                     quizId: `quiz-${Date.now()}`,
-                    mode,
+                    mode: 'word',
                     blindedContent: llmResponse.blindedContent,
                     blanks: llmResponse.blanks.map((b) => ({
                         id: b.id,
                         answer: b.answer,
                         hint: b.hint,
                     })),
-                    // 디버그용 (개발 중에만 사용)
                     _debug: {
                         extractedConcepts,
-                        validationResult, // 검증 결과도 포함
+                        validationResult,
                     },
                 }
+            } else if (mode === 'sentence') {
+                // ========== 문장 모드: Q&A 형식 ==========
+                console.log('[Sentence Mode] Generating Q&A quiz')
+
+                const prompt = buildSentenceQuizPrompt({
+                    title: noteTitle,
+                    content: noteContent,
+                    blankCount: blankCount || 5, // Q&A는 5개 정도
+                    difficulty: difficulty || 'medium',
+                })
+
+                const llmResponse = await callLLMJson<SentenceQuizLLMResponse>(
+                    prompt,
+                    SYSTEM_PROMPTS.QUIZ_GENERATOR,
+                    { model: MODELS.ACCURATE }
+                )
+
+                console.log('[Sentence Mode] Generated quiz with', llmResponse.questions.length, 'questions')
+
+                // 문장 모드는 Q&A 형식으로 반환 (서버에서 LLM 평가 필요)
+                response = {
+                    quizId: `quiz-${Date.now()}`,
+                    mode: 'sentence',
+                    questions: llmResponse.questions.map((q) => ({
+                        id: q.id,
+                        question: q.question,
+                        answer: q.answer,
+                        hint: q.hint,
+                        keyPoints: q.keyPoints,
+                    })),
+                }
             } else {
-                // 서술형 퀴즈 생성 (기존 로직 유지)
+                // ========== 서술형 모드: 한국 테크기업 면접 스타일 ==========
+                console.log('[Essay Mode] Generating interview-style question')
+
                 const prompt = buildEssayQuizPrompt({
                     title: noteTitle,
                     content: noteContent,
                     difficulty: difficulty || 'medium',
                 })
 
-                const llmResponse = await callGroqJson<EssayQuizLLMResponse>(
+                const llmResponse = await callLLMJson<EssayQuizLLMResponse>(
                     prompt,
                     SYSTEM_PROMPTS.ESSAY_GENERATOR,
                     { model: MODELS.ACCURATE }
                 )
 
+                console.log('[Essay Mode] Generated question for company:', llmResponse.company)
+
                 response = {
                     quizId: `quiz-${Date.now()}`,
-                    mode,
-                    question: llmResponse.question,
-                    expectedPoints: llmResponse.expectedPoints,
+                    mode: 'essay',
+                    essay: {
+                        company: llmResponse.company,
+                        question: llmResponse.question,
+                        questionType: llmResponse.questionType,
+                        followUpQuestions: llmResponse.followUpQuestions,
+                        expectedPoints: llmResponse.expectedPoints,
+                        answerGuide: llmResponse.answerGuide,
+                    },
                 }
             }
 
@@ -273,6 +365,14 @@ export const generateQuiz = onCall(
 
             if (error instanceof HttpsError) {
                 throw error
+            }
+
+            // Rate Limit 에러 처리
+            if (error && typeof error === 'object' && 'status' in error && error.status === 429) {
+                throw new HttpsError(
+                    'resource-exhausted',
+                    'API 요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요.'
+                )
             }
 
             throw new HttpsError('internal', 'Failed to generate quiz. Please try again.')

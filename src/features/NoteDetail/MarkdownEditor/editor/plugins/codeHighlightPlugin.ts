@@ -18,6 +18,8 @@ const lowlight = createLowlight(common);
 const LANGUAGE_ALIASES: Record<string, string> = {
   js: 'javascript',
   ts: 'typescript',
+  tsx: 'typescript',
+  jsx: 'javascript',
   py: 'python',
   rb: 'ruby',
   rs: 'rust',
@@ -30,6 +32,7 @@ const LANGUAGE_ALIASES: Record<string, string> = {
   md: 'markdown',
   txt: 'plaintext',
   text: 'plaintext',
+  plain: 'plaintext',
 };
 
 // 별칭을 정식 언어명으로 변환
@@ -41,15 +44,33 @@ function normalizeLanguage(lang: string | null): string | null {
 
 export const codeHighlightPluginKey = new PluginKey('codeHighlight');
 
+// 최대 재귀 깊이 제한 (스택 오버플로우 방지)
+const MAX_DEPTH = 50;
+
 /**
  * lowlight의 AST 노드를 ProseMirror Decoration으로 변환
  */
 function parseHighlightNodes(
   nodes: any[],
-  startPos: number
+  startPos: number,
+  depth: number = 0
 ): { decorations: Decoration[]; endPos: number } {
   const decorations: Decoration[] = [];
   let currentPos = startPos;
+
+  // 깊이 제한 체크
+  if (depth > MAX_DEPTH) {
+    // 남은 텍스트 길이만 계산해서 반환
+    for (const node of nodes) {
+      if (node.type === 'text') {
+        currentPos += node.value.length;
+      } else if (node.type === 'element' && node.children) {
+        const childResult = parseHighlightNodes(node.children, currentPos, depth + 1);
+        currentPos = childResult.endPos;
+      }
+    }
+    return { decorations: [], endPos: currentPos };
+  }
 
   for (const node of nodes) {
     if (node.type === 'text') {
@@ -60,7 +81,7 @@ function parseHighlightNodes(
       const className = node.properties?.className?.join(' ') || '';
 
       // 자식 노드 재귀 처리
-      const childResult = parseHighlightNodes(node.children || [], currentPos);
+      const childResult = parseHighlightNodes(node.children || [], currentPos, depth + 1);
 
       if (className) {
         // 전체 범위에 decoration 적용
@@ -97,15 +118,14 @@ function getDecorations(doc: ProseMirrorNode): DecorationSet {
       const codeStartPos = pos + 1;
 
       try {
-        let result;
-
-        if (language && lowlight.registered(language)) {
-          // 지정된 언어로 하이라이트
-          result = lowlight.highlight(language, code);
-        } else {
-          // 언어 자동 감지
-          result = lowlight.highlightAuto(code);
+        // 언어가 지정되지 않았거나 지원하지 않는 언어면 하이라이트 스킵
+        // highlightAuto는 무거운 연산이므로 비활성화
+        if (!language || !lowlight.registered(language)) {
+          return;
         }
+
+        // 지정된 언어로 하이라이트
+        const result = lowlight.highlight(language, code);
 
         // AST를 decoration으로 변환
         const { decorations: nodeDecorations } = parseHighlightNodes(

@@ -1,5 +1,6 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { EditorState, Transaction, TextSelection } from 'prosemirror-state'
+import { Slice } from 'prosemirror-model'
 import { EditorView } from 'prosemirror-view'
 import { history } from 'prosemirror-history'
 import { gapCursor } from 'prosemirror-gapcursor'
@@ -169,6 +170,15 @@ export function useMarkdownEditor({
             // 복사 시 마크다운으로 변환
             clipboardTextSerializer: (slice) => {
                 return serializeSliceToMarkdown(slice)
+            },
+            // 붙여넣기 시 마크다운 텍스트를 파싱
+            clipboardTextParser: (text, _$context, plain, _view) => {
+                console.log('[clipboardTextParser] called, plain:', plain, 'text length:', text.length)
+                // 마크다운을 ProseMirror 문서로 파싱
+                const doc = parseMarkdown(text)
+                console.log('[clipboardTextParser] parsed doc:', doc.content.childCount, 'children')
+                // 문서의 content를 Slice로 반환 (openStart, openEnd는 0으로 설정)
+                return new Slice(doc.content, 0, 0)
             },
         })
 

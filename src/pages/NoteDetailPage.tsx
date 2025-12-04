@@ -6,6 +6,7 @@ import { MarkdownEditor } from '../features/NoteDetail/MarkdownEditor/MarkdownEd
 import { StudyModeSelector } from '../features/Study/components'
 import type { StudyModeType } from '../features/Study/types'
 import type { Note } from '../db/schema/note'
+import { TAG_LABELS } from '../data/categories'
 
 interface NoteDetailPageProps {
     note: Note
@@ -235,13 +236,19 @@ export function NoteDetailPage({
                     )}
 
                     {/* 태그 */}
-                    {note.tags.length > 0 && (
-                        <div className="flex gap-3 mb-8 flex-wrap">
-                            {note.tags.map((tag) => (
-                                <span key={tag} className="font-mono text-xs text-[var(--text-tertiary)]">
-                                    @{tag}
+                    {note.tag && (
+                        <div className="flex gap-2 mb-8 flex-wrap">
+                            <span className="font-mono text-[11px] px-2 py-0.5 text-[var(--text-tertiary)] border border-[var(--border-light)]">
+                                {TAG_LABELS.LEVEL[note.tag.level]}
+                            </span>
+                            <span className="font-mono text-[11px] px-2 py-0.5 text-[var(--text-tertiary)] border border-[var(--border-light)]">
+                                {TAG_LABELS.IMPORTANCE[note.tag.importance]}
+                            </span>
+                            {note.tag.interview && (
+                                <span className="font-mono text-[11px] px-2 py-0.5 text-[var(--text-tertiary)] border border-[var(--border-light)]">
+                                    {TAG_LABELS.INTERVIEW[note.tag.interview]}
                                 </span>
-                            ))}
+                            )}
                         </div>
                     )}
 

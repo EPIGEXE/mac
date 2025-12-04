@@ -8,12 +8,69 @@ import { Plugin } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
 import { terminalToast } from '../../../../Toast/toast'
 import { saveImageFromFile } from '../../../../../db/image/imageStorage'
+import { parseMarkdown } from '../markdown'
 
 /**
  * 파일 목록에서 이미지 파일만 필터링
  */
 function getImageFiles(files: FileList | File[]): File[] {
     return Array.from(files).filter(file => file.type.startsWith('image/'))
+}
+
+/**
+ * 빈줄 제거 (코드 블럭 내부는 유지)
+ */
+function removeEmptyLines(text: string): string {
+    const lines = text.split('\n')
+    const result: string[] = []
+    let inCodeBlock = false
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]
+        const trimmed = line.trim()
+
+        // 코드 블럭 시작/끝 감지
+        if (trimmed.startsWith('```')) {
+            inCodeBlock = !inCodeBlock
+            result.push(line)
+            continue
+        }
+
+        // 코드 블럭 내부는 그대로 유지
+        if (inCodeBlock) {
+            result.push(line)
+            continue
+        }
+
+        // 코드 블럭 외부: 빈줄 제거
+        if (trimmed === '') {
+            continue
+        }
+
+        result.push(line)
+    }
+
+    return result.join('\n')
+}
+
+/**
+ * 텍스트가 마크다운처럼 보이는지 확인
+ */
+function looksLikeMarkdown(text: string): boolean {
+    // 마크다운 패턴 감지
+    return (
+        /^#{1,6}\s/.test(text) ||           // 헤딩: # ~ ######
+        /^```[\w]*$/m.test(text) ||         // 코드 블록
+        /^\|.+\|$/m.test(text) ||           // 테이블
+        /^[-*]\s+/.test(text) ||            // 불릿 리스트
+        /^\d+\.\s+/.test(text) ||           // 순서 리스트
+        /^>\s+/.test(text) ||               // 인용문
+        /\*\*[^*]+\*\*/.test(text) ||       // 볼드
+        /\*[^*]+\*/.test(text) ||           // 이탤릭
+        /`[^`]+`/.test(text) ||             // 인라인 코드
+        /\[.+\]\(.+\)/.test(text) ||        // 링크
+        /^---$/.test(text)                  // 수평선
+    )
 }
 
 /**
@@ -144,6 +201,24 @@ export function createImagePlugin(): Plugin {
                     imageFiles.forEach(file => {
                         insertImage(view, file)
                     })
+
+                    return true
+                }
+
+                // plain text가 마크다운처럼 보이면 파싱하여 삽입
+                const plainText = clipboardData.getData('text/plain')
+                if (plainText && looksLikeMarkdown(plainText)) {
+                    event.preventDefault()
+
+                    // 빈줄 제거 후 파싱
+                    const textWithoutEmptyLines = removeEmptyLines(plainText)
+                    const doc = parseMarkdown(textWithoutEmptyLines)
+                    const { tr } = view.state
+                    const insertPos = view.state.selection.from
+
+                    // 문서의 content를 현재 위치에 삽입
+                    tr.replaceWith(insertPos, view.state.selection.to, doc.content)
+                    view.dispatch(tr)
 
                     return true
                 }

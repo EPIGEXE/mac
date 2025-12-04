@@ -1,19 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useNoteStore } from '../stores/noteStore'
-import { categories } from '../data/defaultNotes'
+import { categories, mainCategories, type Category } from '../data/categories'
 import { Header } from '../features/Main/Header'
 import { ListView } from '../features/Main/ListView/ListView'
 import { RoadmapView } from '../features/Main/roadmap/RoadmapView'
-import type { ViewMode, TopicFilter } from '../features/Main/Header'
+import type { ViewMode } from '../features/Main/Header'
 
-// 대주제별 카테고리 매핑
-const topicCategories: Record<TopicFilter, string[]> = {
-    all: [...categories],
-    cs: ['CS'],
-    frontend: ['HTML', 'CSS', 'JavaScript', 'TypeScript', 'React'],
-    backend: ['Performance', 'Security'],
-}
+// 대주제 필터 타입 (all + 각 mainCategory id)
+export type TopicFilter = 'all' | (typeof mainCategories)[number]['id']
 
 export function MainPage() {
     // ==================================== Hooks =====================================
@@ -38,8 +33,17 @@ export function MainPage() {
     }, [loadNotes])
 
     // ==================================== 상수 =====================================
-    const filteredCategories = topicCategories[topicFilter] // 필터링된 카테고리
-    const filteredNotes = notes.filter((n) => filteredCategories.includes(n.category)) // 필터링된 노트
+    const topicCategories: Record<TopicFilter, readonly Category[]> = {
+        all: categories,
+        cs: mainCategories[0].categories,
+        frontend: mainCategories[1].categories,
+        backend: mainCategories[2].categories,
+    }
+
+    const filteredCategories = [...topicCategories[topicFilter]] // 필터링된 카테고리 (mutable copy)
+    const filteredNotes = notes.filter((n) =>
+        filteredCategories.includes(n.category as (typeof filteredCategories)[number])
+    ) // 필터링된 노트
 
     // ==================================== 핸들러 =====================================
     // 노트 생성
@@ -65,7 +69,9 @@ export function MainPage() {
     const isRoadmapView = viewMode === 'roadmap'
 
     return (
-        <div className={`h-screen bg-[var(--bg-primary)] flex flex-col ${isRoadmapView ? 'overflow-hidden' : 'overflow-auto'}`}>
+        <div
+            className={`h-screen bg-[var(--bg-primary)] flex flex-col ${isRoadmapView ? 'overflow-hidden' : 'overflow-auto'}`}
+        >
             <Header
                 viewMode={viewMode}
                 onViewModeChange={setViewMode}
@@ -75,11 +81,7 @@ export function MainPage() {
 
             {isRoadmapView ? (
                 <div className="flex-1 min-h-0">
-                    <RoadmapView
-                        notes={filteredNotes}
-                        onNoteClick={handleNoteClick}
-                        topicFilter={topicFilter}
-                    />
+                    <RoadmapView notes={filteredNotes} onNoteClick={handleNoteClick} topicFilter={topicFilter} />
                 </div>
             ) : (
                 <div className="py-8 px-6">

@@ -1,6 +1,8 @@
 import { forwardRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { Note } from '../../../db/schema/note'
+import type { NoteTag } from '../../../data/categories'
+import { TAG_LABELS } from '../../../data/categories'
 import type { StudyModeType } from '../../Study/types'
 import { StudyModeSelector } from '../../Study/components'
 
@@ -9,6 +11,31 @@ function getFirstLine(content: string): string {
     if (!content) return ''
     const firstLine = content.split('\n').find((line) => line.trim() && !line.startsWith('#'))
     return firstLine?.trim() || ''
+}
+
+// 노트 태그 컴포넌트 (터미널 스타일 - 오른쪽 정렬)
+function NoteTags({ tag }: { tag?: NoteTag }) {
+    if (!tag) return null
+
+    const levelLabel = TAG_LABELS.LEVEL[tag.level]
+    const importanceLabel = TAG_LABELS.IMPORTANCE[tag.importance]
+    const interviewLabel = tag.interview ? TAG_LABELS.INTERVIEW[tag.interview] : null
+
+    return (
+        <div className="flex gap-2 flex-wrap justify-end">
+            <span className="font-mono text-[11px] px-2 py-0.5 text-[var(--text-tertiary)] border border-[var(--border-light)] whitespace-nowrap">
+                {levelLabel}
+            </span>
+            <span className="font-mono text-[11px] px-2 py-0.5 text-[var(--text-tertiary)] border border-[var(--border-light)] whitespace-nowrap">
+                {importanceLabel}
+            </span>
+            {interviewLabel && (
+                <span className="font-mono text-[11px] px-2 py-0.5 text-[var(--text-tertiary)] border border-[var(--border-light)] whitespace-nowrap">
+                    {interviewLabel}
+                </span>
+            )}
+        </div>
+    )
 }
 
 export interface CategorySectionProps {
@@ -102,17 +129,8 @@ export const CategorySection = forwardRef<HTMLDivElement, CategorySectionProps>(
                                     </div>
                                 </div>
                             </div>
-                            {/* 태그 - 모노스페이스 스타일 */}
-                            <div className="flex gap-2 flex-wrap justify-end max-w-[280px]">
-                                {note.tags.map((tag: string) => (
-                                    <span
-                                        key={tag}
-                                        className="font-mono text-[11px] px-2.5 py-1 bg-transparent text-[var(--text-tertiary)] border border-[var(--border-light)] whitespace-nowrap"
-                                    >
-                                        {tag}
-                                    </span>
-                                ))}
-                            </div>
+                            {/* 태그 - 오른쪽 정렬 */}
+                            <NoteTags tag={note.tag} />
                         </div>
                     ))}
                 </div>

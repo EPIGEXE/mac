@@ -1,3 +1,5 @@
+import type { Category, NoteTag } from '../../data/categories';
+
 /**
  * 제공 문서 (System Notes) - 앱에서 기본 제공하는 문서
  */
@@ -6,8 +8,8 @@ export interface SystemNote {
     version: number;         // 패치 버전
     title: string;
     content: string;         // 마크다운
-    category: string;
-    tags: string[];
+    category: Category;      // 타입 안전한 카테고리
+    tag: NoteTag;            // 태그 (난이도/중요도/면접빈출도)
     order: number;           // 정렬 순서
     createdAt: number;
 }
@@ -47,7 +49,7 @@ export interface Note {
     title: string;
     content: string;
     category: string;
-    tags: string[];
+    tag?: NoteTag;           // system note의 태그
     isCustomized: boolean;   // system이고 override 있으면 true
     originalTitle?: string;  // 커스터마이징된 경우 원본
     originalContent?: string;

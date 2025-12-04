@@ -1,6 +1,5 @@
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
 @import url('https://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/d2coding.css');
-@import url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_231029@1.1/Cafe24ClassicType-Regular.woff2');
 @import 'tailwindcss';
 
 /* Feature-specific styles (Tailwind 뒤에 import - 높은 우선순위) */
@@ -14,15 +13,8 @@
    ============================================== */
 
 @theme {
-    --font-display: 'Cafe24ClassicType', 'Georgia', serif;
+    --font-display: 'Georgia', serif;
     --font-mono: 'D2Coding', 'Consolas', monospace;
-}
-
-@font-face {
-    font-family: 'Cafe24ClassicType';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_231029@1.1/Cafe24ClassicType-Regular.woff2') format('woff2');
-    font-weight: normal;
-    font-style: normal;
 }
 
 :root {
