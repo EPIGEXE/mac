@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useNoteStore } from '../stores/noteStore'
 import { categories, mainCategories, type Category } from '../data/categories'
 import { Header } from '../features/Main/Header'
+import { StudyCTABanner } from '../features/Main/StudyCTABanner'
 import { ListView } from '../features/Main/ListView/ListView'
 import { RoadmapView } from '../features/Main/roadmap/RoadmapView'
 import type { ViewMode } from '../features/Main/Header'
@@ -68,10 +69,27 @@ export function MainPage() {
     // roadmap 뷰일 때는 flex로 남은 높이 채우기
     const isRoadmapView = viewMode === 'roadmap'
 
+    // Roadmap 뷰: 고정 높이 + overflow-hidden
+    // List 뷰: 일반 스크롤 (body 스크롤 사용)
+    if (isRoadmapView) {
+        return (
+            <div className="h-screen bg-[var(--bg-primary)] flex flex-col overflow-hidden">
+                <Header
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
+                    topicFilter={topicFilter}
+                    onTopicFilterChange={setTopicFilter}
+                />
+                <div className="flex-1 min-h-0">
+                    <RoadmapView notes={filteredNotes} onNoteClick={handleNoteClick} topicFilter={topicFilter} />
+                </div>
+            </div>
+        )
+    }
+
+    // List 뷰: body 스크롤 사용 (sticky 헤더를 위해)
     return (
-        <div
-            className={`h-screen bg-[var(--bg-primary)] flex flex-col ${isRoadmapView ? 'overflow-hidden' : 'overflow-auto'}`}
-        >
+        <div className="min-h-screen bg-[var(--bg-primary)]">
             <Header
                 viewMode={viewMode}
                 onViewModeChange={setViewMode}
@@ -79,21 +97,20 @@ export function MainPage() {
                 onTopicFilterChange={setTopicFilter}
             />
 
-            {isRoadmapView ? (
-                <div className="flex-1 min-h-0">
-                    <RoadmapView notes={filteredNotes} onNoteClick={handleNoteClick} topicFilter={topicFilter} />
+            <div className="py-8 px-6">
+                {/* Study CTA 배너 */}
+                <div className="max-w-[1000px] mx-auto mb-8">
+                    <StudyCTABanner />
                 </div>
-            ) : (
-                <div className="py-8 px-6">
-                    <ListView
-                        notes={filteredNotes}
-                        categories={filteredCategories}
-                        onNoteClick={handleNoteClick}
-                        onCreateNote={handleCreateNote}
-                        showMainCategories={topicFilter === 'all'}
-                    />
-                </div>
-            )}
+
+                <ListView
+                    notes={filteredNotes}
+                    categories={filteredCategories}
+                    onNoteClick={handleNoteClick}
+                    onCreateNote={handleCreateNote}
+                    showMainCategories={topicFilter === 'all'}
+                />
+            </div>
         </div>
     )
 }

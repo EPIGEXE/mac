@@ -4,7 +4,8 @@
  * - 중복 로직 통합
  */
 import { useCallback } from 'react'
-import { addWeakPoint, type AddWeakPointInput } from '../../../db/study/weakPointService'
+import { addWeakPoint } from '../../../db/study/weakPointService'
+import { terminalToast } from '../../Toast/toast'
 
 interface UseWeakPointRecorderProps {
     noteId: string
@@ -34,6 +35,7 @@ export function useWeakPointRecorder({ noteId, noteType }: UseWeakPointRecorderP
             })
         } catch (e) {
             console.error('Failed to record weak point:', e)
+            terminalToast.warning('약점 기록에 실패했습니다.')
         }
     }, [noteId, noteType])
 

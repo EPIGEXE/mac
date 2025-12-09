@@ -10,4 +10,3 @@ admin.initializeApp()
 // 퀴즈 관련 함수들
 export { generateQuiz } from './quiz/generateQuiz'
 export { evaluateAnswer, evaluateSentenceAnswers } from './quiz/evaluateAnswer'
-export { getHint } from './quiz/getHint'

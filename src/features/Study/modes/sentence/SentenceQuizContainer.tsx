@@ -8,6 +8,7 @@ import { motion } from 'framer-motion'
 import type { Note } from '../../../../db/schema/note'
 import { useSentenceQuiz } from './hooks/useSentenceQuiz'
 import { recordStudy, type RecordStudyInput } from '../../../../db/study/studyService'
+import { useStudySessionStore } from '../../../../stores/studySessionStore'
 import { SentenceQuizResult } from './components/SentenceQuizResult'
 import { SentenceAnswerInput } from './components/SentenceAnswerInput'
 import { GenerateingQuizLoading } from '../../components/GenerateingQuizLoading'
@@ -62,9 +63,16 @@ export function SentenceQuizContainer({
         startQuiz()
     }, [startQuiz])
 
+    // Store에서 결과 기록 함수 가져오기
+    const { recordNoteResult, isActive: isSessionActive } = useStudySessionStore()
+
     // 결과 화면 진입 시 학습 기록 저장
     useEffect(() => {
         if (phase === 'result') {
+            const duration = getDuration()
+            const score = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0
+
+            // DB에 기록
             const input: RecordStudyInput = {
                 noteId: note.id,
                 noteType,
@@ -72,12 +80,24 @@ export function SentenceQuizContainer({
                 totalQuestions,
                 correctCount,
                 wrongCount,
-                duration: getDuration(),
+                duration,
             }
-
             recordStudy(input).catch((e) => console.error('Failed to record study:', e))
+
+            // Store 모드면 세션 결과에도 기록
+            if (isSessionActive) {
+                recordNoteResult({
+                    noteId: note.id,
+                    noteTitle: note.title,
+                    totalQuestions,
+                    correctCount,
+                    wrongCount,
+                    score,
+                    duration,
+                })
+            }
         }
-    }, [phase, note.id, noteType, totalQuestions, correctCount, wrongCount, getDuration])
+    }, [phase, note.id, note.title, noteType, totalQuestions, correctCount, wrongCount, getDuration, isSessionActive, recordNoteResult])
 
     // 로딩 화면
     if (phase === 'loading') {

@@ -8,6 +8,8 @@ import { MarkdownEditor } from '../features/NoteDetail/MarkdownEditor/MarkdownEd
 import type { StudyModeType } from '../features/Study/types'
 import type { Note } from '../db/schema/note'
 import { StudyModeSelector } from '../features/Study/components/StudyModeSelector'
+import { ErrorBoundary } from '../components/ErrorBoundary/ErrorBoundary'
+import { ErrorFallback } from '../components/ErrorBoundary/ErrorFallback'
 
 interface NoteDetailPageProps {
     note: Note
@@ -164,11 +166,13 @@ export function NoteDetailPage({
 
                 {/* 콘텐츠 */}
                 <div className="max-w-[1000px] mx-auto px-6">
-                    <MarkdownEditor
-                        initialContent={note.content || ''}
-                        onChange={handleContentChange}
-                        editable={true}
-                    />
+                    <ErrorBoundary fallback={(error, reset) => <ErrorFallback error={error} onReset={reset} />}>
+                        <MarkdownEditor
+                            initialContent={note.content || ''}
+                            onChange={handleContentChange}
+                            editable={true}
+                        />
+                    </ErrorBoundary>
                 </div>
             </div>
 

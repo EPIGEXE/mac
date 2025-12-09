@@ -369,10 +369,23 @@ export function ErrorDisplay({ error, onRetry }: ErrorDisplayProps) {
 
 ## 완료 기준
 
-- [ ] `errorHandler.ts` 유틸 구현
-- [ ] `noteStore.ts` 모든 액션에 에러 처리 추가
-- [ ] `StudyViewer.tsx` 에러 처리 추가
-- [ ] `useWeakPointRecorder.ts` toast 추가
-- [ ] `imagePlugin.ts` toast 추가
-- [ ] 에러 발생 시 사용자에게 명확한 피드백 제공
-- [ ] 콘솔에 상세 로그 유지 (디버깅용)
+- [x] `errorHandler.ts` 유틸 구현 ✅ 2024-12 완료
+- [x] `noteStore.ts` 모든 액션에 에러 처리 추가 ✅ 2024-12 완료
+- [x] `StudyViewer.tsx` 에러 처리 추가 ✅ 2024-12 완료
+- [x] `useWeakPointRecorder.ts` toast 추가 ✅ 2024-12 완료
+- [x] `imagePlugin.ts` toast 추가 ✅ 2024-12 완료
+- [x] 에러 발생 시 사용자에게 명확한 피드백 제공 ✅
+- [x] 콘솔에 상세 로그 유지 (디버깅용) ✅
+
+---
+
+## 구현 완료 요약 (2024-12)
+
+### 생성된 파일
+- `src/utils/errorHandler.ts` - 중앙화된 에러 처리 유틸리티
+
+### 수정된 파일
+- `src/stores/noteStore.ts` - error 상태 추가, 모든 async 액션에 try-catch + toast
+- `src/features/Study/StudyViewer.tsx` - error 상태 + 재시도 UI 추가
+- `src/features/Study/hooks/useWeakPointRecorder.ts` - warning toast 추가
+- `src/features/NoteDetail/MarkdownEditor/editor/plugins/imagePlugin.ts` - error toast 추가

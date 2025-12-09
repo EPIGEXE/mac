@@ -12,10 +12,6 @@ interface ListViewProps {
     showMainCategories?: boolean // 상위 카테고리 표시 여부
 }
 
-// 디버그 모드
-const DEBUG = true
-const log = (...args: unknown[]) => DEBUG && console.log('[ListView]', ...args)
-
 export function ListView({ notes, categories, onNoteClick, onCreateNote, showMainCategories = false }: ListViewProps) {
     // ==================================== 상태 관리 =====================================
     const [activeCategory, setActiveCategory] = useState<string | null>(() => {
@@ -58,14 +54,12 @@ export function ListView({ notes, categories, onNoteClick, onCreateNote, showMai
                         if (!category) return
                         if (entry.isIntersecting) {
                             visibleCategories.add(category)
-                            log('INIT ENTER:', category)
                         }
                     })
                     // 초기 상태에서 보이는 카테고리가 있으면 첫 번째 것으로 설정
                     if (visibleCategories.size > 0) {
                         const firstVisible = categories.find((cat) => visibleCategories.has(cat))
                         if (firstVisible) {
-                            log('Initial active from observer:', firstVisible)
                             setActiveCategory(firstVisible)
                         }
                     }
@@ -78,10 +72,8 @@ export function ListView({ notes, categories, onNoteClick, onCreateNote, showMai
 
                     if (entry.isIntersecting) {
                         visibleCategories.add(category)
-                        log('ENTER:', category)
                     } else {
                         visibleCategories.delete(category)
-                        log('LEAVE:', category)
                     }
                 })
 
@@ -89,7 +81,6 @@ export function ListView({ notes, categories, onNoteClick, onCreateNote, showMai
                 if (visibleCategories.size > 0) {
                     const firstVisible = categories.find((cat) => visibleCategories.has(cat))
                     if (firstVisible) {
-                        log('Active:', firstVisible, '| Visible:', [...visibleCategories])
                         setActiveCategory(firstVisible)
                     }
                 }
@@ -106,11 +97,9 @@ export function ListView({ notes, categories, onNoteClick, onCreateNote, showMai
         categoryRefs.current.forEach((el, category) => {
             if (el) {
                 observerRef.current?.observe(el)
-                log('Observing:', category)
             }
         })
 
-        log('Observer created with', categoryRefs.current.size, 'elements')
     }, [categories])
 
     // ==================================== 카테고리 Ref 콜백 =====================================
@@ -133,7 +122,6 @@ export function ListView({ notes, categories, onNoteClick, onCreateNote, showMai
         return () => {
             clearTimeout(timer)
             observerRef.current?.disconnect()
-            log('Observer disconnected')
         }
     }, [createObserver])
 
@@ -141,7 +129,6 @@ export function ListView({ notes, categories, onNoteClick, onCreateNote, showMai
     useEffect(() => {
         if (categories.length > 0 && activeCategory === null) {
             setActiveCategory(categories[0])
-            log('Initial category set:', categories[0])
         }
     }, [categories, activeCategory])
 
@@ -149,18 +136,14 @@ export function ListView({ notes, categories, onNoteClick, onCreateNote, showMai
     const handleCategoryClick = useCallback((category: string) => {
         const el = categoryRefs.current.get(category)
         if (!el) {
-            log('Element not found:', category)
             return
         }
-
-        log('=== CLICK START ===', category)
 
         // 1. 즉시 active 상태 변경
         setActiveCategory(category)
 
         // 2. Observer 일시 해제 (스크롤 중 간섭 방지)
         observerRef.current?.disconnect()
-        log('Observer disconnected for click')
 
         // 3. 스크롤 실행
         el.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -170,7 +153,6 @@ export function ListView({ notes, categories, onNoteClick, onCreateNote, showMai
         const scrollContainer = document.scrollingElement || document.documentElement
 
         const reconnectObserver = () => {
-            log('=== CLICK END === Reconnecting observer')
             createObserver()
         }
 

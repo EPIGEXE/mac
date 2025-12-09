@@ -7,6 +7,7 @@ import { useEffect } from 'react'
 import type { Note } from '../../../../db/schema/note'
 import { useEssayQuiz } from './hooks/useEssayQuiz'
 import { recordStudy, type RecordStudyInput } from '../../../../db/study/studyService'
+import { useStudySessionStore } from '../../../../stores/studySessionStore'
 import { EssayQuizResult } from './components/EssayQuizResult'
 import { EssayQuizQuestion } from './components/EssayQuizQuestion'
 import { GenerateingQuizLoading } from '../../components/GenerateingQuizLoading'
@@ -52,22 +53,43 @@ export function EssayQuizContainer({
         startQuiz()
     }, [startQuiz])
 
+    // Store에서 결과 기록 함수 가져오기
+    const { recordNoteResult, isActive: isSessionActive } = useStudySessionStore()
+
     // 결과 화면 진입 시 학습 기록 저장
     useEffect(() => {
         if (phase === 'result' && result) {
+            const duration = getDuration()
+            const correctCount = isCorrect ? 1 : 0
+            const wrongCount = isCorrect ? 0 : 1
+            const score = isCorrect ? 100 : 0
+
+            // DB에 기록
             const input: RecordStudyInput = {
                 noteId: note.id,
                 noteType,
                 sessionId: `session-${Date.now()}`,
                 totalQuestions: 1,
-                correctCount: isCorrect ? 1 : 0,
-                wrongCount: isCorrect ? 0 : 1,
-                duration: getDuration(),
+                correctCount,
+                wrongCount,
+                duration,
             }
-
             recordStudy(input).catch((e) => console.error('Failed to record study:', e))
+
+            // Store 모드면 세션 결과에도 기록
+            if (isSessionActive) {
+                recordNoteResult({
+                    noteId: note.id,
+                    noteTitle: note.title,
+                    totalQuestions: 1,
+                    correctCount,
+                    wrongCount,
+                    score,
+                    duration,
+                })
+            }
         }
-    }, [phase, result, note.id, noteType, isCorrect, getDuration])
+    }, [phase, result, note.id, note.title, noteType, isCorrect, getDuration, isSessionActive, recordNoteResult])
 
     // 로딩 화면
     if (phase === 'loading') {

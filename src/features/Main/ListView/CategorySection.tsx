@@ -1,9 +1,6 @@
 import { forwardRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import type { Note } from '../../../db/schema/note'
-import type { StudyModeType } from '../../Study/types'
 import { NoteTags } from '../../../components/common/NoteTags'
-import { StudyModeSelector } from '../../Study/components/StudyModeSelector'
 
 // 노트 콘텐츠 첫 라인 추출
 function getFirstLine(content: string): string {
@@ -13,23 +10,14 @@ function getFirstLine(content: string): string {
 }
 
 export interface CategorySectionProps {
-    category: string
-    notes: Note[]
-    onNoteClick: (noteId: string) => void
-    onCreateNote: (category: string) => void
+    category: string // 카테고리 이름
+    notes: Note[] // 카테고리에 속한 노트 목록
+    onNoteClick: (noteId: string) => void // 노트 클릭 핸들러
+    onCreateNote: (category: string) => void // 새 노트 생성 핸들러
 }
 
 export const CategorySection = forwardRef<HTMLDivElement, CategorySectionProps>(
     ({ category, notes, onNoteClick, onCreateNote }, ref) => {
-        const navigate = useNavigate()
-        const [studyModalOpen, setStudyModalOpen] = useState(false)
-        const [studyMode, setStudyMode] = useState<StudyModeType>('word')
-
-        // 학습 시작
-        const handleStudyStart = () => {
-            setStudyModalOpen(false)
-            navigate(`/study?category=${encodeURIComponent(category)}&mode=${studyMode}`)
-        }
 
         return (
             <div ref={ref} className="mb-12 scroll-mt-[100px]">
@@ -44,19 +32,7 @@ export const CategorySection = forwardRef<HTMLDivElement, CategorySectionProps>(
                     <div className="flex items-center gap-4">
                         {/* 배열 인덱스 스타일 카운트 */}
                         <span className="font-mono text-[13px] text-[var(--text-tertiary)]">[{notes.length}]</span>
-                        {/* 카테고리 전체 학습 - 강조 스타일 */}
-                        {notes.length > 0 && (
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    setStudyModalOpen(true)
-                                }}
-                                className="flex items-center gap-1.5 px-2.5 py-1 font-mono text-[12px] bg-[var(--accent)] text-white border-none cursor-pointer transition-all duration-150 hover:opacity-90"
-                            >
-                                <span className="text-[10px] opacity-80">▶</span>
-                                study
-                            </button>
-                        )}
+
                         {/* 터미널 스타일 새 노트 버튼 */}
                         <button
                             onClick={() => onCreateNote(category)}
@@ -96,16 +72,6 @@ export const CategorySection = forwardRef<HTMLDivElement, CategorySectionProps>(
                         </div>
                     ))}
                 </div>
-
-                {/* 학습 모드 선택 모달 */}
-                <StudyModeSelector
-                    open={studyModalOpen}
-                    onOpenChange={setStudyModalOpen}
-                    selectedMode={studyMode}
-                    onModeChange={setStudyMode}
-                    onStart={handleStudyStart}
-                    isLoading={false}
-                />
             </div>
         )
     }

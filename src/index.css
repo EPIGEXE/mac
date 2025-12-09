@@ -24,6 +24,7 @@
     --bg-primary: #fafbfc;
     --bg-secondary: #f4f5f7;
     --bg-paper: #ffffff;
+    --bg-paper-rgb: 255, 255, 255;
     --bg-hover: rgba(99, 102, 241, 0.04);
 
     --text-primary: #0f172a;
@@ -76,6 +77,7 @@
     --bg-primary: #0f172a;
     --bg-secondary: #1e293b;
     --bg-paper: #1e293b;
+    --bg-paper-rgb: 30, 41, 59;
     --bg-hover: rgba(139, 92, 246, 0.08);
 
     --text-primary: #f1f5f9;

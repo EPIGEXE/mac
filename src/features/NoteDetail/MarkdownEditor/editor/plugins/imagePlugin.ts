@@ -107,6 +107,7 @@ async function insertImage(view: EditorView, file: File, pos?: number): Promise<
         view.focus()
     } catch (error) {
         console.error('이미지 삽입 실패:', error)
+        terminalToast.error('이미지 저장에 실패했습니다.')
     }
 }
 
