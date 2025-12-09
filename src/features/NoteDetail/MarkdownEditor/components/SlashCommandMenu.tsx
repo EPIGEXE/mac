@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, useLayoutEffect } from 'react'
 import type { SlashCommandState, SlashCommandItem } from '../editor/plugins'
 import { defaultSlashCommands } from '../editor/plugins'
 import type { EditorView } from 'prosemirror-view'
@@ -16,8 +16,51 @@ export function SlashCommandMenu({ state, view, containerRef }: SlashCommandMenu
     // ==================================== useRef =====================================
     const menuRef = useRef<HTMLDivElement>(null) // 메뉴 참조
 
+    // ==================================== useState =====================================
+    // 메뉴 위치 (triggerPos 기반으로 계산)
+    const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null)
+
     // 필터링된 커맨드 목록
     const filteredCommands = filterCommands(defaultSlashCommands, state.query)
+
+    // triggerPos 기반으로 메뉴 위치 계산 (스크롤에 안정적)
+    useLayoutEffect(() => {
+        if (!state.active || !view || !containerRef.current) {
+            setMenuPosition(null)
+            return
+        }
+
+        const updatePosition = () => {
+            if (!view || !containerRef.current) return
+
+            try {
+                // triggerPos에서 현재 좌표 계산 (스크롤 위치 반영)
+                const coords = view.coordsAtPos(state.triggerPos)
+                const containerRect = containerRef.current.getBoundingClientRect()
+
+                // 컨테이너 기준 상대 좌표
+                const relativeTop = coords.bottom - containerRect.top
+                const relativeLeft = coords.left - containerRect.left
+
+                setMenuPosition({ top: relativeTop + 4, left: relativeLeft })
+            } catch {
+                // 위치 계산 실패 시 fallback
+                setMenuPosition(null)
+            }
+        }
+
+        updatePosition()
+
+        // 스크롤 시 위치 업데이트
+        const editorDom = view.dom
+        const scrollContainer = editorDom.closest('.overflow-y-auto') || window
+
+        scrollContainer.addEventListener('scroll', updatePosition, { passive: true })
+
+        return () => {
+            scrollContainer.removeEventListener('scroll', updatePosition)
+        }
+    }, [state.active, state.triggerPos, view, containerRef])
 
     // 선택된 아이템으로 스크롤
     useEffect(() => {
@@ -27,25 +70,23 @@ export function SlashCommandMenu({ state, view, containerRef }: SlashCommandMenu
         }
     }, [state.selectedIndex, state.active])
 
-    if (!state.active || !state.position || filteredCommands.length === 0 || !containerRef.current) {
+    if (!state.active || !menuPosition || filteredCommands.length === 0 || !containerRef.current) {
         return null
     }
 
-    // 메뉴 위치 계산 (에디터 컨테이너 기준 absolute 위치)
+    // 화면 하단을 넘어가면 위로 표시
     const containerRect = containerRef.current.getBoundingClientRect()
-    const relativeTop = state.position.top - containerRect.top
-    const relativeLeft = state.position.left - containerRect.left
+    const absoluteTop = containerRect.top + menuPosition.top
 
     const menuStyle: React.CSSProperties = {
         position: 'absolute',
-        top: relativeTop + 4,
-        left: relativeLeft,
+        top: menuPosition.top,
+        left: menuPosition.left,
         zIndex: 1000,
     }
 
-    // 화면 하단을 넘어가면 위로 표시
-    if (state.position.top + 300 > window.innerHeight) {
-        menuStyle.top = relativeTop - 300
+    if (absoluteTop + 300 > window.innerHeight) {
+        menuStyle.top = menuPosition.top - 300 - 4
     }
 
     const handleItemClick = (command: SlashCommandItem) => {

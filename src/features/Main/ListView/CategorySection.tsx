@@ -1,41 +1,15 @@
 import { forwardRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { Note } from '../../../db/schema/note'
-import type { NoteTag } from '../../../data/categories'
-import { TAG_LABELS } from '../../../data/categories'
 import type { StudyModeType } from '../../Study/types'
-import { StudyModeSelector } from '../../Study/components'
+import { NoteTags } from '../../../components/common/NoteTags'
+import { StudyModeSelector } from '../../Study/components/StudyModeSelector'
 
 // 노트 콘텐츠 첫 라인 추출
 function getFirstLine(content: string): string {
     if (!content) return ''
     const firstLine = content.split('\n').find((line) => line.trim() && !line.startsWith('#'))
     return firstLine?.trim() || ''
-}
-
-// 노트 태그 컴포넌트 (터미널 스타일 - 오른쪽 정렬)
-function NoteTags({ tag }: { tag?: NoteTag }) {
-    if (!tag) return null
-
-    const levelLabel = TAG_LABELS.LEVEL[tag.level]
-    const importanceLabel = TAG_LABELS.IMPORTANCE[tag.importance]
-    const interviewLabel = tag.interview ? TAG_LABELS.INTERVIEW[tag.interview] : null
-
-    return (
-        <div className="flex gap-2 flex-wrap justify-end">
-            <span className="font-mono text-[11px] px-2 py-0.5 text-[var(--text-tertiary)] border border-[var(--border-light)] whitespace-nowrap">
-                {levelLabel}
-            </span>
-            <span className="font-mono text-[11px] px-2 py-0.5 text-[var(--text-tertiary)] border border-[var(--border-light)] whitespace-nowrap">
-                {importanceLabel}
-            </span>
-            {interviewLabel && (
-                <span className="font-mono text-[11px] px-2 py-0.5 text-[var(--text-tertiary)] border border-[var(--border-light)] whitespace-nowrap">
-                    {interviewLabel}
-                </span>
-            )}
-        </div>
-    )
 }
 
 export interface CategorySectionProps {
@@ -59,16 +33,6 @@ export const CategorySection = forwardRef<HTMLDivElement, CategorySectionProps>(
 
         return (
             <div ref={ref} className="mb-12 scroll-mt-[100px]">
-                {/* 학습 모드 선택 모달 */}
-                <StudyModeSelector
-                    open={studyModalOpen}
-                    onOpenChange={setStudyModalOpen}
-                    selectedMode={studyMode}
-                    onModeChange={setStudyMode}
-                    onStart={handleStudyStart}
-                    isLoading={false}
-                />
-
                 {/* 카테고리 헤더 - 터미널 스타일 */}
                 <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-light)]">
                     <div className="flex items-baseline gap-2">
@@ -79,9 +43,7 @@ export const CategorySection = forwardRef<HTMLDivElement, CategorySectionProps>(
                     </div>
                     <div className="flex items-center gap-4">
                         {/* 배열 인덱스 스타일 카운트 */}
-                        <span className="font-mono text-[13px] text-[var(--text-tertiary)]">
-                            [{notes.length}]
-                        </span>
+                        <span className="font-mono text-[13px] text-[var(--text-tertiary)]">[{notes.length}]</span>
                         {/* 카테고리 전체 학습 - 강조 스타일 */}
                         {notes.length > 0 && (
                             <button
@@ -130,10 +92,20 @@ export const CategorySection = forwardRef<HTMLDivElement, CategorySectionProps>(
                                 </div>
                             </div>
                             {/* 태그 - 오른쪽 정렬 */}
-                            <NoteTags tag={note.tag} />
+                            <NoteTags tag={note.tag} className="justify-end" />
                         </div>
                     ))}
                 </div>
+
+                {/* 학습 모드 선택 모달 */}
+                <StudyModeSelector
+                    open={studyModalOpen}
+                    onOpenChange={setStudyModalOpen}
+                    selectedMode={studyMode}
+                    onModeChange={setStudyMode}
+                    onStart={handleStudyStart}
+                    isLoading={false}
+                />
             </div>
         )
     }

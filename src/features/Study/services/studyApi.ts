@@ -13,8 +13,6 @@ import type {
     EvaluateEssayResponse,
     EvaluateSentenceAnswersRequest,
     EvaluateSentenceAnswersResponse,
-    GetHintRequest,
-    GetHintResponse,
     StudyModeType,
 } from '../types'
 
@@ -35,9 +33,6 @@ const evaluateEssayFn = httpsCallable<EvaluateEssayRequest, EvaluateEssayRespons
     functions,
     'evaluateAnswer'
 )
-
-const getHintFn = httpsCallable<GetHintRequest, GetHintResponse>(functions, 'getHint')
-
 const evaluateSentenceAnswersFn = httpsCallable<
     EvaluateSentenceAnswersRequest,
     EvaluateSentenceAnswersResponse
@@ -45,36 +40,16 @@ const evaluateSentenceAnswersFn = httpsCallable<
 
 // ================================ Mock 데이터 ================================
 
+// 단어 모드: LLM은 키워드만 반환, blindedContent는 클라이언트에서 생성
 const MOCK_WORD_QUIZ: GenerateQuizResponse = {
     quizId: 'mock-word-quiz-1',
     mode: 'word',
-    blindedContent: `# Critical Rendering Path (CRP)
-
-Critical Rendering Path는 브라우저가 HTML, CSS, JavaScript를 받아서 첫 번째 픽셀을 화면에 렌더링하기까지의 과정입니다.
-
-## 주요 단계
-
-1. **[___1___]** - HTML을 파싱하여 DOM 트리 생성
-2. **[___2___]** - CSS를 파싱하여 스타일 규칙 생성
-3. **[___3___]** - DOM과 CSSOM을 결합
-4. **[___4___]** - 요소의 위치와 크기 계산
-5. **[___5___]** - 실제 픽셀을 화면에 그리기
-
-## 최적화 전략
-
-JavaScript 로딩 시 [___6___] 속성을 사용하면 HTML 파싱 완료 후 실행됩니다.
-[___7___] 속성은 스크립트가 병렬로 다운로드되고 완료 즉시 실행됩니다.
-
-리소스 힌트 중 [___8___]는 현재 페이지에 필요한 리소스를 우선 다운로드합니다.`,
     blanks: [
-        { id: '1', answer: 'DOM 구성', hint: 'Document Object Model을 만드는 과정' },
-        { id: '2', answer: 'CSSOM 구성', hint: 'CSS Object Model을 만드는 과정' },
-        { id: '3', answer: '렌더링 트리 생성', hint: '두 트리를 합치는 과정' },
-        { id: '4', answer: '레이아웃', hint: '위치와 크기를 계산하는 단계' },
-        { id: '5', answer: '페인트', hint: '실제로 그리는 단계' },
-        { id: '6', answer: 'defer', hint: 'HTML 파싱 후 실행되는 속성' },
-        { id: '7', answer: 'async', hint: '비동기로 로드되는 속성' },
-        { id: '8', answer: 'preload', hint: '미리 로드하라는 힌트' },
+        { id: '1', answer: 'DOM', hint: 'Document Object Model' },
+        { id: '2', answer: 'CSSOM', hint: 'CSS Object Model' },
+        { id: '3', answer: '렌더 트리', hint: 'DOM과 CSSOM의 결합' },
+        { id: '4', answer: '레이아웃', hint: '요소의 위치와 크기 계산' },
+        { id: '5', answer: '페인트', hint: '픽셀을 화면에 그리기' },
     ],
 }
 
@@ -181,6 +156,36 @@ const MOCK_SENTENCE_RESULT: EvaluateSentenceAnswersResponse = {
 
 // Mock 유틸리티
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+// ================================ 클라이언트 Blind 처리 ================================
+
+/**
+ * 정규식 특수문자 이스케이프
+ */
+function escapeRegex(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/**
+ * 원본 콘텐츠에서 키워드를 찾아 [BLANK_N]으로 치환
+ * - 대소문자 구분 없이 모든 해당 단어를 blind 처리
+ * - 마크다운 문법 내부(코드블록 등)도 처리
+ */
+export function createBlindedContent(
+    originalContent: string,
+    blanks: Array<{ id: string; answer: string }>
+): string {
+    let result = originalContent
+
+    blanks.forEach((blank) => {
+        // 단어 경계를 고려한 정규식 (한글은 단어 경계 없이 매칭)
+        const pattern = escapeRegex(blank.answer)
+        const regex = new RegExp(pattern, 'gi')
+        result = result.replace(regex, `[BLANK_${blank.id}]`)
+    })
+
+    return result
+}
 
 // ================================ API 함수들 ================================
 
@@ -299,29 +304,6 @@ export async function evaluateEssay(params: {
     }
 
     const result = await evaluateEssayFn(params)
-    return result.data
-}
-
-/**
- * 힌트 요청 (Cloud Function 또는 Mock)
- */
-export async function getHint(params: {
-    answer: string
-    hintLevel: number
-    previousHints: string[]
-}): Promise<GetHintResponse> {
-    if (USE_MOCK_API) {
-        await delay(MOCK_DELAY / 2)
-        const hints = [
-            `첫 글자는 "${params.answer[0]}"입니다.`,
-            `${params.answer.length}글자입니다.`,
-            `정답은 "${params.answer.slice(0, 2)}..."로 시작합니다.`,
-        ]
-        console.log('[Mock] getHint:', params.hintLevel)
-        return { hint: hints[params.hintLevel % hints.length], remainingHints: 3 - params.hintLevel }
-    }
-
-    const result = await getHintFn(params)
     return result.data
 }
 

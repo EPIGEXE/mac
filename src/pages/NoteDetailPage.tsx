@@ -1,12 +1,13 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IconSun, IconMoon, IconArrowLeft } from '@tabler/icons-react'
 import { TerminalButton } from '../components/common/TerminalButton'
+import { TerminalModal } from '../components/common/TerminalModal'
+import { NoteHeader } from '../components/common/NoteHeader'
 import { MarkdownEditor } from '../features/NoteDetail/MarkdownEditor/MarkdownEditor'
-import { StudyModeSelector } from '../features/Study/components'
 import type { StudyModeType } from '../features/Study/types'
 import type { Note } from '../db/schema/note'
-import { TAG_LABELS } from '../data/categories'
+import { StudyModeSelector } from '../features/Study/components/StudyModeSelector'
 
 interface NoteDetailPageProps {
     note: Note
@@ -15,11 +16,7 @@ interface NoteDetailPageProps {
     onClose: () => void
     onUpdate: (updates: Partial<Omit<Note, 'id'>>) => void
     onDelete: () => void
-    isEditing: boolean
-    onEditingChange: (editing: boolean) => void
 }
-
-type Difficulty = 'word' | 'sentence' | 'paragraph'
 
 export function NoteDetailPage({
     note,
@@ -28,34 +25,30 @@ export function NoteDetailPage({
     onClose,
     onUpdate,
     onDelete,
-    isEditing,
-    onEditingChange,
 }: NoteDetailPageProps) {
     const navigate = useNavigate()
 
     // ==================================== 상태 관리 =====================================
-    const [isBlindMode, setIsBlindMode] = useState(false) // 블라인드 모드
-    const [difficulty, setDifficulty] = useState<Difficulty>('word') // 난이도
     const [title, setTitle] = useState(note.title) // 제목
     const [pendingContent, setPendingContent] = useState<string | null>(null) // 임시 콘텐츠
     const [studyModalOpen, setStudyModalOpen] = useState(false) // 학습 모달
     const [studyMode, setStudyMode] = useState<StudyModeType>('word') // 학습 모드
+    const [unsavedModalOpen, setUnsavedModalOpen] = useState(false) // 저장하지 않은 변경 사항 모달
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false) // 삭제 확인 모달
 
-    // ==================================== useRef =====================================
-    const titleInputRef = useRef<HTMLInputElement>(null) // 제목 입력 참조
+    // ==================================== useMemo =====================================
+    // dirty 체크: 제목이나 콘텐츠가 변경되었는지
+    const isDirty = useMemo(() => {
+        const titleChanged = title !== note.title
+        const contentChanged = pendingContent !== null && pendingContent !== note.content
+        return titleChanged || contentChanged
+    }, [title, note.title, pendingContent, note.content])
 
     // ==================================== useEffect =====================================
     // 제목 설정
     useEffect(() => {
         setTitle(note.title)
     }, [note.title])
-
-    // 수정 모드로 들어가면 제목 입력 포커스
-    useEffect(() => {
-        if (isEditing && titleInputRef.current) {
-            titleInputRef.current.focus()
-        }
-    }, [isEditing])
 
     // ==================================== 핸들러 =====================================
     // 학습 시작
@@ -78,35 +71,50 @@ export function NoteDetailPage({
             updates.content = pendingContent
         }
         onUpdate(updates)
-        onEditingChange(false)
         setPendingContent(null)
-    }, [title, pendingContent, onUpdate, onEditingChange])
+    }, [title, pendingContent, onUpdate])
 
-    // 삭제
-    const handleDelete = useCallback(() => {
-        if (window.confirm('정말로 이 노트를 삭제하시겠습니까?')) {
-            onDelete()
+    // 뒤로가기 (dirty 체크)
+    const handleBack = useCallback(() => {
+        if (isDirty) {
+            setUnsavedModalOpen(true)
+        } else {
+            onClose()
         }
+    }, [isDirty, onClose])
+
+    // 저장하지 않고 나가기
+    const handleDiscardAndClose = useCallback(() => {
+        setUnsavedModalOpen(false)
+        onClose()
+    }, [onClose])
+
+    // 저장하고 나가기
+    const handleSaveAndClose = useCallback(() => {
+        handleSave()
+        setUnsavedModalOpen(false)
+        onClose()
+    }, [handleSave, onClose])
+
+    // 삭제 모달 열기
+    const handleDeleteClick = useCallback(() => {
+        setDeleteModalOpen(true)
+    }, [])
+
+    // 삭제 확인
+    const handleConfirmDelete = useCallback(() => {
+        setDeleteModalOpen(false)
+        onDelete()
     }, [onDelete])
 
     return (
         <div className="h-screen flex flex-col bg-[var(--bg-primary)]">
-            {/* 학습 모드 선택 모달 */}
-            <StudyModeSelector
-                open={studyModalOpen}
-                onOpenChange={setStudyModalOpen}
-                selectedMode={studyMode}
-                onModeChange={setStudyMode}
-                onStart={handleStudyStart}
-                isLoading={false}
-            />
-
             {/* Top bar - 터미널 스타일 */}
             <header className="border-b border-[var(--border-light)] bg-[var(--bg-paper)]">
                 <div className="max-w-[1000px] mx-auto px-6 py-4 flex items-center justify-between">
                     {/* 좌측: 뒤로가기 */}
                     <button
-                        onClick={onClose}
+                        onClick={handleBack}
                         className="bg-transparent border-none px-4 py-2.5 font-mono text-sm text-[var(--text-tertiary)] cursor-pointer flex items-center gap-2 transition-colors duration-150 hover:text-[var(--accent)]"
                     >
                         <IconArrowLeft size={18} />
@@ -115,87 +123,22 @@ export function NoteDetailPage({
 
                     {/* 우측: 컨트롤 */}
                     <div className="flex items-center gap-4">
-                        {/* Blind 모드 컨트롤 - 뷰 모드에서만 */}
-                        {!isEditing && (
-                            <div className="flex items-center gap-2">
-                                {/* 난이도 선택 - 터미널 스타일 */}
-                                <span className="font-mono text-sm text-[var(--text-tertiary)] mr-1">
-                                    level:
-                                </span>
-                                {(['word', 'sentence', 'paragraph'] as const).map((level, idx) => (
-                                    <span key={level} className="flex items-center">
-                                        {idx > 0 && (
-                                            <span className="font-mono text-sm text-[var(--text-tertiary)] mx-0.5">
-                                                |
-                                            </span>
-                                        )}
-                                        <button
-                                            onClick={() => setDifficulty(level)}
-                                            className={`bg-transparent border-none px-2.5 py-1.5 font-mono text-sm cursor-pointer relative ${
-                                                difficulty === level ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)]'
-                                            }`}
-                                        >
-                                            {level === 'word' ? 'w' : level === 'sentence' ? 's' : 'p'}
-                                            {difficulty === level && (
-                                                <span className="absolute bottom-0 left-2.5 right-2.5 h-px bg-[var(--accent)]" />
-                                            )}
-                                        </button>
-                                    </span>
-                                ))}
+                        {/* 학습 버튼 */}
+                        <button
+                            onClick={() => setStudyModalOpen(true)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 font-mono text-[13px] bg-[var(--accent)] text-white border-none cursor-pointer transition-all duration-150 hover:opacity-90"
+                        >
+                            <span className="text-[11px] opacity-80">▶</span>
+                            study
+                        </button>
 
-                                {/* Blind 토글 */}
-                                <span className="font-mono text-sm text-[var(--text-tertiary)] mx-2 ml-4">
-                                    blind:
-                                </span>
-                                <button
-                                    onClick={() => setIsBlindMode(!isBlindMode)}
-                                    className={`bg-transparent px-3.5 py-[5px] text-sm cursor-pointer transition-all duration-150 border ${
-                                        isBlindMode
-                                            ? 'border-[var(--accent)] text-[var(--accent)]'
-                                            : 'border-[var(--border-light)] text-[var(--text-tertiary)]'
-                                    }`}
-                                    style={{ fontFamily: 'var(--font-mono)' }}
-                                >
-                                    {isBlindMode ? 'ON' : 'OFF'}
-                                </button>
-
-                                {/* 구분선 */}
-                                <div className="w-px h-5 bg-[var(--border-light)] mx-2" />
-                            </div>
-                        )}
-
-                        {/* 편집/저장 버튼 */}
-                        {isEditing ? (
-                            <div className="flex gap-2">
-                                <TerminalButton onClick={handleSave} active>
-                                    :w save
-                                </TerminalButton>
-                                <TerminalButton
-                                    onClick={() => {
-                                        setTitle(note.title)
-                                        setPendingContent(null)
-                                        onEditingChange(false)
-                                    }}
-                                >
-                                    :q cancel
-                                </TerminalButton>
-                            </div>
-                        ) : (
-                            <div className="flex gap-2">
-                                {/* 학습 버튼 - 강조 스타일 */}
-                                <button
-                                    onClick={() => setStudyModalOpen(true)}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 font-mono text-[13px] bg-[var(--accent)] text-white border-none cursor-pointer transition-all duration-150 hover:opacity-90"
-                                >
-                                    <span className="text-[11px] opacity-80">▶</span>
-                                    study
-                                </button>
-                                <TerminalButton onClick={() => onEditingChange(true)}>:e edit</TerminalButton>
-                                <TerminalButton onClick={handleDelete} variant="danger">
-                                    :d delete
-                                </TerminalButton>
-                            </div>
-                        )}
+                        {/* 저장/삭제 버튼 */}
+                        <TerminalButton onClick={handleSave} active>
+                            :w save
+                        </TerminalButton>
+                        <TerminalButton onClick={handleDeleteClick} variant="danger">
+                            :d delete
+                        </TerminalButton>
 
                         {/* 테마 토글 */}
                         <button
@@ -210,52 +153,17 @@ export function NoteDetailPage({
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto">
-                <div className="max-w-[1000px] mx-auto px-6 py-12">
-                    {/* 카테고리 */}
-                    <div className="flex items-center gap-2 mb-5">
-                        <span className="font-mono text-[13px] text-[var(--accent)]">#</span>
-                        <span className="font-mono text-[13px] text-[var(--text-tertiary)]">
-                            {note.category}
-                        </span>
-                    </div>
+                {/* 노트 헤더 (카테고리, 제목, 태그) */}
+                <NoteHeader
+                    category={note.category}
+                    title={title}
+                    tag={note.tag}
+                    editable
+                    onTitleChange={setTitle}
+                />
 
-                    {/* 제목 */}
-                    {isEditing ? (
-                        <input
-                            ref={titleInputRef}
-                            type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            placeholder="제목을 입력하세요"
-                            className="w-full font-display text-[32px] font-normal text-[var(--text-primary)] mb-6 leading-[1.3] tracking-wide border-none border-b border-b-[var(--border-light)] outline-none bg-transparent pb-3"
-                        />
-                    ) : (
-                        <h1 className="font-display text-[32px] font-normal text-[var(--text-primary)] mb-6 leading-[1.3] tracking-wide">
-                            {note.title}
-                        </h1>
-                    )}
-
-                    {/* 태그 */}
-                    {note.tag && (
-                        <div className="flex gap-2 mb-8 flex-wrap">
-                            <span className="font-mono text-[11px] px-2 py-0.5 text-[var(--text-tertiary)] border border-[var(--border-light)]">
-                                {TAG_LABELS.LEVEL[note.tag.level]}
-                            </span>
-                            <span className="font-mono text-[11px] px-2 py-0.5 text-[var(--text-tertiary)] border border-[var(--border-light)]">
-                                {TAG_LABELS.IMPORTANCE[note.tag.importance]}
-                            </span>
-                            {note.tag.interview && (
-                                <span className="font-mono text-[11px] px-2 py-0.5 text-[var(--text-tertiary)] border border-[var(--border-light)]">
-                                    {TAG_LABELS.INTERVIEW[note.tag.interview]}
-                                </span>
-                            )}
-                        </div>
-                    )}
-
-                    {/* 구분선 */}
-                    <div className="border-t border-dashed border-[var(--border-light)] mb-8" />
-
-                    {/* 콘텐츠 */}
+                {/* 콘텐츠 */}
+                <div className="max-w-[1000px] mx-auto px-6">
                     <MarkdownEditor
                         initialContent={note.content || ''}
                         onChange={handleContentChange}
@@ -263,6 +171,78 @@ export function NoteDetailPage({
                     />
                 </div>
             </div>
+
+            {/* 학습 모드 선택 모달 */}
+            <StudyModeSelector
+                open={studyModalOpen}
+                onOpenChange={setStudyModalOpen}
+                selectedMode={studyMode}
+                onModeChange={setStudyMode}
+                onStart={handleStudyStart}
+                isLoading={false}
+            />
+
+            {/* 저장하지 않은 변경 사항 모달 */}
+            <TerminalModal
+                open={unsavedModalOpen}
+                onOpenChange={setUnsavedModalOpen}
+                command="vim --unsaved"
+                title="저장하지 않은 변경 사항"
+                description="// unsaved changes detected"
+                maxWidth="400px"
+            >
+                <div className="flex gap-3">
+                    <button
+                        onClick={handleDiscardAndClose}
+                        className="flex-1 p-3 border border-[var(--border-light)] hover:border-red-400 transition-colors text-center cursor-pointer"
+                    >
+                        <div className="font-mono text-sm text-red-400">:q!</div>
+                        <div className="font-mono text-xs text-[var(--text-tertiary)] mt-1">
+                            저장하지 않고 나가기
+                        </div>
+                    </button>
+                    <button
+                        onClick={handleSaveAndClose}
+                        className="flex-1 p-3 border border-[var(--accent)] bg-[var(--accent)]/10 hover:bg-[var(--accent)]/20 transition-colors text-center cursor-pointer"
+                    >
+                        <div className="font-mono text-sm text-[var(--accent)]">:wq</div>
+                        <div className="font-mono text-xs text-[var(--text-tertiary)] mt-1">
+                            저장하고 나가기
+                        </div>
+                    </button>
+                </div>
+            </TerminalModal>
+
+            {/* 삭제 확인 모달 */}
+            <TerminalModal
+                open={deleteModalOpen}
+                onOpenChange={setDeleteModalOpen}
+                command="rm --confirm"
+                title="노트 삭제"
+                description="// this action cannot be undone"
+                maxWidth="400px"
+            >
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => setDeleteModalOpen(false)}
+                        className="flex-1 p-3 border border-[var(--border-light)] hover:border-[var(--text-tertiary)] transition-colors text-center cursor-pointer"
+                    >
+                        <div className="font-mono text-sm text-[var(--text-primary)]">:q</div>
+                        <div className="font-mono text-xs text-[var(--text-tertiary)] mt-1">
+                            취소
+                        </div>
+                    </button>
+                    <button
+                        onClick={handleConfirmDelete}
+                        className="flex-1 p-3 border border-red-400 bg-red-400/10 hover:bg-red-400/20 transition-colors text-center cursor-pointer"
+                    >
+                        <div className="font-mono text-sm text-red-400">:d!</div>
+                        <div className="font-mono text-xs text-[var(--text-tertiary)] mt-1">
+                            삭제하기
+                        </div>
+                    </button>
+                </div>
+            </TerminalModal>
         </div>
     )
 }

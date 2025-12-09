@@ -306,16 +306,17 @@ ${content}
 
 ## Output Format
 - ${modeGuide}
-- Preserve markdown: ##, ###, -, **, \`, \\n
+- Return ONLY the keywords to be blanked (client will apply them to original content)
 - Hint: Korean → 초성, English → first 2-3 letters
 
 Return ONLY valid JSON:
 {
-  "blindedContent": "markdown content with [BLANK_N] placeholders",
   "blanks": [
-    { "id": "BLANK_1", "answer": "1-3 word answer", "hint": "hint", "position": 0, "section": "section name", "type": "process|definition|comparison|code|effect", "strategy": "reverse|comparison|code|result|cause" }
+    { "id": "1", "answer": "keyword (1-3 words)", "hint": "hint text", "section": "section name", "type": "process|definition|comparison|code|effect" }
   ]
 }
+
+NOTE: Do NOT include blindedContent. The client will find and replace these keywords in the original document.
 
 ## FINAL VALIDATION (CHECK ALL BEFORE RESPONDING)
 □ All critical concepts included: ${criticalConcepts.join(', ') || '(none)'}
@@ -330,7 +331,7 @@ Return ONLY valid JSON:
     }
 
     // 기존 로직 (Stage 1 없이 직접 생성) - fallback
-    return `Task: Create an interview-prep fill-in-the-blank quiz.
+    return `Task: Extract key technical keywords for a fill-in-the-blank quiz.
 
 Context: This is for developer interview preparation. The quiz should test concepts that are commonly asked in technical interviews.
 
@@ -339,45 +340,36 @@ Note Content:
 ${content}
 
 Requirements:
-1. **Preserve Markdown format**: Keep the original markdown structure in blindedContent:
-   - Headers: ## 제목, ### 소제목
-   - Lists: - 항목, 1. 번호항목
-   - Bold: **중요**, Italic: *강조*
-   - Code: \`코드\`
-   - Line breaks: \\n for new lines
-
-2. **Rephrase the content**: Don't copy the original text exactly. Rewrite it in a slightly different way while preserving the meaning and markdown structure. This tests understanding, not memorization.
-
-3. **Select ${blankCount} UNIQUE keywords**: Each blank must have a DIFFERENT answer. Never use the same word/term twice.
+1. **Select ${blankCount} UNIQUE keywords**: Each keyword must be DIFFERENT. Never select the same word/term twice.
    - ${modeGuide}
    - Focus on: core concepts, technical terms, important mechanisms, key differences
    - Avoid: generic words, articles, prepositions, common verbs
 
-4. **Interview-level difficulty**: Select terms that:
+2. **Interview-level difficulty**: Select terms that:
    - Interviewers commonly ask about
    - Demonstrate deep understanding of the topic
    - Are essential to explaining the concept correctly
 
-5. **Diverse coverage**: Spread blanks across different aspects:
+3. **Diverse coverage**: Spread keywords across different aspects:
    - Definitions and core concepts
    - How it works (mechanisms)
    - Why it matters (benefits/purposes)
    - Related concepts or comparisons
 
-6. **Hint format**:
+4. **Hint format**:
    - Korean words: first consonant (초성) e.g., "클로저" → "ㅋㄹㅈ"
    - English words: first 2-3 letters e.g., "closure" → "clo"
 
 Return ONLY valid JSON:
 {
-  "blindedContent": "## 주제\\n\\n[BLANK_1]은 중요한 개념입니다.\\n\\n### 특징\\n- 첫 번째 특징: [BLANK_2]\\n- 두 번째 특징",
   "blanks": [
-    { "id": "BLANK_1", "answer": "unique_answer_1", "hint": "힌트", "position": 0 },
-    { "id": "BLANK_2", "answer": "unique_answer_2", "hint": "hin", "position": 1 }
+    { "id": "1", "answer": "keyword1", "hint": "힌트" },
+    { "id": "2", "answer": "keyword2", "hint": "hin" }
   ]
 }
 
-IMPORTANT: blindedContent MUST preserve markdown formatting (##, -, **, \`, \\n) from the original note.
+NOTE: Do NOT include blindedContent. Only return the keywords to be blanked.
+The client will find and replace these keywords in the original document.
 
 CRITICAL: All ${blankCount} answers MUST be different from each other.`
 }

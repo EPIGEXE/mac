@@ -17,17 +17,14 @@ import {
 } from '../llm/prompts'
 import { validateGenerateQuizRequest } from '../utils/validation'
 
-// LLM 응답 타입
+// LLM 응답 타입 (키워드만 반환, blindedContent는 클라이언트에서 생성)
 interface BlindQuizLLMResponse {
-    blindedContent: string
     blanks: {
         id: string
         answer: string
         hint: string
-        position: number
         section?: string
         type?: string
-        strategy?: string // 변형 전략 (방안 2)
     }[]
 }
 
@@ -47,11 +44,11 @@ interface SentenceQuizLLMResponse {
 }
 
 // 클라이언트 응답 타입 (정답 포함)
+// 단어 모드: blanks만 반환, blindedContent는 클라이언트에서 생성
 interface GenerateQuizResponse {
     quizId: string
     mode: 'word' | 'sentence' | 'essay'
-    blindedContent?: string
-    // 단어 모드용 blanks
+    // 단어 모드용 blanks (키워드만, blindedContent는 클라이언트에서 생성)
     blanks?: {
         id: string
         answer: string
@@ -196,19 +193,12 @@ function validateQuizQuality(
         warnings.push(`Abstract concepts used as blanks: ${abstractAsAnswer.map(b => b.answer).join(', ')}`)
     }
 
-    // 8. 변형 전략 다양성 검증 (방안 2 검증)
-    const strategies = [...new Set(blanks.map(b => b.strategy).filter(Boolean))]
-    if (strategies.length < 2 && blanks.length >= 5) {
-        warnings.push(`Low strategy diversity: only ${strategies.length} strategy(s) used. Consider using more variation strategies.`)
-    }
-
     console.log('[Stage 3] Validation result:', {
         isValid: issues.length === 0,
         issues,
         warnings,
         stats: {
             types: types.length,
-            strategies: strategies.length,
             abstractExcluded: abstractConcepts.length,
         }
     })
@@ -281,11 +271,10 @@ export const generateQuiz = onCall(
                     console.log('[Word Mode] Quiz passed quality validation')
                 }
 
-                // 클라이언트에 정답 포함하여 반환 (클라이언트에서 채점)
+                // 클라이언트에 키워드만 반환 (blindedContent는 클라이언트에서 생성)
                 response = {
                     quizId: `quiz-${Date.now()}`,
                     mode: 'word',
-                    blindedContent: llmResponse.blindedContent,
                     blanks: llmResponse.blanks.map((b) => ({
                         id: b.id,
                         answer: b.answer,

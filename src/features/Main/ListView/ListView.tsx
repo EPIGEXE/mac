@@ -32,7 +32,7 @@ export function ListView({ notes, categories, onNoteClick, onCreateNote, showMai
     const groupedCategories = showMainCategories
         ? mainCategories.map((main) => ({
               ...main,
-              subCategories: categories.filter((cat) => main.categories.includes(cat)),
+              subCategories: categories.filter((cat) => (main.categories as readonly string[]).includes(cat)),
           }))
         : null
 
@@ -206,10 +206,15 @@ export function ListView({ notes, categories, onNoteClick, onCreateNote, showMai
         }
     }, [])
 
+    // 사이드바 너비(180px) + gap(48px) = 228px
+    // 양쪽에 동일한 여백을 줘서 메인 콘텐츠가 중앙 정렬되도록 함
     return (
-        <div className="flex gap-12 max-w-[1100px] mx-auto justify-center">
+        <div className="flex justify-center">
+            {/* 왼쪽 여백 - 사이드바와 동일한 공간 확보 */}
+            <div className="w-[228px] shrink-0 hidden min-[1400px]:block" />
+
             {/* 메인 콘텐츠 */}
-            <div className="min-w-0 shrink basis-[800px] grow-0">
+            <main className="w-full max-w-[1000px]">
                 {showMainCategories && groupedCategories
                     ? groupedCategories.map((mainCat) => {
                           if (mainCat.subCategories.length === 0) return null
@@ -247,15 +252,17 @@ export function ListView({ notes, categories, onNoteClick, onCreateNote, showMai
                               ref={(el) => setCategoryRef(category, el)}
                           />
                       ))}
-            </div>
+            </main>
 
             {/* 사이드바 네비게이션 */}
-            <SidebarNav
-                categories={categories}
-                showMainCategories={showMainCategories}
-                activeCategory={activeCategory}
-                onCategoryClick={handleCategoryClick}
-            />
+            <div className="ml-12 shrink-0">
+                <SidebarNav
+                    categories={categories}
+                    showMainCategories={showMainCategories}
+                    activeCategory={activeCategory}
+                    onCategoryClick={handleCategoryClick}
+                />
+            </div>
         </div>
     )
 }

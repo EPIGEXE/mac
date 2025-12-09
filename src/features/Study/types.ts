@@ -10,11 +10,12 @@ export type DifficultyLevel = 'easy' | 'medium' | 'hard'
 
 /**
  * 빈칸 정보 (단어 모드 - 클라이언트에서 채점)
+ * LLM은 핵심 키워드만 반환, 클라이언트에서 원본 콘텐츠의 해당 단어를 모두 blind 처리
  */
 export interface BlankInfo {
-    id: string           // BLANK_1, BLANK_2, ...
-    answer: string       // 정답
-    hint?: string        // 힌트 (첫 글자 등)
+    id: string           // 1, 2, 3, ... (숫자 문자열)
+    answer: string       // 정답 키워드 (원본에서 이 단어를 모두 blind 처리)
+    hint?: string        // 힌트 (설명)
 }
 
 /**
@@ -60,8 +61,7 @@ export interface GenerateQuizResponse {
     quizId: string
     mode: StudyModeType
 
-    // word 모드
-    blindedContent?: string
+    // word 모드 (LLM은 blanks만 반환, blindedContent는 클라이언트에서 생성)
     blanks?: BlankInfo[]
 
     // sentence 모드 (Q&A 형식)

@@ -7,26 +7,8 @@
 import { useRef, useEffect, useState } from 'react'
 import { IconBuilding, IconBulb, IconSend, IconChevronDown, IconChevronUp } from '@tabler/icons-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import type { EssayQuestionInfo } from '../types'
-
-// 회사별 브랜드 색상
-const COMPANY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-    '네이버': { bg: 'bg-green-500/10', text: 'text-green-500', border: 'border-green-500/30' },
-    '카카오': { bg: 'bg-yellow-500/10', text: 'text-yellow-500', border: 'border-yellow-500/30' },
-    '쿠팡': { bg: 'bg-orange-500/10', text: 'text-orange-500', border: 'border-orange-500/30' },
-    '토스': { bg: 'bg-blue-500/10', text: 'text-blue-500', border: 'border-blue-500/30' },
-    '당근': { bg: 'bg-orange-400/10', text: 'text-orange-400', border: 'border-orange-400/30' },
-}
-
-// 질문 유형 한글 매핑
-const QUESTION_TYPE_LABELS: Record<string, string> = {
-    concept: '개념',
-    comparison: '비교',
-    application: '적용',
-    optimization: '최적화',
-    troubleshooting: '문제해결',
-    architecture: '설계',
-}
+import type { EssayQuestionInfo } from '../../../types'
+import { COMPANY_COLORS, QUESTION_TYPE_LABELS } from '../constants'
 
 interface EssayQuizQuestionProps {
     question: EssayQuestionInfo
@@ -45,12 +27,17 @@ export function EssayQuizQuestion({
     onSubmit,
     isEvaluating,
 }: EssayQuizQuestionProps) {
-    const textareaRef = useRef<HTMLTextAreaElement>(null)
-    const [showFollowUp, setShowFollowUp] = useState(false)
+    // ================================ 상태 관리 ================================
+    const [showFollowUp, setShowFollowUp] = useState(false) // 꼬리 질문 미리보기 상태
 
-    const companyStyle = COMPANY_COLORS[question.company] || COMPANY_COLORS['네이버']
+    // ================================ Ref ================================
+    const textareaRef = useRef<HTMLTextAreaElement>(null) // 답변 입력창 참조, 높이 조절용
+
+    // ================================ 상수 ================================
+    const companyStyle = COMPANY_COLORS[question.company] || COMPANY_COLORS['네이버'] // 회사 색상
     const questionTypeLabel = QUESTION_TYPE_LABELS[question.questionType] || question.questionType
 
+    // ================================ 유틸 함수 ================================
     // 자동 높이 조절
     const adjustHeight = () => {
         if (textareaRef.current) {
@@ -59,13 +46,15 @@ export function EssayQuizQuestion({
         }
     }
 
+    // ================================ useEffect ================================
+    // 답변 변경 시 자동 높이 조절
     useEffect(() => {
         adjustHeight()
     }, [answer])
 
     // Enter + Ctrl/Cmd로 제출
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && answer.trim().length >= 20) {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && answer.trim().length >= 50) {
             e.preventDefault()
             onSubmit()
         }
@@ -81,7 +70,8 @@ export function EssayQuizQuestion({
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.3 }}
                 >
-                    <span className="text-[var(--accent)]">$</span> interview --company {question.company} --type {question.questionType}
+                    <span className="text-[var(--accent)]">$</span> interview --company {question.company} --type{' '}
+                    {question.questionType}
                 </motion.div>
 
                 {/* 회사 배지 */}
@@ -95,9 +85,7 @@ export function EssayQuizQuestion({
                     <span className={`font-mono text-sm font-bold ${companyStyle.text}`}>
                         {question.company} 기술 면접
                     </span>
-                    <span className="font-mono text-xs text-[var(--text-tertiary)] ml-2">
-                        [{questionTypeLabel}]
-                    </span>
+                    <span className="font-mono text-xs text-[var(--text-tertiary)] ml-2">[{questionTypeLabel}]</span>
                 </motion.div>
 
                 {/* 면접 질문 */}
@@ -107,9 +95,7 @@ export function EssayQuizQuestion({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.2 }}
                 >
-                    <div className="font-mono text-xs text-[var(--text-tertiary)] mb-3">
-                        // interviewer question
-                    </div>
+                    <div className="font-mono text-xs text-[var(--text-tertiary)] mb-3">// interviewer question</div>
                     <p className="font-display text-xl text-[var(--text-primary)] leading-relaxed">
                         "{question.question}"
                     </p>
@@ -163,15 +149,17 @@ export function EssayQuizQuestion({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.4 }}
                 >
-                    <div className="font-mono text-xs text-[var(--text-tertiary)] mb-3">
-                        // your answer
-                    </div>
+                    <div className="font-mono text-xs text-[var(--text-tertiary)] mb-3">// your answer</div>
 
                     <div className="relative">
                         <textarea
                             ref={textareaRef}
                             value={answer}
-                            onChange={(e) => onAnswerChange(e.target.value)}
+                            onChange={(e) => {
+                                if (e.target.value.length <= 500) {
+                                    onAnswerChange(e.target.value)
+                                }
+                            }}
                             onKeyDown={handleKeyDown}
                             placeholder="면접관의 질문에 대한 답변을 작성해주세요. 실제 면접처럼 구체적인 예시와 함께 설명하면 좋습니다..."
                             disabled={isEvaluating}
@@ -192,10 +180,20 @@ export function EssayQuizQuestion({
 
                         {/* 글자 수 표시 */}
                         <div className="absolute bottom-3 right-3 font-mono text-[10px] text-[var(--text-tertiary)]">
-                            <span className={answer.length >= 100 ? 'text-green-500' : answer.length >= 20 ? 'text-yellow-500' : ''}>
+                            <span
+                                className={
+                                    answer.length >= 500
+                                        ? 'text-[var(--error)]'
+                                        : answer.length >= 450
+                                          ? 'text-[var(--warning)]'
+                                          : answer.length >= 50
+                                            ? 'text-[var(--success)]'
+                                            : ''
+                                }
+                            >
                                 {answer.length}
                             </span>
-                            <span> / 100+ chars recommended</span>
+                            <span> / 500 (50~500자)</span>
                         </div>
                     </div>
                 </motion.div>
@@ -208,8 +206,8 @@ export function EssayQuizQuestion({
                     transition={{ duration: 0.3, delay: 0.5 }}
                 >
                     <p className="font-mono text-xs text-[var(--text-tertiary)]">
-                        <span className="text-[var(--accent)]">tip:</span> 면접에서는 "왜"와 "어떻게"를 설명하는 것이 중요합니다.
-                        단순히 정의만 말하기보다 실제 경험이나 구체적인 예시를 함께 설명해보세요.
+                        <span className="text-[var(--accent)]">tip:</span> 면접에서는 "왜"와 "어떻게"를 설명하는 것이
+                        중요합니다. 단순히 정의만 말하기보다 실제 경험이나 구체적인 예시를 함께 설명해보세요.
                     </p>
                 </motion.div>
 
@@ -222,7 +220,7 @@ export function EssayQuizQuestion({
                 >
                     <motion.button
                         onClick={onSubmit}
-                        disabled={isEvaluating || answer.trim().length < 20}
+                        disabled={isEvaluating || answer.trim().length < 50}
                         className="flex items-center gap-2 px-6 py-3 bg-[var(--accent)] text-white font-mono text-sm cursor-pointer transition-opacity duration-150 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
@@ -239,7 +237,8 @@ export function EssayQuizQuestion({
                 </motion.div>
 
                 <div className="mt-4 text-center font-mono text-[10px] text-[var(--text-tertiary)]">
-                    <span className="text-[var(--accent)]">Ctrl</span> + <span className="text-[var(--accent)]">Enter</span> to submit
+                    <span className="text-[var(--accent)]">Ctrl</span> +{' '}
+                    <span className="text-[var(--accent)]">Enter</span> to submit
                 </div>
             </div>
         </div>
