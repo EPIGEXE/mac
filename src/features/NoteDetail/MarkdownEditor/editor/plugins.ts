@@ -1,7 +1,7 @@
 import { Plugin, PluginKey, NodeSelection, TextSelection } from 'prosemirror-state'
 import { Decoration, DecorationSet, EditorView } from 'prosemirror-view'
 import { schema } from './schema'
-import { saveImageFromFile } from '../../../../db/image/imageStorage'
+import { saveImageFromFile } from '../../../../db/image/imageService'
 
 /**
  * 슬래시 커맨드 메뉴 아이템 정의

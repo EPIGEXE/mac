@@ -14,11 +14,11 @@ import {
 import type { Note } from '../../db/schema/note'
 import { findNoteById } from '../../db/note/noteService'
 import { MarkdownEditor } from '../NoteDetail/MarkdownEditor/MarkdownEditor'
-import type { StudyMode } from '../../pages/StudyModePage'
+import type { StudyOrder } from '../../pages/StudyModePage'
 
 interface StudyViewerProps {
     noteIds: string[]
-    mode: StudyMode
+    mode: StudyOrder
     onExit: () => void
 }
 

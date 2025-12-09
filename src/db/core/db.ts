@@ -1,7 +1,7 @@
 import Dexie, { type Table } from 'dexie';
-import type { SystemNote, UserNote, UserOverride } from './schema/note';
-import type { StudyRecord, WeakPoint, StudySession } from './schema/study';
-import type { ImageBlob } from './schema/image';
+import type { SystemNote, UserNote, UserOverride } from '../schema/note';
+import type { StudyRecord, WeakPoint, StudySession } from '../schema/study';
+import type { ImageBlob } from '../schema/image';
 
 /**
  * Notree 데이터베이스

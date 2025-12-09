@@ -4,7 +4,6 @@
  * - LLM 평가 제출
  */
 import { useEffect } from 'react'
-import { motion } from 'framer-motion'
 import type { Note } from '../../../../db/schema/note'
 import { useEssayQuiz } from './hooks/useEssayQuiz'
 import { recordStudy, type RecordStudyInput } from '../../../../db/study/studyService'
