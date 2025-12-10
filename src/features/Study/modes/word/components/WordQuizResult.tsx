@@ -15,7 +15,6 @@ interface QuizResultProps {
     answers: Record<string, string> // 답변 목록
     results: Record<string, boolean | null> // 결과 목록
     onNext: () => void // 다음 버튼 클릭 핸들러
-    hasNextNote: boolean // 다음 노트 존재 여부
 }
 
 export function WordQuizResult({
@@ -26,7 +25,6 @@ export function WordQuizResult({
     answers,
     results,
     onNext,
-    hasNextNote,
 }: QuizResultProps) {
     // ================================ 상수 ================================
     const isPerfect = correctCount === totalBlanks // 정답률 100%인지
@@ -44,10 +42,12 @@ export function WordQuizResult({
                 >
                     {/* 점수 */}
                     <div className="mb-3">
-                        <span className={`
+                        <span
+                            className={`
                             font-score text-[100px] leading-none tracking-tight font-light
                             ${isPerfect ? 'text-[var(--success)]' : 'text-[var(--text-primary)]'}
-                        `}>
+                        `}
+                        >
                             {scorePercent}
                         </span>
                         <span className="font-score text-4xl text-[var(--text-secondary)] font-light">%</span>
@@ -87,9 +87,7 @@ export function WordQuizResult({
                             <span className="font-mono text-[var(--accent)]">#</span>
                             <span className="font-mono text-base text-[var(--text-primary)]">Review</span>
                         </div>
-                        <span className="font-mono text-sm text-[var(--text-secondary)]">
-                            [{totalBlanks}]
-                        </span>
+                        <span className="font-mono text-sm text-[var(--text-secondary)]">[{totalBlanks}]</span>
                     </div>
 
                     {/* 문제 리스트 - 순서대로 */}
@@ -118,9 +116,11 @@ export function WordQuizResult({
                                             <span className="font-mono text-sm text-[var(--text-secondary)]">
                                                 {String(idx + 1).padStart(2, '0')}
                                             </span>
-                                            <span className={`font-mono text-base ${
-                                                isCorrect ? 'text-[var(--success)]' : 'text-[var(--error)]'
-                                            }`}>
+                                            <span
+                                                className={`font-mono text-base ${
+                                                    isCorrect ? 'text-[var(--success)]' : 'text-[var(--error)]'
+                                                }`}
+                                            >
                                                 {isCorrect ? '✓' : '✗'}
                                             </span>
                                         </div>
@@ -140,7 +140,10 @@ export function WordQuizResult({
                                             {/* 오답인 경우 사용자 입력 표시 */}
                                             {isWrong && (
                                                 <div className="font-mono text-sm text-[var(--text-secondary)] mt-1">
-                                                    입력: <span className="text-[var(--error)] line-through">{userAnswer || '—'}</span>
+                                                    입력:{' '}
+                                                    <span className="text-[var(--error)] line-through">
+                                                        {userAnswer || '—'}
+                                                    </span>
                                                 </div>
                                             )}
                                         </div>
@@ -158,15 +161,13 @@ export function WordQuizResult({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.2, delay: 0.3 }}
                 >
-                    <div className="flex gap-3">
-                        {hasNextNote && (
-                            <button
-                                onClick={onNext}
-                                className="flex-1 py-3 px-4 bg-[var(--accent)] text-white font-mono text-base cursor-pointer transition-opacity hover:opacity-90"
-                            >
-                                next →
-                            </button>
-                        )}
+                    <div className="flex">
+                        <button
+                            onClick={onNext}
+                            className="flex-1 py-3 px-4 bg-[var(--accent)] text-white font-mono text-base cursor-pointer transition-opacity hover:opacity-90"
+                        >
+                            next →
+                        </button>
                     </div>
                 </motion.div>
             </div>

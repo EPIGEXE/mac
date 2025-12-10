@@ -5,11 +5,13 @@ import { TerminalButton } from '../components/common/TerminalButton'
 import { TerminalModal } from '../components/common/TerminalModal'
 import { NoteHeader } from '../components/common/NoteHeader'
 import { MarkdownEditor } from '../features/NoteDetail/MarkdownEditor/MarkdownEditor'
+import { TableOfContents } from '../features/NoteDetail/TableOfContents/TableOfContents'
 import type { StudyModeType } from '../features/Study/types'
 import type { Note } from '../db/schema/note'
 import { StudyModeSelector } from '../features/Study/components/StudyModeSelector'
 import { ErrorBoundary } from '../components/ErrorBoundary/ErrorBoundary'
 import { ErrorFallback } from '../components/ErrorBoundary/ErrorFallback'
+import { useStudySessionStore } from '../stores/studySessionStore'
 
 interface NoteDetailPageProps {
     note: Note
@@ -52,12 +54,21 @@ export function NoteDetailPage({
         setTitle(note.title)
     }, [note.title])
 
+    // ==================================== Store =====================================
+    const startSession = useStudySessionStore((state) => state.startSession)
+
     // ==================================== 핸들러 =====================================
     // 학습 시작
     const handleStudyStart = useCallback(() => {
         setStudyModalOpen(false)
-        navigate(`/study?noteId=${note.id}&mode=${studyMode}`)
-    }, [navigate, note.id, studyMode])
+        // 단일 노트 세션 시작
+        startSession({
+            noteIds: [note.id],
+            mode: studyMode,
+            order: 'sequential',
+        })
+        navigate('/study')
+    }, [navigate, note.id, studyMode, startSession])
 
     // 콘텐츠 변경
     const handleContentChange = useCallback((content: string) => {
@@ -164,7 +175,7 @@ export function NoteDetailPage({
                     onTitleChange={setTitle}
                 />
 
-                {/* 콘텐츠 */}
+                {/* 메인 콘텐츠 */}
                 <div className="max-w-[1000px] mx-auto px-6">
                     <ErrorBoundary fallback={(error, reset) => <ErrorFallback error={error} onReset={reset} />}>
                         <MarkdownEditor
@@ -174,6 +185,9 @@ export function NoteDetailPage({
                         />
                     </ErrorBoundary>
                 </div>
+
+                {/* 목차 - 화면 우측에 고정 (노션 스타일) */}
+                <TableOfContents content={pendingContent ?? note.content ?? ''} />
             </div>
 
             {/* 학습 모드 선택 모달 */}

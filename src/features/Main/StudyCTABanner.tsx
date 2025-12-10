@@ -4,7 +4,7 @@
  * - 학습 모드 진입점 + 설명
  */
 import { useNavigate } from 'react-router-dom'
-import { IconPlayerPlay, IconCards } from '@tabler/icons-react'
+import { IconPlayerPlay, IconCards, IconChartBar } from '@tabler/icons-react'
 
 export function StudyCTABanner() {
     const navigate = useNavigate()
@@ -59,20 +59,32 @@ export function StudyCTABanner() {
                     </div>
                 </div>
 
-                {/* 우측: 시작 버튼 - 강조 스타일 */}
-                <button
-                    onClick={handleStartStudy}
-                    className="group relative flex items-center gap-2.5 px-7 py-3 font-mono text-sm font-medium bg-[var(--accent)] text-white border-none cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-[var(--accent)]/25 active:scale-100"
-                >
-                    {/* 버튼 내부 글로우 효과 */}
-                    <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                {/* 우측: 버튼 그룹 */}
+                <div className="flex items-center gap-3">
+                    {/* 통계 버튼 */}
+                    <button
+                        onClick={() => navigate('/statistics')}
+                        className="flex items-center gap-2 px-5 py-3 font-mono text-sm font-medium border border-[var(--accent)] text-[var(--accent)] bg-transparent cursor-pointer transition-all duration-200 hover:bg-[var(--accent)] hover:text-white"
+                    >
+                        <IconChartBar size={18} />
+                        <span>학습 통계</span>
+                    </button>
 
-                    <IconPlayerPlay size={18} className="relative" />
-                    <span className="relative">학습 시작</span>
+                    {/* 시작 버튼 - 강조 스타일 */}
+                    <button
+                        onClick={handleStartStudy}
+                        className="group relative flex items-center gap-2.5 px-7 py-3 font-mono text-sm font-medium bg-[var(--accent)] text-white border-none cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-[var(--accent)]/25 active:scale-100"
+                    >
+                        {/* 버튼 내부 글로우 효과 */}
+                        <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
 
-                    {/* 화살표 애니메이션 */}
-                    <span className="relative ml-1 transition-transform duration-200 group-hover:translate-x-1">→</span>
-                </button>
+                        <IconPlayerPlay size={18} className="relative" />
+                        <span className="relative">학습 시작</span>
+
+                        {/* 화살표 애니메이션 */}
+                        <span className="relative ml-1 transition-transform duration-200 group-hover:translate-x-1">→</span>
+                    </button>
+                </div>
             </div>
         </div>
     )

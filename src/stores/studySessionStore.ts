@@ -2,9 +2,11 @@
  * Study Session Store
  * - 학습 세션 전역 상태 관리
  * - 노트 선택, 진행 상황, 결과 관리
+ * - DB 세션과 연동
  */
 import { create } from 'zustand'
 import type { StudyModeType } from '../features/Study/types'
+import { startSession as dbStartSession, endSession as dbEndSession } from '../db/study/studyService'
 
 // ================================ 타입 정의 ================================
 
@@ -37,6 +39,9 @@ interface StudySession {
     noteResults: NoteResult[]       // 노트별 결과
     startedAt: number | null        // 시작 시간 (timestamp)
     completedAt: number | null      // 완료 시간 (timestamp)
+
+    // DB 세션 ID
+    dbSessionId: string | null      // DB에 저장된 세션 ID
 }
 
 /** Store 액션 */
@@ -46,7 +51,7 @@ interface StudySessionActions {
         noteIds: string[]
         mode: StudyModeType
         order: StudyOrder
-    }) => void
+    }) => Promise<void>
 
     // 진행
     goToNextNote: () => boolean     // 다음 노트로 (마지막이면 false)
@@ -65,11 +70,14 @@ interface StudySessionActions {
     }
 
     // 세션 종료
-    completeSession: () => void
+    completeSession: () => Promise<void>
     resetSession: () => void
 
     // 단일 노트 모드 (기존 호환성)
     isSingleNoteMode: () => boolean
+
+    // DB 세션 ID getter
+    getDbSessionId: () => string | null
 }
 
 type StudySessionStore = StudySession & StudySessionActions
@@ -85,6 +93,7 @@ const initialState: StudySession = {
     noteResults: [],
     startedAt: null,
     completedAt: null,
+    dbSessionId: null,
 }
 
 // ================================ Store 생성 ================================
@@ -95,7 +104,10 @@ export const useStudySessionStore = create<StudySessionStore>((set, get) => ({
     /**
      * 세션 시작
      */
-    startSession: ({ noteIds, mode, order }) => {
+    startSession: async ({ noteIds, mode, order }) => {
+        // DB에 세션 생성
+        const dbSession = await dbStartSession()
+
         set({
             selectedNoteIds: noteIds,
             mode,
@@ -105,6 +117,7 @@ export const useStudySessionStore = create<StudySessionStore>((set, get) => ({
             noteResults: [],
             startedAt: Date.now(),
             completedAt: null,
+            dbSessionId: dbSession.id,
         })
     },
 
@@ -176,7 +189,16 @@ export const useStudySessionStore = create<StudySessionStore>((set, get) => ({
     /**
      * 세션 완료
      */
-    completeSession: () => {
+    completeSession: async () => {
+        const { dbSessionId } = get()
+
+        // DB 세션 종료
+        if (dbSessionId) {
+            await dbEndSession(dbSessionId).catch((e) =>
+                console.error('Failed to end DB session:', e)
+            )
+        }
+
         set({
             isActive: false,
             completedAt: Date.now(),
@@ -196,6 +218,13 @@ export const useStudySessionStore = create<StudySessionStore>((set, get) => ({
     isSingleNoteMode: () => {
         const { selectedNoteIds } = get()
         return selectedNoteIds.length === 1
+    },
+
+    /**
+     * DB 세션 ID getter
+     */
+    getDbSessionId: () => {
+        return get().dbSessionId
     },
 }))
 

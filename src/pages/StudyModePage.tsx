@@ -7,9 +7,8 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { StudyQuizViewer } from '../features/Study/StudyQuizViewer'
 import { useStudySessionStore, useStudyProgress, useStudyProgressText } from '../stores/studySessionStore'
-import { getAllNotes, findNoteById } from '../db/note/noteService'
+import { findNoteById } from '../db/note/noteService'
 import type { Note } from '../db/schema/note'
-import { shuffleArray } from '../utils/funtion'
 import { ErrorBoundary } from '../components/ErrorBoundary/ErrorBoundary'
 import { ErrorFallback } from '../components/ErrorBoundary/ErrorFallback'
 
@@ -24,10 +23,9 @@ export function StudyModePage() {
     const {
         selectedNoteIds,
         currentIndex: storeIndex,
-        isActive: isSessionActive,
         goToNextNote,
-        getCurrentNoteId,
         isSingleNoteMode,
+        completeSession,
     } = useStudySessionStore()
 
     const progress = useStudyProgress()
@@ -35,7 +33,6 @@ export function StudyModePage() {
 
     // ================================ 상태 관리 ================================
     const [notes, setNotes] = useState<Note[]>([])
-    const [legacyIndex, setLegacyIndex] = useState(0)
     const [isLoading, setIsLoading] = useState(true)
 
     // ================================ URL 파라미터 (legacy 모드용) ================================
@@ -43,51 +40,31 @@ export function StudyModePage() {
     const category = searchParams.get('category')
     const order = (searchParams.get('order') as StudyOrder) || 'sequential'
 
-    // Store 모드인지 Legacy 모드인지 판별
-    const isStoreMode = isSessionActive && selectedNoteIds.length > 0
-
     // 현재 노트
     const currentNote = useMemo(() => {
-        if (isStoreMode) {
-            const currentNoteId = getCurrentNoteId()
-            return notes.find(n => n.id === currentNoteId) ?? null
-        }
-        return notes[legacyIndex] ?? null
-    }, [isStoreMode, notes, legacyIndex, getCurrentNoteId])
+        const currentNoteId = selectedNoteIds[storeIndex] ?? null
+        const found = notes.find((n) => n.id === currentNoteId) ?? null
+        console.log('[StudyModePage] currentNote computed', { currentNoteId, storeIndex, found: found?.title })
+        return found
+    }, [notes, selectedNoteIds, storeIndex])
 
     // 다음 노트 존재 여부
     const hasNextNote = useMemo(() => {
-        if (isStoreMode) {
-            return storeIndex < selectedNoteIds.length - 1
-        }
-        return legacyIndex < notes.length - 1
-    }, [isStoreMode, storeIndex, selectedNoteIds.length, legacyIndex, notes.length])
+        return storeIndex < selectedNoteIds.length - 1
+    }, [storeIndex, selectedNoteIds.length])
 
     // 단일 노트 모드 여부 (최종 결과 페이지 스킵용)
-    const isSingleNote = isStoreMode ? isSingleNoteMode() : (noteId !== null)
+    const isSingleNote = isSingleNoteMode()
 
     // ================================ useEffect ================================
     useEffect(() => {
         async function loadNotes() {
             setIsLoading(true)
-            let loadedNotes: Note[] = []
+            const loadedNotes: Note[] = []
 
-            if (isStoreMode) {
-                // Store 모드: selectedNoteIds로 노트 로드
-                for (const id of selectedNoteIds) {
-                    const note = await findNoteById(id)
-                    if (note) loadedNotes.push(note)
-                }
-            } else if (noteId) {
-                // Legacy 모드: 단일 노트
-                const note = await findNoteById(noteId)
-                if (note) loadedNotes = [note]
-            } else if (category) {
-                // Legacy 모드: 카테고리 전체
-                loadedNotes = await getAllNotes({ category })
-                if (order === 'random') {
-                    loadedNotes = shuffleArray(loadedNotes)
-                }
+            for (const id of selectedNoteIds) {
+                const note = await findNoteById(id)
+                if (note) loadedNotes.push(note)
             }
 
             setNotes(loadedNotes)
@@ -95,35 +72,30 @@ export function StudyModePage() {
         }
 
         loadNotes()
-    }, [isStoreMode, selectedNoteIds, noteId, category, order])
+    }, [selectedNoteIds, noteId, category, order])
 
     // ================================ 핸들러 ================================
     const handleExit = useCallback(() => {
         navigate('/')
     }, [navigate])
 
-    const handleNext = useCallback(() => {
-        if (isStoreMode) {
-            const hasMore = goToNextNote()
-            if (!hasMore) {
-                // 마지막 노트 완료
-                if (isSingleNote) {
-                    // 단일 노트면 메인으로
-                    navigate('/')
-                } else {
-                    // 여러 노트면 최종 결과 페이지로
-                    navigate('/study/result')
-                }
-            }
-        } else {
-            // Legacy 모드
-            if (legacyIndex < notes.length - 1) {
-                setLegacyIndex(prev => prev + 1)
+    const handleNext = useCallback(async () => {
+        console.log('[StudyModePage] handleNext called', { storeIndex, selectedNoteIds })
+        const hasMore = goToNextNote()
+        console.log('[StudyModePage] goToNextNote result', { hasMore })
+        if (!hasMore) {
+            // 마지막 노트 완료 - DB 세션 종료
+            await completeSession()
+
+            if (isSingleNote) {
+                // 단일 노트면 메인으로
+                navigate('/')
             } else {
-                navigate(-1)
+                // 여러 노트면 최종 결과 페이지로
+                navigate('/study/result')
             }
         }
-    }, [isStoreMode, goToNextNote, isSingleNote, navigate, legacyIndex, notes.length])
+    }, [goToNextNote, isSingleNote, navigate, storeIndex, selectedNoteIds, completeSession])
 
     // ================================ 렌더링 ================================
     if (isLoading) {
@@ -136,8 +108,14 @@ export function StudyModePage() {
 
     if (!currentNote) {
         return (
-            <div className="h-screen flex items-center justify-center bg-[var(--bg-primary)]">
+            <div className="h-screen flex flex-col items-center justify-center gap-4 bg-[var(--bg-secondary)] p-8 rounded">
                 <span className="font-mono text-[var(--text-tertiary)]">// 공부할 노트가 없습니다.</span>
+                <button
+                    onClick={handleExit}
+                    className="flex items-center gap-2 px-4 py-2 font-mono text-sm border border-[var(--border-light)] text-[var(--text-secondary)] cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+                >
+                    back
+                </button>
             </div>
         )
     }
@@ -150,8 +128,7 @@ export function StudyModePage() {
                 onExit={handleExit}
                 onNext={handleNext}
                 hasNextNote={hasNextNote}
-                // 진행률 정보 (Store 모드에서만 표시)
-                showProgress={isStoreMode && !isSingleNote}
+                showProgress={!isSingleNote}
                 progress={progress}
                 progressText={progressText}
             />

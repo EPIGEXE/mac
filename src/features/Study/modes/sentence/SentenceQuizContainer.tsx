@@ -16,13 +16,11 @@ import { GenerateingQuizLoading } from '../../components/GenerateingQuizLoading'
 interface SentenceQuizContainerProps {
     note: Note
     onNext: () => void
-    hasNextNote: boolean
 }
 
 export function SentenceQuizContainer({
     note,
     onNext,
-    hasNextNote,
 }: SentenceQuizContainerProps) {
     // ================================ 상수 ================================
     const noteType = note.id.startsWith('system-') ? 'system' : 'user' // 노트 타입
@@ -63,8 +61,9 @@ export function SentenceQuizContainer({
         startQuiz()
     }, [startQuiz])
 
-    // Store에서 결과 기록 함수 가져오기
-    const { recordNoteResult, isActive: isSessionActive } = useStudySessionStore()
+    // Store에서 결과 기록 함수와 DB 세션 ID 가져오기
+    const recordNoteResult = useStudySessionStore((state) => state.recordNoteResult)
+    const getDbSessionId = useStudySessionStore((state) => state.getDbSessionId)
 
     // 결과 화면 진입 시 학습 기록 저장
     useEffect(() => {
@@ -73,10 +72,11 @@ export function SentenceQuizContainer({
             const score = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0
 
             // DB에 기록
+            const dbSessionId = getDbSessionId()
             const input: RecordStudyInput = {
                 noteId: note.id,
                 noteType,
-                sessionId: `session-${Date.now()}`,
+                sessionId: dbSessionId || `session-${Date.now()}`,
                 totalQuestions,
                 correctCount,
                 wrongCount,
@@ -85,7 +85,6 @@ export function SentenceQuizContainer({
             recordStudy(input).catch((e) => console.error('Failed to record study:', e))
 
             // Store 모드면 세션 결과에도 기록
-            if (isSessionActive) {
                 recordNoteResult({
                     noteId: note.id,
                     noteTitle: note.title,
@@ -95,9 +94,8 @@ export function SentenceQuizContainer({
                     score,
                     duration,
                 })
-            }
         }
-    }, [phase, note.id, note.title, noteType, totalQuestions, correctCount, wrongCount, getDuration, isSessionActive, recordNoteResult])
+    }, [phase, note.id, note.title, noteType, totalQuestions, correctCount, wrongCount, getDuration, recordNoteResult, getDbSessionId])
 
     // 로딩 화면
     if (phase === 'loading') {
@@ -114,7 +112,6 @@ export function SentenceQuizContainer({
                 totalScore={totalScore}
                 overallFeedback={overallFeedback}
                 onNext={onNext}
-                hasNextNote={hasNextNote}
             />
         )
     }

@@ -85,19 +85,20 @@ export function BlindedMarkdownContent({
         <>
             <div ref={containerRef} className="pm-editor" dangerouslySetInnerHTML={{ __html: html }} />
             {/* React Portal로 빈칸 버튼들을 플레이스홀더 위치에 렌더링 */}
-            {blankElements.map(({ id, element }) =>
-                createPortal(
+            {blankElements.map(({ id, element }) => {
+                const blankKey = `BLANK_${id}`
+                return createPortal(
                     <BlankButton
-                        blankNum={`BLANK_${id}`}
+                        blankNum={blankKey}
                         hint={blanks.find((b) => b.id === id)?.hint || null}
-                        answer={answers[id]}
-                        result={results[id]}
+                        answer={answers[blankKey]}
+                        result={results[blankKey]}
                         currentBlankStringId={currentBlankStringId}
                         onBlankClick={onBlankClick}
                     />,
                     element
                 )
-            )}
+            })}
         </>
     )
 }

@@ -5,6 +5,7 @@ import { NoteDetailWrapper } from './pages/NoteDetailWrapper';
 import { StudyModePage } from './pages/StudyModePage';
 import { StudySetupPage } from './pages/StudySetupPage';
 import { StudyFinalResultPage } from './pages/StudyFinalResultPage';
+import { StatisticsDashboardPage } from './pages/StatisticsDashboardPage';
 import { TerminalToast } from './features/Toast/components/TerminalToast';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import { AppCrashFallback } from './components/ErrorBoundary/ErrorFallback';
@@ -20,6 +21,7 @@ function App() {
                     <Route path="/study/setup" element={<StudySetupPage />} />
                     <Route path="/study" element={<StudyModePage />} />
                     <Route path="/study/result" element={<StudyFinalResultPage />} />
+                    <Route path="/statistics" element={<StatisticsDashboardPage />} />
                 </Route>
             </Routes>
         </ErrorBoundary>

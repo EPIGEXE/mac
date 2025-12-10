@@ -15,8 +15,6 @@ export function NoteDetailWrapper() {
         loadNotes, // 노트 로드
         updateNote, // 노트 업데이트
         deleteNote, // 노트 삭제
-        isEditing, // 편집 상태
-        setEditing, // 편집 상태 설정
     } = useNoteStore()
 
     // ==================================== useEffect =====================================
@@ -79,8 +77,6 @@ export function NoteDetailWrapper() {
             onClose={handleClose}
             onUpdate={handleUpdateNote}
             onDelete={handleDeleteNote}
-            isEditing={isEditing}
-            onEditingChange={setEditing}
         />
     )
 }

@@ -15,7 +15,6 @@ interface SentenceQuizResultProps {
     totalScore: number
     overallFeedback: string
     onNext: () => void
-    hasNextNote: boolean
 }
 
 export function SentenceQuizResult({
@@ -25,7 +24,6 @@ export function SentenceQuizResult({
     totalScore,
     overallFeedback,
     onNext,
-    hasNextNote,
 }: SentenceQuizResultProps) {
     // ================================ 상태 관리 ================================
     const [expandedId, setExpandedId] = useState<string | null>(null) // 펼쳐진 질문 ID
@@ -50,10 +48,12 @@ export function SentenceQuizResult({
                 >
                     {/* 점수 */}
                     <div className="mb-3">
-                        <span className={`
+                        <span
+                            className={`
                             font-score text-[100px] leading-none tracking-tight font-light
                             ${isPerfect ? 'text-[var(--success)]' : 'text-[var(--text-primary)]'}
-                        `}>
+                        `}
+                        >
                             {totalScore}
                         </span>
                         <span className="font-score text-4xl text-[var(--text-secondary)] font-light">점</span>
@@ -88,12 +88,8 @@ export function SentenceQuizResult({
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.2, delay: 0.15 }}
                     >
-                        <div className="font-mono text-sm text-[var(--text-secondary)] mb-2">
-                            // feedback
-                        </div>
-                        <p className="text-base text-[var(--text-primary)] leading-relaxed">
-                            {overallFeedback}
-                        </p>
+                        <div className="font-mono text-sm text-[var(--text-secondary)] mb-2">// feedback</div>
+                        <p className="text-base text-[var(--text-primary)] leading-relaxed">{overallFeedback}</p>
                     </motion.div>
                 )}
 
@@ -110,9 +106,7 @@ export function SentenceQuizResult({
                             <span className="font-mono text-[var(--accent)]">#</span>
                             <span className="font-mono text-base text-[var(--text-primary)]">Review</span>
                         </div>
-                        <span className="font-mono text-sm text-[var(--text-secondary)]">
-                            [{totalQuestions}]
-                        </span>
+                        <span className="font-mono text-sm text-[var(--text-secondary)]">[{totalQuestions}]</span>
                     </div>
 
                     {/* 문제 리스트 - 순서대로 */}
@@ -146,9 +140,11 @@ export function SentenceQuizResult({
                                             <span className="font-mono text-sm text-[var(--text-secondary)]">
                                                 {String(idx + 1).padStart(2, '0')}
                                             </span>
-                                            <span className={`font-mono text-base ${
-                                                isCorrect ? 'text-[var(--success)]' : 'text-[var(--error)]'
-                                            }`}>
+                                            <span
+                                                className={`font-mono text-base ${
+                                                    isCorrect ? 'text-[var(--success)]' : 'text-[var(--error)]'
+                                                }`}
+                                            >
                                                 {isCorrect ? '✓' : '✗'}
                                             </span>
                                         </div>
@@ -161,18 +157,25 @@ export function SentenceQuizResult({
                                             </div>
 
                                             {/* 사용자 답변 */}
-                                            <div className={`text-base mb-2 ${
-                                                isCorrect ? 'text-[var(--text-primary)]' : 'text-[var(--error)]'
-                                            }`}>
+                                            <div
+                                                className={`text-base mb-2 ${
+                                                    isCorrect ? 'text-[var(--text-primary)]' : 'text-[var(--error)]'
+                                                }`}
+                                            >
                                                 {userAnswer || '(답변 없음)'}
                                             </div>
 
                                             {/* 점수 + 펼치기 힌트 */}
                                             <div className="flex items-center gap-3">
-                                                <span className={`font-mono text-sm ${
-                                                    questionScore >= 80 ? 'text-[var(--success)]' :
-                                                    questionScore >= 60 ? 'text-[var(--warning)]' : 'text-[var(--error)]'
-                                                }`}>
+                                                <span
+                                                    className={`font-mono text-sm ${
+                                                        questionScore >= 80
+                                                            ? 'text-[var(--success)]'
+                                                            : questionScore >= 60
+                                                              ? 'text-[var(--warning)]'
+                                                              : 'text-[var(--error)]'
+                                                    }`}
+                                                >
                                                     {questionScore}점
                                                 </span>
                                                 <span className="font-mono text-sm text-[var(--text-secondary)]">
@@ -210,8 +213,13 @@ export function SentenceQuizResult({
                                                         </div>
                                                         <ul className="pl-4 space-y-2">
                                                             {result.matchedPoints.map((point, i) => (
-                                                                <li key={i} className="text-base text-[var(--text-primary)] leading-relaxed">
-                                                                    <span className="text-[var(--success)] mr-2">+</span>
+                                                                <li
+                                                                    key={i}
+                                                                    className="text-base text-[var(--text-primary)] leading-relaxed"
+                                                                >
+                                                                    <span className="text-[var(--success)] mr-2">
+                                                                        +
+                                                                    </span>
                                                                     {point}
                                                                 </li>
                                                             ))}
@@ -227,7 +235,10 @@ export function SentenceQuizResult({
                                                         </div>
                                                         <ul className="pl-4 space-y-2">
                                                             {result.missedPoints.map((point, i) => (
-                                                                <li key={i} className="text-base text-[var(--text-primary)] leading-relaxed">
+                                                                <li
+                                                                    key={i}
+                                                                    className="text-base text-[var(--text-primary)] leading-relaxed"
+                                                                >
                                                                     <span className="text-[var(--error)] mr-2">-</span>
                                                                     {point}
                                                                 </li>
@@ -263,17 +274,14 @@ export function SentenceQuizResult({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.2, delay: 0.3 }}
                 >
-                    <div className="flex gap-3">
-                        {hasNextNote && (
-                            <button
-                                onClick={onNext}
-                                className="flex-1 py-3 px-4 bg-[var(--accent)] text-white font-mono text-base cursor-pointer transition-opacity hover:opacity-90"
-                            >
-                                next →
-                            </button>
-                        )}
+                    <div className="flex">
+                        <button
+                            onClick={onNext}
+                            className="flex-1 py-3 px-4 bg-[var(--accent)] text-white font-mono text-base cursor-pointer transition-opacity hover:opacity-90"
+                        >
+                            next →
+                        </button>
                     </div>
-
                 </motion.div>
             </div>
         </div>

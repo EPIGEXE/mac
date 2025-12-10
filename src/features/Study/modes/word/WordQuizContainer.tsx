@@ -18,11 +18,18 @@ import { GenerateingQuizLoading } from '../../components/GenerateingQuizLoading'
 interface WordQuizContainerProps {
     note: Note
     onNext: () => void
-    hasNextNote: boolean
 }
 
-export function WordQuizContainer({ note, onNext, hasNextNote }: WordQuizContainerProps) {
+export function WordQuizContainer({ note, onNext }: WordQuizContainerProps) {
     const noteType = note.id.startsWith('system-') ? 'system' : 'user' // 노트 타입
+
+    // DEBUG: 컴포넌트 마운트/언마운트 추적
+    useEffect(() => {
+        console.log('[WordQuizContainer] MOUNTED', { noteId: note.id, noteTitle: note.title })
+        return () => {
+            console.log('[WordQuizContainer] UNMOUNTED', { noteId: note.id })
+        }
+    }, [note.id, note.title])
 
     // ================================ Hooks ================================
     const {
@@ -74,23 +81,28 @@ export function WordQuizContainer({ note, onNext, hasNextNote }: WordQuizContain
     // ================================ useEffect ================================
     // 컴포넌트 마운트 시 퀴즈 시작
     useEffect(() => {
+        console.log('[WordQuizContainer] startQuiz useEffect triggered', { noteId: note.id })
         startQuiz()
-    }, [startQuiz])
+    }, [startQuiz, note.id])
 
-    // Store에서 결과 기록 함수 가져오기
-    const { recordNoteResult, isActive: isSessionActive } = useStudySessionStore()
+    // Store에서 결과 기록 함수와 DB 세션 ID 가져오기
+    const recordNoteResult = useStudySessionStore((state) => state.recordNoteResult)
+    const getDbSessionId = useStudySessionStore((state) => state.getDbSessionId)
 
     // 결과 화면 진입 시 학습 기록 저장
     useEffect(() => {
+        console.log('[WordQuizContainer] phase changed', { phase, noteId: note.id, totalBlanks, correctCount, wrongCount })
         if (phase === 'result') {
+            console.log('[WordQuizContainer] Recording result...', { noteId: note.id })
             const duration = getDuration()
             const score = totalBlanks > 0 ? Math.round((correctCount / totalBlanks) * 100) : 0
 
             // DB에 기록
+            const dbSessionId = getDbSessionId()
             const input: RecordStudyInput = {
                 noteId: note.id,
                 noteType,
-                sessionId: `session-${Date.now()}`,
+                sessionId: dbSessionId || `session-${Date.now()}`,
                 totalQuestions: totalBlanks,
                 correctCount,
                 wrongCount,
@@ -98,20 +110,18 @@ export function WordQuizContainer({ note, onNext, hasNextNote }: WordQuizContain
             }
             recordStudy(input).catch((e) => console.error('Failed to record study:', e))
 
-            // Store 모드면 세션 결과에도 기록
-            if (isSessionActive) {
-                recordNoteResult({
-                    noteId: note.id,
-                    noteTitle: note.title,
-                    totalQuestions: totalBlanks,
-                    correctCount,
-                    wrongCount,
-                    score,
-                    duration,
-                })
-            }
+            recordNoteResult({
+                noteId: note.id,
+                noteTitle: note.title,
+                totalQuestions: totalBlanks,
+                correctCount,
+                wrongCount,
+                score,
+                duration,
+            })
+            console.log('[WordQuizContainer] Result recorded', { noteId: note.id })
         }
-    }, [phase, note.id, note.title, noteType, totalBlanks, correctCount, wrongCount, getDuration, isSessionActive, recordNoteResult])
+    }, [phase, note.id, note.title, noteType, totalBlanks, correctCount, wrongCount, getDuration, recordNoteResult, getDbSessionId])
 
     // 로딩 화면
     if (phase === 'loading') {
@@ -129,7 +139,6 @@ export function WordQuizContainer({ note, onNext, hasNextNote }: WordQuizContain
                 answers={answers}
                 results={results}
                 onNext={onNext}
-                hasNextNote={hasNextNote}
             />
         )
     }

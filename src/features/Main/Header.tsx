@@ -88,8 +88,11 @@ export function Header({ viewMode, onViewModeChange, topicFilter, onTopicFilterC
                     <div className="flex items-center gap-6">
                         {/* 로고 + 서브타이틀 */}
                         <div className="flex flex-col">
-                            <h1 className="font-display text-[32px] text-[var(--text-primary)] tracking-[0.05em] leading-none">
+                            <h1 className="font-display text-[32px] text-[var(--text-primary)] tracking-[0.05em] leading-none flex items-baseline gap-2">
                                 맥
+                                <span className="font-mono text-[10px] px-1.5 py-0.5 bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/30 rounded-sm uppercase tracking-wider">
+                                    beta
+                                </span>
                             </h1>
                             <motion.p
                                 className="font-mono text-xs text-[var(--text-tertiary)] tracking-[0.02em] overflow-hidden"
@@ -204,32 +207,34 @@ export function Header({ viewMode, onViewModeChange, topicFilter, onTopicFilterC
                     }}
                     transition={{ duration: 0.3, ease: 'easeOut' }}
                 >
-                    <div className="flex border-b border-[var(--border-light)]">
-                        {topicButtons.map((topic) => {
-                            const isActive = topicFilter === topic.value
-                            return (
-                                <button
-                                    key={topic.value}
-                                    onClick={() => handleTopicChange(topic.value)}
-                                    className={`py-3 px-5 bg-transparent border-none -mb-px cursor-pointer transition-colors duration-150 ${
-                                        isActive ? 'border-b-2 border-b-[var(--accent)]' : 'border-b-2 border-b-transparent'
-                                    }`}
-                                >
-                                    <span className="font-mono text-[11px] text-[var(--text-tertiary)] mr-1.5">
-                                        {topic.mono}
-                                    </span>
-                                    <span
-                                        className={`text-sm ${
-                                            isActive
-                                                ? 'font-semibold text-[var(--text-primary)]'
-                                                : 'font-normal text-[var(--text-secondary)]'
+                    <div className="flex items-center border-b border-[var(--border-light)]">
+                        <div className="flex flex-1">
+                            {topicButtons.map((topic) => {
+                                const isActive = topicFilter === topic.value
+                                return (
+                                    <button
+                                        key={topic.value}
+                                        onClick={() => handleTopicChange(topic.value)}
+                                        className={`py-3 px-5 bg-transparent border-none -mb-px cursor-pointer transition-colors duration-150 ${
+                                            isActive ? 'border-b-2 border-b-[var(--accent)]' : 'border-b-2 border-b-transparent'
                                         }`}
                                     >
-                                        {topic.label}
-                                    </span>
-                                </button>
-                            )
-                        })}
+                                        <span className="font-mono text-[11px] text-[var(--text-tertiary)] mr-1.5">
+                                            {topic.mono}
+                                        </span>
+                                        <span
+                                            className={`text-sm ${
+                                                isActive
+                                                    ? 'font-semibold text-[var(--text-primary)]'
+                                                    : 'font-normal text-[var(--text-secondary)]'
+                                            }`}
+                                        >
+                                            {topic.label}
+                                        </span>
+                                    </button>
+                                )
+                            })}
+                        </div>
                     </div>
                 </motion.div>
             </motion.div>

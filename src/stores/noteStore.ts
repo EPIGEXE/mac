@@ -15,7 +15,6 @@ interface NoteStore {
     notes: Note[];
     selectedNoteId: string | null;
     selectedNoteType: 'system' | 'user' | null;
-    isEditing: boolean;
     isLoading: boolean;
     error: string | null;
 
@@ -25,7 +24,6 @@ interface NoteStore {
     updateNote: (id: string, type: 'system' | 'user', updates: Partial<Pick<Note, 'title' | 'content' | 'category'>>) => Promise<boolean>;
     deleteNote: (id: string, type: 'system' | 'user') => Promise<boolean>;
     selectNote: (id: string | null, type?: 'system' | 'user' | null) => void;
-    setEditing: (editing: boolean) => void;
     resetToOriginal: (systemNoteId: string) => Promise<boolean>;
     getSelectedNote: () => Note | null;
     clearError: () => void;
@@ -120,7 +118,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
 
     selectNote: (id: string | null, type?: 'system' | 'user' | null) => {
         if (id === null) {
-            set({ selectedNoteId: null, selectedNoteType: null, isEditing: false });
+            set({ selectedNoteId: null, selectedNoteType: null });
             return;
         }
 
@@ -130,11 +128,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
             type = note?.type ?? null;
         }
 
-        set({ selectedNoteId: id, selectedNoteType: type ?? null, isEditing: false });
-    },
-
-    setEditing: (editing: boolean) => {
-        set({ isEditing: editing });
+        set({ selectedNoteId: id, selectedNoteType: type ?? null });
     },
 
     resetToOriginal: async (systemNoteId: string) => {

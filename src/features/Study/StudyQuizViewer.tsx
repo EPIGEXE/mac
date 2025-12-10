@@ -8,17 +8,16 @@ import { IconArrowLeft } from '@tabler/icons-react'
 import type { Note } from '../../db/schema/note'
 import type { StudyModeType } from './types'
 import '../NoteDetail/MarkdownEditor/styles/editor.css'
-import { useSearchParams } from 'react-router-dom'
 import { WordQuizContainer } from './modes/word/WordQuizContainer'
 import { SentenceQuizContainer } from './modes/sentence/SentenceQuizContainer'
 import { EssayQuizContainer } from './modes/essay/EssayQuizContainer'
+import { useStudySessionStore } from '../../stores/studySessionStore'
 
 interface StudyQuizViewerProps {
     note: Note
     onExit: () => void
     onNext: () => void
     hasNextNote: boolean
-    // 진행률 (선택적 - Store 모드에서만 사용)
     showProgress?: boolean
     progress?: number          // 0-100
     progressText?: string      // "3/10"
@@ -33,11 +32,11 @@ export function StudyQuizViewer({
     progress = 0,
     progressText = '',
 }: StudyQuizViewerProps) {
-    // ================================ Hooks ================================
-    const [searchParams] = useSearchParams()
+    // ================================ Store ================================
+    const mode = useStudySessionStore((state) => state.mode)
 
     // ================================ 상수 ================================
-    const studyMode = (searchParams.get('mode') as StudyModeType) || null
+    const studyMode: StudyModeType | null = mode
 
     // 모드 라벨
     const modeLabel = studyMode === 'word' ? '단어'
@@ -96,7 +95,6 @@ export function StudyQuizViewer({
                 <WordQuizContainer
                     note={note}
                     onNext={onNext}
-                    hasNextNote={hasNextNote}
                 />
             )}
 
@@ -105,7 +103,6 @@ export function StudyQuizViewer({
                 <SentenceQuizContainer
                     note={note}
                     onNext={onNext}
-                    hasNextNote={hasNextNote}
                 />
             )}
 
@@ -114,8 +111,16 @@ export function StudyQuizViewer({
                 <EssayQuizContainer
                     note={note}
                     onNext={onNext}
-                    hasNextNote={hasNextNote}
                 />
+            )}
+
+            {/* 모드 미선택 */}
+            {!studyMode && (
+                <div className="flex-1 flex items-center justify-center">
+                    <span className="font-mono text-[var(--text-tertiary)]">
+                        // 학습 모드가 선택되지 않았습니다
+                    </span>
+                </div>
             )}
         </div>
     )

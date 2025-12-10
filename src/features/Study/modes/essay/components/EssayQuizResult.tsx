@@ -14,16 +14,9 @@ interface EssayQuizResultProps {
     userAnswer: string // 사용자 답변
     result: EvaluateEssayResponse // 결과 정보
     onNext: () => void // 다음 노트로 이동
-    hasNextNote: boolean // 다음 노트가 있는지
 }
 
-export function EssayQuizResult({
-    question,
-    userAnswer,
-    result,
-    onNext,
-    hasNextNote,
-}: EssayQuizResultProps) {
+export function EssayQuizResult({ question, userAnswer, result, onNext }: EssayQuizResultProps) {
     // ================================ 상수 ================================
     const [showMyAnswer, setShowMyAnswer] = useState(false) // 내 답변 보기 상태
     const [showExpectedPoints, setShowExpectedPoints] = useState(false) // 평가 기준 보기 상태
@@ -42,18 +35,20 @@ export function EssayQuizResult({
                     transition={{ duration: 0.3 }}
                 >
                     {/* 회사 태그 */}
-                    <div className={`inline-flex items-center gap-2 px-3 py-1.5 ${companyStyle.bg} ${companyStyle.border} border mb-4`}>
-                        <span className={`font-mono text-sm font-bold ${companyStyle.text}`}>
-                            {question.company}
-                        </span>
+                    <div
+                        className={`inline-flex items-center gap-2 px-3 py-1.5 ${companyStyle.bg} ${companyStyle.border} border mb-4`}
+                    >
+                        <span className={`font-mono text-sm font-bold ${companyStyle.text}`}>{question.company}</span>
                     </div>
 
                     {/* 점수 */}
                     <div className="mb-3">
-                        <span className={`
+                        <span
+                            className={`
                             font-score text-[100px] leading-none tracking-tight font-light
                             ${isPerfect ? 'text-[var(--success)]' : 'text-[var(--text-primary)]'}
-                        `}>
+                        `}
+                        >
                             {result.score}
                         </span>
                         <span className="font-score text-4xl text-[var(--text-secondary)] font-light">점</span>
@@ -80,9 +75,7 @@ export function EssayQuizResult({
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.2, delay: 0.1 }}
                 >
-                    <div className="font-mono text-sm text-[var(--text-secondary)] mb-2">
-                        // question
-                    </div>
+                    <div className="font-mono text-sm text-[var(--text-secondary)] mb-2">// question</div>
                     <p className="text-base text-[var(--text-primary)] leading-relaxed pl-4 border-l-2 border-[var(--border-medium)]">
                         "{question.question}"
                     </p>
@@ -179,9 +172,7 @@ export function EssayQuizResult({
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.2, delay: 0.25 }}
                 >
-                    <div className="font-mono text-sm text-[var(--accent)] mb-3">
-                        // feedback
-                    </div>
+                    <div className="font-mono text-sm text-[var(--accent)] mb-3">// feedback</div>
                     <p className="text-base text-[var(--text-primary)] leading-relaxed pl-4 border-l-2 border-[var(--accent)]">
                         {result.feedback}
                     </p>
@@ -195,9 +186,7 @@ export function EssayQuizResult({
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.2, delay: 0.3 }}
                     >
-                        <div className="font-mono text-sm text-[var(--text-secondary)] mb-3">
-                            // tip
-                        </div>
+                        <div className="font-mono text-sm text-[var(--text-secondary)] mb-3">// tip</div>
                         <p className="text-base text-[var(--text-secondary)] leading-relaxed pl-4 italic">
                             {result.tip}
                         </p>
@@ -295,16 +284,13 @@ export function EssayQuizResult({
                     transition={{ duration: 0.2, delay: 0.4 }}
                 >
                     <div className="flex gap-3">
-                        {hasNextNote && (
-                            <button
-                                onClick={onNext}
-                                className="flex-1 py-3 px-4 bg-[var(--accent)] text-white font-mono text-base cursor-pointer transition-opacity hover:opacity-90"
-                            >
-                                next →
-                            </button>
-                        )}
+                        <button
+                            onClick={onNext}
+                            className="flex-1 py-3 px-4 bg-[var(--accent)] text-white font-mono text-base cursor-pointer transition-opacity hover:opacity-90"
+                        >
+                            next →
+                        </button>
                     </div>
-
                 </motion.div>
             </div>
         </div>

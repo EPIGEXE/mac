@@ -62,11 +62,13 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
     // ================================ 액션 ================================
     // 퀴즈 시작
     const startQuiz = useCallback(async () => {
+        console.log('[useWordQuiz] startQuiz called', { noteId, noteTitle })
         setPhase('loading')
         setError(null)
         startTimeRef.current = Date.now()
 
         try {
+            console.log('[useWordQuiz] Generating quiz...')
             const response = await generateQuiz({
                 noteId,
                 noteContent,
@@ -74,13 +76,16 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
                 mode: 'word',
                 blankCount: 5,
             })
+            console.log('[useWordQuiz] Quiz generated', { blanks: response.blanks?.length })
 
             setQuizData(response)
             setCurrentBlankIndex(0)
             setAnswers({})
             setResults({})
             setPhase('quiz')
+            console.log('[useWordQuiz] Phase set to quiz')
         } catch (err) {
+            console.error('[useWordQuiz] Quiz generation failed', err)
             setError(handleStudyApiError(err))
             throw err
         }
@@ -119,6 +124,7 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
 
     // 결과 화면으로 이동
     const showResult = useCallback(() => {
+        console.log('[useWordQuiz] showResult called - setting phase to result')
         setPhase('result')
     }, [])
 
