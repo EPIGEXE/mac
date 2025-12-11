@@ -2,12 +2,11 @@
  * 입력 검증 유틸리티
  */
 import { HttpsError } from 'firebase-functions/v2/https'
-import type { StudyModeType, DifficultyLevel, GenerateQuizRequest, EvaluateAnswerRequest, GetHintRequest } from '../types/study'
+import type { StudyModeType, GenerateQuizRequest, EvaluateAnswerRequest, GetHintRequest } from '../types/study'
 
 // ================================ 유효성 검사 ================================
 
 const VALID_MODES: StudyModeType[] = ['word', 'sentence', 'essay']
-const VALID_DIFFICULTIES: DifficultyLevel[] = ['easy', 'medium', 'hard']
 
 /**
  * 퀴즈 생성 요청 검증
@@ -33,7 +32,7 @@ export function validateGenerateQuizRequest(data: unknown): GenerateQuizRequest 
         throw new HttpsError('invalid-argument', 'noteContent must be at least 50 characters')
     }
 
-    if (req.noteContent.length > 10000) {
+    if (req.noteContent.length > 15000) {
         throw new HttpsError('invalid-argument', 'noteContent must be less than 10000 characters')
     }
 
@@ -47,27 +46,11 @@ export function validateGenerateQuizRequest(data: unknown): GenerateQuizRequest 
         throw new HttpsError('invalid-argument', `mode must be one of: ${VALID_MODES.join(', ')}`)
     }
 
-    // difficulty 검증 (선택)
-    const difficulty = req.difficulty as DifficultyLevel | undefined
-    if (difficulty && !VALID_DIFFICULTIES.includes(difficulty)) {
-        throw new HttpsError('invalid-argument', `difficulty must be one of: ${VALID_DIFFICULTIES.join(', ')}`)
-    }
-
-    // blankCount 검증 (선택)
-    const blankCount = req.blankCount as number | undefined
-    if (blankCount !== undefined) {
-        if (typeof blankCount !== 'number' || blankCount < 1 || blankCount > 10) {
-            throw new HttpsError('invalid-argument', 'blankCount must be a number between 1 and 10')
-        }
-    }
-
     return {
         noteId: req.noteId,
         noteContent: req.noteContent,
         noteTitle: req.noteTitle,
         mode: req.mode as StudyModeType,
-        difficulty: difficulty || 'medium',
-        blankCount: blankCount || 5,
     }
 }
 

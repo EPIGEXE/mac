@@ -131,7 +131,7 @@ export function NoteDetailPage({
         <div className="h-screen flex flex-col bg-[var(--bg-primary)]">
             {/* Top bar - 터미널 스타일 */}
             <header className="border-b border-[var(--border-light)] bg-[var(--bg-paper)]">
-                <div className="max-w-[1000px] mx-auto px-6 py-4 flex items-center justify-between">
+                <div className="main-container px-6 py-4 flex items-center justify-between">
                     {/* 좌측: 뒤로가기 */}
                     <button
                         onClick={handleBack}
@@ -167,7 +167,7 @@ export function NoteDetailPage({
                         {/* 테마 토글 */}
                         <button
                             onClick={onThemeToggle}
-                            className="w-8 h-8 border border-[var(--border-light)] bg-transparent text-[var(--text-tertiary)] flex items-center justify-center cursor-pointer transition-all duration-150 hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                            className="border-highlight-button w-8 h-8 "
                         >
                             {theme === 'light' ? <IconMoon size={16} /> : <IconSun size={16} />}
                         </button>
@@ -187,7 +187,7 @@ export function NoteDetailPage({
                 />
 
                 {/* 메인 콘텐츠 */}
-                <div className="max-w-[1000px] mx-auto px-6">
+                <div className="main-container px-6">
                     <ErrorBoundary fallback={(error, reset) => <ErrorFallback error={error} onReset={reset} />}>
                         <MarkdownEditor
                             initialContent={note.content || ''}

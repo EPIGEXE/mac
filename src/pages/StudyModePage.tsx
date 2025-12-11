@@ -53,16 +53,31 @@ export function StudyModePage() {
     // 단일 노트 모드 여부 (최종 결과 페이지 스킵용)
     const isSingleNote = isSingleNoteMode()
 
+    // ================================ DEBUG ================================
+    console.log('[StudyModePage] render', {
+        selectedNoteIds,
+        selectedNoteIdsLength: selectedNoteIds.length,
+        storeIndex,
+        isSingleNote,
+        hasNextNote,
+    })
+
     // ================================ useEffect ================================
     useEffect(() => {
         async function loadNotes() {
+            console.log('[StudyModePage] loadNotes started', { selectedNoteIds })
             const loadedNotes: Note[] = []
 
             for (const id of selectedNoteIds) {
                 const note = await findNoteById(id)
+                console.log('[StudyModePage] findNoteById result', { id, found: !!note, noteTitle: note?.title })
                 if (note) loadedNotes.push(note)
             }
 
+            console.log('[StudyModePage] loadNotes completed', {
+                loadedCount: loadedNotes.length,
+                loadedIds: loadedNotes.map(n => n.id)
+            })
             setNotes(loadedNotes)
         }
 
@@ -75,14 +90,17 @@ export function StudyModePage() {
     }, [navigate])
 
     const handleNext = useCallback(async () => {
-        console.log('[StudyModePage] handleNext called', { storeIndex, selectedNoteIds })
+        // 실시간으로 store에서 값을 가져와야 함 (클로저 캡처 문제 방지)
+        const currentIsSingleNote = isSingleNoteMode()
+
         const hasMore = goToNextNote()
-        console.log('[StudyModePage] goToNextNote result', { hasMore })
+        console.log('[StudyModePage] handleNext', { hasMore, isSingleNote: currentIsSingleNote })
+
         if (!hasMore) {
             // 마지막 노트 완료 - DB 세션 종료
             await completeSession()
 
-            if (isSingleNote) {
+            if (currentIsSingleNote) {
                 // 단일 노트면 메인으로
                 navigate('/')
             } else {
@@ -90,7 +108,7 @@ export function StudyModePage() {
                 navigate('/study/result')
             }
         }
-    }, [goToNextNote, isSingleNote, navigate, storeIndex, selectedNoteIds, completeSession])
+    }, [goToNextNote, isSingleNoteMode, navigate, completeSession])
 
     if (!currentNote) {
         return (

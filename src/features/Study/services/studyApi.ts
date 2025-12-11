@@ -23,6 +23,10 @@ const USE_MOCK_API = false
 // Mock 응답 지연 시간 (ms) - 실제 API 느낌을 위해
 const MOCK_DELAY = 800
 
+// ================================ StrictMode 중복 호출 방지 ================================
+// 진행 중인 요청을 추적하여 동일 요청의 중복 호출 방지
+const pendingRequests = new Map<string, Promise<unknown>>()
+
 // Cloud Functions 래퍼
 const generateQuizFn = httpsCallable<GenerateQuizRequest, GenerateQuizResponse>(
     functions,
@@ -191,6 +195,7 @@ export function createBlindedContent(
 
 /**
  * 퀴즈 생성 (Cloud Function 또는 Mock)
+ * - StrictMode 중복 호출 방지: 동일 noteId+mode 요청은 진행 중인 Promise 재사용
  */
 export async function generateQuiz(params: {
     noteId: string
@@ -215,8 +220,31 @@ export async function generateQuiz(params: {
         }
     }
 
-    const result = await generateQuizFn(params)
-    return result.data
+    // StrictMode 중복 호출 방지
+    const requestKey = `quiz:${params.noteId}:${params.mode}`
+
+    // 이미 진행 중인 동일 요청이 있으면 그 Promise 재사용
+    const pending = pendingRequests.get(requestKey)
+    if (pending) {
+        console.log('[StudyApi] Reusing pending request:', requestKey)
+        return pending as Promise<GenerateQuizResponse>
+    }
+
+    // 새 요청 시작
+    const requestPromise = generateQuizFn(params)
+        .then(result => {
+            pendingRequests.delete(requestKey)
+            return result.data
+        })
+        .catch(err => {
+            pendingRequests.delete(requestKey)
+            throw err
+        })
+
+    pendingRequests.set(requestKey, requestPromise)
+    console.log('[StudyApi] New request started:', requestKey)
+
+    return requestPromise
 }
 
 /**
@@ -288,6 +316,7 @@ function levenshteinDistance(a: string, b: string): number {
 
 /**
  * 서술형 답변 평가 (Cloud Function 또는 Mock) - 한국 테크기업 면접 스타일
+ * - StrictMode 중복 호출 방지
  */
 export async function evaluateEssay(params: {
     company: string
@@ -303,14 +332,34 @@ export async function evaluateEssay(params: {
         return MOCK_ESSAY_RESULT
     }
 
-    const result = await evaluateEssayFn(params)
-    return result.data
+    // StrictMode 중복 호출 방지 (질문+답변 해시로 키 생성)
+    const requestKey = `essay:${params.question.slice(0, 50)}:${params.userAnswer.slice(0, 50)}`
+
+    const pending = pendingRequests.get(requestKey)
+    if (pending) {
+        console.log('[StudyApi] Reusing pending essay request')
+        return pending as Promise<EvaluateEssayResponse>
+    }
+
+    const requestPromise = evaluateEssayFn(params)
+        .then(result => {
+            pendingRequests.delete(requestKey)
+            return result.data
+        })
+        .catch(err => {
+            pendingRequests.delete(requestKey)
+            throw err
+        })
+
+    pendingRequests.set(requestKey, requestPromise)
+    return requestPromise
 }
 
 /**
  * 문장 모드 답변 일괄 평가 (Cloud Function 또는 Mock)
  * - 모든 문장 빈칸 답변을 한 번에 LLM으로 평가
  * - keyPoints 기반 의미적 평가 수행
+ * - StrictMode 중복 호출 방지
  */
 export async function evaluateSentenceAnswers(params: {
     blanks: Array<{
@@ -326,8 +375,28 @@ export async function evaluateSentenceAnswers(params: {
         return MOCK_SENTENCE_RESULT
     }
 
-    const result = await evaluateSentenceAnswersFn(params)
-    return result.data
+    // StrictMode 중복 호출 방지
+    const blankIds = params.blanks.map(b => b.id).join(',')
+    const requestKey = `sentence:${blankIds}`
+
+    const pending = pendingRequests.get(requestKey)
+    if (pending) {
+        console.log('[StudyApi] Reusing pending sentence request')
+        return pending as Promise<EvaluateSentenceAnswersResponse>
+    }
+
+    const requestPromise = evaluateSentenceAnswersFn(params)
+        .then(result => {
+            pendingRequests.delete(requestKey)
+            return result.data
+        })
+        .catch(err => {
+            pendingRequests.delete(requestKey)
+            throw err
+        })
+
+    pendingRequests.set(requestKey, requestPromise)
+    return requestPromise
 }
 
 // ================================ 에러 처리 ================================

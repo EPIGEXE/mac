@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useNoteStore } from '../stores/noteStore'
+import { useStudySessionStore } from '../stores/studySessionStore'
 import { categories, mainCategories, type Category } from '../data/categories'
-import { Header } from '../features/Main/Header'
+import { MainHeader } from '../features/Main/MainHeader'
 import { StudyCTABanner } from '../features/Main/StudyCTABanner'
 import { ListView } from '../features/Main/ListView/ListView'
 import { RoadmapView } from '../features/Main/roadmap/RoadmapView'
-import type { ViewMode } from '../features/Main/Header'
+import type { ViewMode } from '../features/Main/MainHeader'
 
 // 대주제 필터 타입 (all + 각 mainCategory id)
 export type TopicFilter = 'all' | (typeof mainCategories)[number]['id']
@@ -19,12 +20,18 @@ export function MainPage() {
     const notes = useNoteStore((state) => state.notes) //노트 목록
     const loadNotes = useNoteStore((state) => state.loadNotes) // 노트 로드
     const createNote = useNoteStore((state) => state.createNote) // 노트 생성
+    const resetSession = useStudySessionStore((state) => state.resetSession) // 세션 초기화
 
     // ==================================== 상태 관리 =====================================
     const [viewMode, setViewMode] = useState<ViewMode>('list') // 뷰 모드 (리스트 / 맵)
     const [topicFilter, setTopicFilter] = useState<TopicFilter>('all') // 대주제 필터 (전체 / CS / 프론트엔드 / 백엔드)
 
     // ==================================== useEffect =====================================
+    // 메인 페이지 진입 시 이전 세션 정리
+    useEffect(() => {
+        resetSession()
+    }, [resetSession])
+
     // 노트 로드
     useEffect(() => {
         loadNotes()
@@ -63,7 +70,7 @@ export function MainPage() {
     if (isRoadmapView) {
         return (
             <div className="h-screen bg-[var(--bg-primary)] flex flex-col overflow-hidden">
-                <Header
+                <MainHeader
                     viewMode={viewMode}
                     onViewModeChange={setViewMode}
                     topicFilter={topicFilter}
@@ -79,7 +86,7 @@ export function MainPage() {
     // List 뷰: body 스크롤 사용 (sticky 헤더를 위해)
     return (
         <div className="min-h-screen bg-[var(--bg-primary)]">
-            <Header
+            <MainHeader
                 viewMode={viewMode}
                 onViewModeChange={setViewMode}
                 topicFilter={topicFilter}
@@ -87,8 +94,7 @@ export function MainPage() {
             />
 
             <div className="py-8 px-6">
-                {/* Study CTA 배너 */}
-                <div className="max-w-[1000px] mx-auto mb-8">
+                <div className="main-container mb-8">
                     <StudyCTABanner />
                 </div>
 

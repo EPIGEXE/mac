@@ -105,6 +105,8 @@ export const useStudySessionStore = create<StudySessionStore>((set, get) => ({
      * 세션 시작
      */
     startSession: async ({ noteIds, mode, order }) => {
+        console.log('[StudySessionStore] startSession', { noteIds, noteIdsLength: noteIds.length, mode, order })
+
         // DB에 세션 생성
         const dbSession = await dbStartSession()
 
@@ -119,6 +121,8 @@ export const useStudySessionStore = create<StudySessionStore>((set, get) => ({
             completedAt: null,
             dbSessionId: dbSession.id,
         })
+
+        console.log('[StudySessionStore] startSession completed', { dbSessionId: dbSession.id })
     },
 
     /**
@@ -138,6 +142,13 @@ export const useStudySessionStore = create<StudySessionStore>((set, get) => ({
         const { selectedNoteIds, currentIndex } = get()
         const nextIndex = currentIndex + 1
 
+        console.log('[StudySessionStore] goToNextNote', {
+            currentIndex,
+            nextIndex,
+            selectedNoteIdsLength: selectedNoteIds.length,
+            hasMore: nextIndex < selectedNoteIds.length,
+        })
+
         if (nextIndex >= selectedNoteIds.length) {
             return false
         }
@@ -150,6 +161,13 @@ export const useStudySessionStore = create<StudySessionStore>((set, get) => ({
      * 노트별 결과 기록
      */
     recordNoteResult: (result) => {
+        console.log('[StudySessionStore] recordNoteResult', {
+            noteId: result.noteId,
+            noteTitle: result.noteTitle,
+            score: result.score,
+            currentResultsCount: get().noteResults.length,
+        })
+
         set((state) => ({
             noteResults: [...state.noteResults, result],
         }))
@@ -190,7 +208,13 @@ export const useStudySessionStore = create<StudySessionStore>((set, get) => ({
      * 세션 완료
      */
     completeSession: async () => {
-        const { dbSessionId } = get()
+        const { dbSessionId, selectedNoteIds, noteResults } = get()
+
+        console.log('[StudySessionStore] completeSession called', {
+            dbSessionId,
+            selectedNoteIdsLength: selectedNoteIds.length,
+            noteResultsLength: noteResults.length,
+        })
 
         // DB 세션 종료
         if (dbSessionId) {
@@ -203,6 +227,8 @@ export const useStudySessionStore = create<StudySessionStore>((set, get) => ({
             isActive: false,
             completedAt: Date.now(),
         })
+
+        console.log('[StudySessionStore] completeSession done - isActive set to false')
     },
 
     /**
@@ -217,7 +243,12 @@ export const useStudySessionStore = create<StudySessionStore>((set, get) => ({
      */
     isSingleNoteMode: () => {
         const { selectedNoteIds } = get()
-        return selectedNoteIds.length === 1
+        const result = selectedNoteIds.length === 1
+        console.log('[StudySessionStore] isSingleNoteMode called', {
+            selectedNoteIdsLength: selectedNoteIds.length,
+            result,
+        })
+        return result
     },
 
     /**

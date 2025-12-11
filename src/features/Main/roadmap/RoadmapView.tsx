@@ -4,7 +4,7 @@ import { filterToSections } from './config';
 import { buildRoadmapData } from './layout';
 import { SectionNode } from './nodes/SectionNode';
 import { CategoryNode } from './nodes/CategoryNode';
-import type { TopicFilter } from '../Header';
+import type { TopicFilter } from '../MainHeader';
 import type { Note } from '../../../db/schema/note';
 
 

@@ -6,6 +6,10 @@ import eventloopContent from './eventloop.md?raw'
 import promiseContent from './promise.md?raw'
 import es6Content from './es6.md?raw'
 import hoistingContent from './hoisting.md?raw'
+import scopeContent from './scope-execution-context.md?raw'
+import thisContent from './this-binding.md?raw'
+import prototypeContent from './prototype.md?raw'
+import memoryManagementContent from './memory-management.md?raw'
 
 export const javascriptNotes: SystemNote[] = [
     {
@@ -78,4 +82,60 @@ export const javascriptNotes: SystemNote[] = [
         order: 5,
         createdAt: Date.now(),
     },
+    {
+        id: 'sys-js-scope',
+        version: 1,
+        title: '스코프와 실행 컨텍스트',
+        content: scopeContent,
+        category: CATEGORY.JavaScript,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.core,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 6,
+        createdAt: Date.now(),
+    },
+    {
+        id: 'sys-js-this',
+        version: 1,
+        title: 'this',
+        content: thisContent,
+        category: CATEGORY.JavaScript,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.core,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 7,
+        createdAt: Date.now(),
+    },
+    {
+        id: 'sys-js-prototype',
+        version: 1,
+        title: '프로토타입 체인과 상속',
+        content: prototypeContent,
+        category: CATEGORY.JavaScript,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.core,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 8,
+        createdAt: Date.now(),
+    },
+    {
+        id: 'sys-js-memory-management',
+        version: 1,
+        title: '메모리 관리',
+        content: memoryManagementContent,
+        category: CATEGORY.JavaScript,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.core,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 9,
+        createdAt: Date.now(),
+    }
 ]

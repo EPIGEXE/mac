@@ -8,5 +8,5 @@ import * as admin from 'firebase-admin'
 admin.initializeApp()
 
 // 퀴즈 관련 함수들
-export { generateQuiz } from './quiz/generateQuiz'
-export { evaluateAnswer, evaluateSentenceAnswers } from './quiz/evaluateAnswer'
+export { generateQuiz } from './functions/generateQuiz'
+export { evaluateAnswer, evaluateSentenceAnswers } from './functions/evaluateAnswer'

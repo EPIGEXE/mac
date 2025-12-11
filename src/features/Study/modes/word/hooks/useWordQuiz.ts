@@ -7,7 +7,7 @@
 import { useState, useCallback, useMemo, useRef } from 'react'
 import type { BlankInfo, GenerateQuizResponse } from '../../../types'
 import { generateQuiz, evaluateBlankAnswer, handleStudyApiError, createBlindedContent } from '../../../services/studyApi'
-import { useWeakPointRecorder } from '../../../hooks/useWeakPointRecorder'
+import { useWordWeakPointRecorder } from '../../../hooks/useWeakPointRecorder'
 
 type WordQuizPhase = 'loading' | 'quiz' | 'result'
 
@@ -32,7 +32,7 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
     const startTimeRef = useRef<number>(Date.now()) // 퀴즈 시작 시간, 학습 시간 계산용
 
     // ================================ Hooks ================================
-    const { recordIfWrong } = useWeakPointRecorder({ noteId, noteType }) // 약점 기록 훅
+    const { recordWordIfWrong } = useWordWeakPointRecorder({ noteId, noteType }) // 약점 기록 훅
 
     // ================================ 상수 ================================
     const blanks = useMemo(() => (quizData?.blanks || []) as BlankInfo[], [quizData?.blanks]) // 빈칸 목록
@@ -104,14 +104,14 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
         setResults((prev) => ({ ...prev, [blankKey]: evalResult.isCorrect }))
 
         // 오답이면 약점 기록
-        await recordIfWrong(!evalResult.isCorrect, {
-            content: currentBlank.answer,
+        await recordWordIfWrong(!evalResult.isCorrect, {
+            keyword: currentBlank.answer,
+            hint: currentBlank.hint || '',
             userAnswer: answer,
-            correctAnswer: currentBlank.answer,
         })
 
         setIsEvaluating(false)
-    }, [currentBlank, recordIfWrong])
+    }, [currentBlank, recordWordIfWrong])
 
     // 빈칸 클릭으로 이동
     const goToBlank = useCallback((blankId: string) => {

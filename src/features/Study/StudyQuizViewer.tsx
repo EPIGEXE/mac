@@ -48,7 +48,7 @@ export function StudyQuizViewer({
         <div className="h-screen flex flex-col bg-[var(--bg-primary)]">
             {/* Header */}
             <header className="border-b border-[var(--border-light)] bg-[var(--bg-paper)]">
-                <div className="max-w-[1000px] mx-auto px-6 py-4 flex items-center justify-between">
+                <div className="main-container px-6 py-4 flex items-center justify-between">
                     {/* Left: Exit */}
                     <button
                         onClick={onExit}

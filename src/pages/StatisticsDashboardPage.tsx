@@ -17,6 +17,11 @@ import {
     IconAlertTriangle,
     IconTrendingUp,
     IconRefresh,
+    IconAbc,
+    IconMessageQuestion,
+    IconWriting,
+    IconHistory,
+    IconChevronRight,
 } from '@tabler/icons-react'
 import {
     BarChart,
@@ -35,11 +40,17 @@ import {
     getAllNoteStats,
     getRecommendedNotes,
     getTodayStats,
+    getAllModeStats,
     type OverallStats,
     type NoteStats,
     type PeriodStats,
     type RecommendedNote,
+    type ModeStats,
 } from '../db/study/statisticsService'
+import { getWeakPointSummary, getTopWeakPoints } from '../db/study/weakPointService'
+import { getSessionHistory } from '../db/study/studyService'
+import type { WeakPoint } from '../db/schema/study'
+import type { WeakPointSummary, SessionHistoryItem } from '../db/study/types'
 import { findNoteById } from '../db/note/noteService'
 import { useStudySessionStore } from '../stores/studySessionStore'
 import type { StudyModeType } from '../features/Study/types'
@@ -60,6 +71,13 @@ const reasonColors: Record<RecommendedNote['reason'], string> = {
     never_studied: 'text-[var(--accent)]',
 }
 
+// 모드별 아이콘 및 라벨
+const modeConfig: Record<StudyModeType, { icon: React.ReactNode; label: string; color: string }> = {
+    word: { icon: <IconAbc size={16} />, label: '단어', color: 'text-blue-500' },
+    sentence: { icon: <IconMessageQuestion size={16} />, label: '문장', color: 'text-green-500' },
+    essay: { icon: <IconWriting size={16} />, label: '서술형', color: 'text-purple-500' },
+}
+
 export function StatisticsDashboardPage() {
     const navigate = useNavigate()
     const startSession  = useStudySessionStore((state) => state.startSession)
@@ -73,16 +91,26 @@ export function StatisticsDashboardPage() {
     const [noteTitles, setNoteTitles] = useState<Record<string, string>>({})
     const [periodDays, setPeriodDays] = useState<7 | 14 | 30>(7)
 
+    // 새로운 상태 - 모드별 통계, 취약점, 세션 히스토리
+    const [modeStats, setModeStats] = useState<ModeStats[]>([])
+    const [weakPointSummary, setWeakPointSummary] = useState<WeakPointSummary | null>(null)
+    const [topWeakPoints, setTopWeakPoints] = useState<WeakPoint[]>([])
+    const [recentSessions, setRecentSessions] = useState<SessionHistoryItem[]>([])
+
     // ================================ 데이터 로드 ================================
     useEffect(() => {
         async function loadData() {
             try {
-                const [overall, period, notes, recommended, today] = await Promise.all([
+                const [overall, period, notes, recommended, today, modes, wpSummary, wpTop, sessions] = await Promise.all([
                     getOverallStats(),
                     getPeriodStats(periodDays),
                     getAllNoteStats(),
                     getRecommendedNotes(5),
                     getTodayStats(),
+                    getAllModeStats(),
+                    getWeakPointSummary(),
+                    getTopWeakPoints(5),
+                    getSessionHistory({ limit: 5 }),
                 ])
 
                 setOverallStats(overall)
@@ -90,6 +118,10 @@ export function StatisticsDashboardPage() {
                 setNoteStats(notes)
                 setRecommendedNotes(recommended)
                 setTodayStats(today)
+                setModeStats(modes)
+                setWeakPointSummary(wpSummary)
+                setTopWeakPoints(wpTop)
+                setRecentSessions(sessions)
 
                 // 노트 제목 로드
                 const allNoteIds = new Set([
@@ -187,7 +219,7 @@ export function StatisticsDashboardPage() {
         <div className="min-h-screen bg-[var(--bg-primary)]">
             {/* Header */}
             <header className="sticky top-0 z-10 border-b border-[var(--border-light)] bg-[var(--bg-paper)]">
-                <div className="max-w-[1000px] mx-auto px-6 py-4 flex items-center justify-between">
+                <div className="main-container px-6 py-4 flex items-center justify-between">
                     <button
                         onClick={handleBack}
                         className="bg-transparent border-none px-4 py-2.5 font-mono text-sm text-[var(--text-tertiary)] cursor-pointer flex items-center gap-2 transition-colors duration-150 hover:text-[var(--accent)]"
@@ -208,7 +240,7 @@ export function StatisticsDashboardPage() {
             </header>
 
             {/* Content */}
-            <main className="max-w-[1000px] mx-auto px-6 py-8">
+            <main className="main-container px-6 py-8">
                 {!hasData ? (
                     // 데이터 없음 상태
                     <div className="flex flex-col items-center justify-center py-20">
@@ -367,6 +399,65 @@ export function StatisticsDashboardPage() {
                                 </div>
                             </div>
                         </motion.section>
+
+                        {/* ======================== 모드별 통계 ======================== */}
+                        {modeStats.length > 0 && (
+                            <motion.section
+                                className="mb-10"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3, delay: 0.08 }}
+                            >
+                                <div className="flex items-center gap-2 mb-4">
+                                    <span className="font-mono text-[var(--accent)]">#</span>
+                                    <span className="font-mono text-base text-[var(--text-primary)]">
+                                        모드별 통계
+                                    </span>
+                                </div>
+
+                                <div className="grid grid-cols-3 gap-4">
+                                    {modeStats.map((stat) => {
+                                        const config = modeConfig[stat.mode]
+                                        const hasData = stat.totalSessions > 0
+
+                                        return (
+                                            <div
+                                                key={stat.mode}
+                                                className="p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]"
+                                            >
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <span className={config.color}>{config.icon}</span>
+                                                    <span className="font-mono text-sm text-[var(--text-primary)]">
+                                                        {config.label}
+                                                    </span>
+                                                </div>
+
+                                                {hasData ? (
+                                                    <>
+                                                        <div className="flex items-baseline gap-1 mb-2">
+                                                            <span
+                                                                className={`font-score text-3xl ${stat.accuracy >= 80 ? 'text-[var(--success)]' : stat.accuracy >= 60 ? 'text-[var(--warning)]' : 'text-[var(--error)]'}`}
+                                                            >
+                                                                {stat.accuracy}
+                                                            </span>
+                                                            <span className="font-mono text-sm text-[var(--text-tertiary)]">%</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-3 font-mono text-xs text-[var(--text-tertiary)]">
+                                                            <span>{stat.totalSessions} 세션</span>
+                                                            <span>{stat.totalQuestions} 문제</span>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <div className="font-mono text-sm text-[var(--text-tertiary)]">
+                                                        // no data
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </motion.section>
+                        )}
 
                         {/* ======================== 기간별 학습 추이 ======================== */}
                         <motion.section
@@ -661,6 +752,161 @@ export function StatisticsDashboardPage() {
                                         // +{noteStats.length - 20} more notes
                                     </div>
                                 )}
+                            </motion.section>
+                        )}
+
+                        {/* ======================== 취약점 요약 ======================== */}
+                        {weakPointSummary && weakPointSummary.unresolvedCount > 0 && (
+                            <motion.section
+                                className="mb-10"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3, delay: 0.25 }}
+                            >
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <IconAlertTriangle size={16} className="text-[var(--error)]" />
+                                        <span className="font-mono text-base text-[var(--text-primary)]">
+                                            취약점
+                                        </span>
+                                        <span className="font-mono text-sm text-[var(--error)]">
+                                            [{weakPointSummary.unresolvedCount}]
+                                        </span>
+                                    </div>
+
+                                    <button
+                                        onClick={() => navigate('/study/weak-points')}
+                                        className="px-3 py-1.5 font-mono text-xs border border-[var(--border-light)] text-[var(--text-secondary)] cursor-pointer transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)] flex items-center gap-1"
+                                    >
+                                        전체 보기
+                                        <IconChevronRight size={14} />
+                                    </button>
+                                </div>
+
+                                {/* 모드별 취약점 요약 */}
+                                <div className="grid grid-cols-3 gap-3 mb-4">
+                                    {(['word', 'sentence', 'essay'] as const).map((mode) => {
+                                        const config = modeConfig[mode]
+                                        const count = weakPointSummary.byMode[mode]
+
+                                        return (
+                                            <div
+                                                key={mode}
+                                                className="p-3 border border-[var(--border-light)] bg-[var(--bg-paper)] flex items-center gap-3"
+                                            >
+                                                <span className={config.color}>{config.icon}</span>
+                                                <span className="font-mono text-sm text-[var(--text-secondary)]">
+                                                    {config.label}
+                                                </span>
+                                                <span className={`ml-auto font-mono text-lg ${count > 0 ? 'text-[var(--error)]' : 'text-[var(--text-tertiary)]'}`}>
+                                                    {count}
+                                                </span>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+
+                                {/* 상위 취약점 목록 */}
+                                {topWeakPoints.length > 0 && (
+                                    <div className="border border-[var(--error)]/30 bg-[var(--error)]/5">
+                                        {topWeakPoints.map((wp, idx) => {
+                                            const config = modeConfig[wp.mode]
+                                            const displayContent = wp.mode === 'word'
+                                                ? (wp as any).keyword
+                                                : wp.mode === 'sentence'
+                                                    ? (wp as any).question?.slice(0, 50)
+                                                    : (wp as any).question?.slice(0, 50)
+
+                                            return (
+                                                <div
+                                                    key={wp.id}
+                                                    className={`flex items-center gap-3 px-4 py-2.5 ${idx < topWeakPoints.length - 1 ? 'border-b border-[var(--error)]/20' : ''}`}
+                                                >
+                                                    <span className={config.color}>{config.icon}</span>
+                                                    <span className="flex-1 font-mono text-sm text-[var(--text-primary)] truncate">
+                                                        {displayContent || '(내용 없음)'}
+                                                    </span>
+                                                    <span className="font-mono text-xs text-[var(--error)]">
+                                                        {wp.wrongCount}회 오답
+                                                    </span>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                )}
+                            </motion.section>
+                        )}
+
+                        {/* ======================== 최근 세션 히스토리 ======================== */}
+                        {recentSessions.length > 0 && (
+                            <motion.section
+                                className="mb-10"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3, delay: 0.3 }}
+                            >
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <IconHistory size={16} className="text-[var(--text-tertiary)]" />
+                                        <span className="font-mono text-base text-[var(--text-primary)]">
+                                            최근 학습
+                                        </span>
+                                    </div>
+
+                                    <button
+                                        onClick={() => navigate('/study/sessions')}
+                                        className="px-3 py-1.5 font-mono text-xs border border-[var(--border-light)] text-[var(--text-secondary)] cursor-pointer transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)] flex items-center gap-1"
+                                    >
+                                        전체 보기
+                                        <IconChevronRight size={14} />
+                                    </button>
+                                </div>
+
+                                <div className="border border-[var(--border-light)]">
+                                    {recentSessions.map((session, idx) => {
+                                        const config = modeConfig[session.mode]
+                                        const accuracy = session.totalQuestions > 0
+                                            ? Math.round((session.correctCount / session.totalQuestions) * 100)
+                                            : 0
+
+                                        return (
+                                            <div
+                                                key={session.id}
+                                                className={`flex items-center gap-4 px-4 py-3 ${idx < recentSessions.length - 1 ? 'border-b border-dashed border-[var(--border-light)]' : ''}`}
+                                            >
+                                                {/* 모드 아이콘 */}
+                                                <span className={config.color}>{config.icon}</span>
+
+                                                {/* 모드 라벨 */}
+                                                <span className="font-mono text-xs text-[var(--text-tertiary)] w-12">
+                                                    {config.label}
+                                                </span>
+
+                                                {/* 노트 수 */}
+                                                <span className="font-mono text-sm text-[var(--text-secondary)]">
+                                                    {session.noteCount}개 노트
+                                                </span>
+
+                                                {/* 정답률 */}
+                                                <span
+                                                    className={`font-mono text-sm ${accuracy >= 80 ? 'text-[var(--success)]' : accuracy >= 60 ? 'text-[var(--warning)]' : 'text-[var(--error)]'}`}
+                                                >
+                                                    {accuracy}%
+                                                </span>
+
+                                                {/* 시간 */}
+                                                <span className="ml-auto font-mono text-xs text-[var(--text-tertiary)]">
+                                                    {formatDate(session.startedAt)}
+                                                </span>
+
+                                                {/* 소요 시간 */}
+                                                <span className="font-mono text-xs text-[var(--text-tertiary)]">
+                                                    {formatDuration(session.totalDuration)}
+                                                </span>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
                             </motion.section>
                         )}
                     </>

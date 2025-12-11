@@ -1,43 +1,216 @@
 /**
- * 학습 기록 - 문서별 학습 결과
+ * 학습 기록 스키마
+ * - 모드별 상세 기록 지원 (word, sentence, essay)
+ * - 취약점 모드별 분리
+ * - 세션 정보 강화
  */
-export interface StudyRecord {
-    id: string;              // UUID
-    noteId: string;          // systemNotes 또는 userNotes ID
-    noteType: 'system' | 'user';
-    sessionId: string;       // 학습 세션 ID
-    totalQuestions: number;  // 총 문제 수
-    correctCount: number;    // 정답 수
-    wrongCount: number;      // 오답 수
-    duration: number;        // 학습 시간 (초)
+
+// ============================================================================
+// 공통 타입
+// ============================================================================
+
+export type StudyModeType = 'word' | 'sentence' | 'essay';
+export type NoteType = 'system' | 'user';
+
+// ============================================================================
+// StudyRecord - 모드별 학습 기록
+// ============================================================================
+
+/** 공통 필드 */
+interface StudyRecordBase {
+    id: string;
+    noteId: string;
+    noteType: NoteType;
+    sessionId: string;
+    mode: StudyModeType;
+    totalQuestions: number;
+    correctCount: number;
+    wrongCount: number;
+    score: number;              // 0-100
+    duration: number;           // 초
     createdAt: number;
     completedAt: number | null;
 }
 
-/**
- * 취약점/오답 기록 - 사용자가 틀린 내용
- */
-export interface WeakPoint {
-    id: string;              // UUID
+/** 단어 모드 - 빈칸 채우기 상세 */
+export interface WordBlankDetail {
+    blankId: string;
+    answer: string;             // 정답
+    userAnswer: string;         // 사용자 입력
+    isCorrect: boolean;
+    hint: string;
+}
+
+export interface WordStudyRecord extends StudyRecordBase {
+    mode: 'word';
+    details: {
+        blanks: WordBlankDetail[];
+    };
+}
+
+/** 문장 모드 - Q&A 상세 */
+export interface SentenceQuestionDetail {
+    questionId: string;
+    question: string;
+    answer: string;             // 모범 답안
+    userAnswer: string;
+    isCorrect: boolean;
+    score: number;              // 개별 점수
+    keyPoints: string[];
+    matchedPoints: string[];
+    missedPoints: string[];
+    feedback: string;
+}
+
+export interface SentenceStudyRecord extends StudyRecordBase {
+    mode: 'sentence';
+    details: {
+        questions: SentenceQuestionDetail[];
+        totalScore: number;
+        overallFeedback: string;
+    };
+}
+
+/** 서술형 모드 - 면접 상세 */
+export interface EssayStudyRecord extends StudyRecordBase {
+    mode: 'essay';
+    details: {
+        company: string;
+        question: string;
+        questionType: string;
+        userAnswer: string;
+        score: number;
+        grade: 'PASS' | 'BORDERLINE' | 'NEEDS_WORK';
+        matchedPoints: string[];
+        missedPoints: string[];
+        strengths: string[];
+        improvements: string[];
+        feedback: string;
+        tip: string;
+    };
+}
+
+/** Union 타입 */
+export type StudyRecord = WordStudyRecord | SentenceStudyRecord | EssayStudyRecord;
+
+// ============================================================================
+// WeakPoint - 모드별 취약점
+// ============================================================================
+
+/** 공통 필드 */
+interface WeakPointBase {
+    id: string;
     noteId: string;
-    noteType: 'system' | 'user';
-    questionId: string | null;  // 문제 ID (있는 경우)
-    content: string;         // 틀린 내용/키워드
-    userAnswer: string | null;
-    correctAnswer: string | null;
-    wrongCount: number;      // 틀린 횟수
-    lastWrongAt: number;     // 마지막으로 틀린 시간
-    isResolved: boolean;     // 해결됨 여부
+    noteType: NoteType;
+    mode: StudyModeType;
+    wrongCount: number;         // 틀린 횟수
+    correctCount: number;       // 복습 후 맞은 횟수
+    lastWrongAt: number;
+    lastCorrectAt: number | null;
+    isResolved: boolean;        // 3회 연속 정답 시 true
+    consecutiveCorrect: number; // 연속 정답 횟수
     createdAt: number;
 }
 
-/**
- * 학습 세션 - 하나의 학습 시간대
- */
+/** 단어 모드 취약점 */
+export interface WordWeakPoint extends WeakPointBase {
+    mode: 'word';
+    keyword: string;            // 틀린 키워드
+    hint: string;
+    wrongAnswers: string[];     // 틀린 답변 이력 (최근 5개)
+}
+
+/** 문장 모드 취약점 */
+export interface SentenceWeakPoint extends WeakPointBase {
+    mode: 'sentence';
+    questionId: string;
+    question: string;
+    correctAnswer: string;
+    keyPoints: string[];
+    lastMissedPoints: string[]; // 마지막 놓친 포인트
+}
+
+/** 서술형 모드 취약점 */
+export interface EssayWeakPoint extends WeakPointBase {
+    mode: 'essay';
+    company: string;
+    question: string;
+    questionType: string;
+    expectedPoints: string[];
+    lastMissedPoints: string[]; // 마지막 놓친 포인트
+}
+
+/** Union 타입 */
+export type WeakPoint = WordWeakPoint | SentenceWeakPoint | EssayWeakPoint;
+
+// ============================================================================
+// StudySession - 학습 세션
+// ============================================================================
+
+/** 세션 요약 */
+export interface SessionSummary {
+    totalNotes: number;
+    completedNotes: number;
+    totalQuestions: number;
+    correctCount: number;
+    wrongCount: number;
+    averageScore: number;
+}
+
+/** 학습 세션 */
 export interface StudySession {
-    id: string;              // UUID
+    id: string;
+    mode: StudyModeType;
+    order: 'sequential' | 'random';
+    noteIds: string[];
+
+    // 시간
     startedAt: number;
     endedAt: number | null;
-    totalDuration: number;   // 총 학습 시간 (초)
-    noteIds: string[];       // 학습한 문서 ID 목록
+    totalDuration: number;      // 초
+
+    // 결과 요약
+    summary: SessionSummary | null;
+}
+
+// ============================================================================
+// Legacy 호환성 (마이그레이션용)
+// ============================================================================
+
+/** 레거시 StudyRecord (v1) */
+export interface LegacyStudyRecord {
+    id: string;
+    noteId: string;
+    noteType: NoteType;
+    sessionId: string;
+    totalQuestions: number;
+    correctCount: number;
+    wrongCount: number;
+    duration: number;
+    createdAt: number;
+    completedAt: number | null;
+}
+
+/** 레거시 WeakPoint (v1) */
+export interface LegacyWeakPoint {
+    id: string;
+    noteId: string;
+    noteType: NoteType;
+    questionId: string | null;
+    content: string;
+    userAnswer: string | null;
+    correctAnswer: string | null;
+    wrongCount: number;
+    lastWrongAt: number;
+    isResolved: boolean;
+    createdAt: number;
+}
+
+/** 레거시 StudySession (v1) */
+export interface LegacyStudySession {
+    id: string;
+    startedAt: number;
+    endedAt: number | null;
+    totalDuration: number;
+    noteIds: string[];
 }

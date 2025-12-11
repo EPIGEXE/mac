@@ -6,6 +6,8 @@ import { StudyModePage } from './pages/StudyModePage';
 import { StudySetupPage } from './pages/StudySetupPage';
 import { StudyFinalResultPage } from './pages/StudyFinalResultPage';
 import { StatisticsDashboardPage } from './pages/StatisticsDashboardPage';
+import { WeakPointsPage } from './pages/WeakPointsPage';
+import { SessionHistoryPage } from './pages/SessionHistoryPage';
 import { TerminalToast } from './features/Toast/components/TerminalToast';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import { AppCrashFallback } from './components/ErrorBoundary/ErrorFallback';
@@ -22,6 +24,8 @@ function App() {
                     <Route path="/study" element={<StudyModePage />} />
                     <Route path="/study/result" element={<StudyFinalResultPage />} />
                     <Route path="/statistics" element={<StatisticsDashboardPage />} />
+                    <Route path="/study/weak-points" element={<WeakPointsPage />} />
+                    <Route path="/study/sessions" element={<SessionHistoryPage />} />
                 </Route>
             </Routes>
         </ErrorBoundary>

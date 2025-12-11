@@ -120,26 +120,6 @@ export interface GenerateQuizRequest {
     noteContent: string
     noteTitle: string
     mode: StudyModeType
-    difficulty?: DifficultyLevel
-    blankCount?: number        // word/sentence 모드에서 빈칸 개수
-}
-
-/**
- * 퀴즈 생성 응답
- */
-export interface GenerateQuizResponse {
-    quizId: string
-    mode: StudyModeType
-
-    // word/sentence 모드
-    blindedContent?: string
-    blanks?: {
-        id: string
-        hint?: string
-    }[]
-
-    // essay 모드
-    question?: string
 }
 
 /**

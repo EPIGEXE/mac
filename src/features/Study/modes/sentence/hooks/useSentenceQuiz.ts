@@ -7,7 +7,7 @@
 import { useState, useCallback, useMemo, useRef } from 'react'
 import type { SentenceQuestionInfo, GenerateQuizResponse, SentenceEvaluationResult } from '../../../types'
 import { generateQuiz, evaluateSentenceAnswers, handleStudyApiError } from '../../../services/studyApi'
-import { useWeakPointRecorder } from '../../../hooks/useWeakPointRecorder'
+import { useSentenceWeakPointRecorder } from '../../../hooks/useWeakPointRecorder'
 
 type SentenceQuizPhase = 'loading' | 'quiz' | 'result'
 
@@ -37,7 +37,7 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
     const startTimeRef = useRef<number>(Date.now()) // 퀴즈 시작 시간, 학습 시간 계산용
 
     // ================================ Hooks ================================
-    const { recordWeakPoint } = useWeakPointRecorder({ noteId, noteType })
+    const { recordSentenceIfWrong } = useSentenceWeakPointRecorder({ noteId, noteType })
 
     // ================================ 상수 ================================
     const questions = useMemo(() => (quizData?.questions || []) as SentenceQuestionInfo[], [quizData?.questions])
@@ -121,15 +121,15 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
 
             // 오답 약점 기록
             for (const result of response.results) {
-                if (!result.isCorrect) {
-                    const question = questions.find((q) => q.id === result.blankId)
-                    if (question) {
-                        await recordWeakPoint({
-                            content: question.answer,
-                            userAnswer: answers[question.id] || '',
-                            correctAnswer: question.answer,
-                        })
-                    }
+                const question = questions.find((q) => q.id === result.blankId)
+                if (question) {
+                    await recordSentenceIfWrong(result.isCorrect, {
+                        questionId: question.id,
+                        question: question.question,
+                        correctAnswer: question.answer,
+                        keyPoints: question.keyPoints || [],
+                        missedPoints: result.missedPoints || [],
+                    })
                 }
             }
 
@@ -140,7 +140,7 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
         } finally {
             setIsEvaluating(false)
         }
-    }, [questions, answers, recordWeakPoint])
+    }, [questions, answers, recordSentenceIfWrong])
 
     // 학습 시간 계산
     const getDuration = useCallback(() => {

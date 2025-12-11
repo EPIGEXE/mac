@@ -470,7 +470,7 @@ div.pm-placeholder::before {
 }
 
 .pm-editor pre .hljs-strong {
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
 }
 
 /* ==============================

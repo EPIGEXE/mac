@@ -33,11 +33,11 @@ export function StudyCTABanner() {
                             <h2 className="text-lg font-semibold text-[var(--text-primary)]">
                                 학습 모드
                             </h2>
-                            <span className="font-mono text-[10px] px-1.5 py-0.5 bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/30">
+                            <span className="font-mono text-xs px-1.5 py-0.5 bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/30">
                                 QUIZ
                             </span>
                         </div>
-                        <p className="font-mono text-xs text-[var(--text-tertiary)]">
+                        <p className="comment-text">
                             // 노트 선택 → 모드 선택 → 퀴즈로 복습
                         </p>
                     </div>
@@ -45,15 +45,15 @@ export function StudyCTABanner() {
                     {/* 모드 미리보기 */}
                     <div className="hidden md:flex items-center gap-3 ml-4 pl-6 border-l border-[var(--border-light)]">
                         <div className="flex items-center gap-1.5 text-[var(--text-secondary)]">
-                            <span className="font-mono text-[11px] px-2 py-1 bg-[var(--bg-primary)] border border-[var(--border-light)]">word</span>
+                            <span className="font-mono text-xs px-2 py-1 bg-[var(--bg-primary)] border border-[var(--border-light)]">word</span>
                             <span className="text-xs">빈칸</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-[var(--text-secondary)]">
-                            <span className="font-mono text-[11px] px-2 py-1 bg-[var(--bg-primary)] border border-[var(--border-light)]">sent</span>
+                            <span className="font-mono text-xs px-2 py-1 bg-[var(--bg-primary)] border border-[var(--border-light)]">sent</span>
                             <span className="text-xs">문장</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-[var(--text-secondary)]">
-                            <span className="font-mono text-[11px] px-2 py-1 bg-[var(--bg-primary)] border border-[var(--border-light)]">essay</span>
+                            <span className="font-mono text-xs px-2 py-1 bg-[var(--bg-primary)] border border-[var(--border-light)]">essay</span>
                             <span className="text-xs">서술</span>
                         </div>
                     </div>
@@ -82,7 +82,7 @@ export function StudyCTABanner() {
                         <span className="relative">학습 시작</span>
 
                         {/* 화살표 애니메이션 */}
-                        <span className="relative ml-1 transition-transform duration-200 group-hover:translate-x-1">→</span>
+                        <span className="relative ml-1 transition-transform duration-200 group-hover:translate-x-3">→</span>
                     </button>
                 </div>
             </div>

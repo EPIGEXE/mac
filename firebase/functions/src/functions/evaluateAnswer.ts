@@ -6,29 +6,11 @@
  */
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import { callLLMJson, getModelPresets, getRequiredSecrets } from '../llm'
-import { SYSTEM_PROMPTS, buildEvaluateEssayPrompt, buildEvaluateSentenceAnswersPrompt } from '../llm/prompts'
+import { buildEvaluateEssayPrompt } from '../llm/prompts/essayQuiz'
+import { buildEvaluateSentenceAnswersPrompt } from '../llm/prompts/sentenceQuiz'
+import { EssayEvaluationResponse, EvaluateEssayRequest, EvaluateSentenceAnswersRequest, SentenceEvaluationResponse } from '../types/llmResponse'
+import { SYSTEM_PROMPTS } from '../llm/prompts/systemPrompt'
 
-// 서술형 답변 평가 요청 타입 (한국 테크기업 면접 스타일)
-interface EvaluateEssayRequest {
-    company: string
-    question: string
-    questionType: string
-    expectedPoints: string[]
-    answerGuide: string
-    userAnswer: string
-}
-
-// 서술형 평가 LLM 응답 타입
-interface EssayEvaluationResponse {
-    score: number
-    grade: 'PASS' | 'BORDERLINE' | 'NEEDS_WORK'
-    matchedPoints: string[]
-    missedPoints: string[]
-    strengths: string[]
-    improvements: string[]
-    feedback: string
-    tip: string
-}
 
 /**
  * 서술형 답변 평가 함수 (한국 테크기업 면접 스타일)
@@ -98,29 +80,9 @@ export const evaluateAnswer = onCall(
 
 // ================================ 문장 모드 일괄 평가 ================================
 
-// 문장 모드 요청 타입
-interface EvaluateSentenceAnswersRequest {
-    blanks: Array<{
-        id: string
-        correctAnswer: string
-        keyPoints: string[]
-        userAnswer: string
-    }>
-}
 
-// 문장 모드 LLM 응답 타입
-interface SentenceEvaluationResponse {
-    results: Array<{
-        blankId: string
-        isCorrect: boolean
-        score: number
-        matchedPoints: string[]
-        missedPoints: string[]
-        feedback: string
-    }>
-    totalScore: number
-    overallFeedback: string
-}
+
+
 
 /**
  * 문장 모드 답변 일괄 평가 함수

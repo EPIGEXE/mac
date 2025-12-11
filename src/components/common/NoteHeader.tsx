@@ -28,7 +28,7 @@ export function NoteHeader(props: NoteHeaderProps) {
     const { category, title, tag } = props
 
     return (
-        <div className="max-w-[1000px] mx-auto px-6 py-12">
+        <div className="main-container px-6 py-12">
             {/* 카테고리 */}
             <div className="flex items-center gap-2 mb-5">
                 <span className="font-mono text-[13px] text-[var(--accent)]">#</span>

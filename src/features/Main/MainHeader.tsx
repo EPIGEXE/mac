@@ -28,7 +28,7 @@ const topicButtons: { value: TopicFilter; label: string; mono: string }[] = [
 // 스크롤 임계값
 const SCROLL_THRESHOLD = 50
 
-export function Header({ viewMode, onViewModeChange, topicFilter, onTopicFilterChange }: HeaderProps) {
+export function MainHeader({ viewMode, onViewModeChange, topicFilter, onTopicFilterChange }: HeaderProps) {
     const navigate = useNavigate()
     const { theme, toggleTheme } = useTheme()
     const [isCompact, setIsCompact] = useState(false)
@@ -74,7 +74,7 @@ export function Header({ viewMode, onViewModeChange, topicFilter, onTopicFilterC
             transition={{ duration: 0.3, ease: 'easeOut' }}
         >
             <motion.div
-                className="max-w-[1000px] mx-auto px-4"
+                className="main-container px-4"
                 initial={false}
                 animate={{
                     paddingTop: isCompact ? 12 : 32,
@@ -95,7 +95,7 @@ export function Header({ viewMode, onViewModeChange, topicFilter, onTopicFilterC
                                 </span>
                             </h1>
                             <motion.p
-                                className="font-mono text-xs text-[var(--text-tertiary)] tracking-[0.02em] overflow-hidden"
+                                className="comment-text"
                                 initial={false}
                                 animate={{
                                     height: isCompact ? 0 : 'auto',
@@ -124,10 +124,10 @@ export function Header({ viewMode, onViewModeChange, topicFilter, onTopicFilterC
                                     <button
                                         key={topic.value}
                                         onClick={() => handleTopicChange(topic.value)}
-                                        className={`px-2 py-1 bg-transparent border-none font-mono text-xs cursor-pointer transition-colors duration-150 whitespace-nowrap ${
+                                        className={`px-2 py-1 bg-transparent border-none cursor-pointer transition-colors duration-150 whitespace-nowrap ${
                                             isActive
-                                                ? 'text-[var(--accent)] font-medium'
-                                                : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+                                                ? 'font-semibold text-[var(--text-primary)]'
+                                                : 'font-normal text-[var(--text-secondary)]'
                                         }`}
                                     >
                                         {topic.label}
@@ -140,11 +140,11 @@ export function Header({ viewMode, onViewModeChange, topicFilter, onTopicFilterC
                     {/* 우측: View Mode + 테마 + 학습 */}
                     <div className="flex items-center gap-3">
                         {/* View Mode - 터미널 스타일 */}
-                        <div className="flex font-mono text-[13px] text-[var(--text-tertiary)]">
+                        <div className="flex font-mono text-[var(--text-tertiary)]">
                             <span className="mr-2">view:</span>
                             <button
                                 onClick={() => onViewModeChange('list')}
-                                className={`bg-transparent border-none px-2 font-mono text-[13px] cursor-pointer relative ${
+                                className={`bg-transparent border-none px-2 font-mono cursor-pointer relative ${
                                     viewMode === 'list' ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)]'
                                 }`}
                             >
@@ -156,7 +156,7 @@ export function Header({ viewMode, onViewModeChange, topicFilter, onTopicFilterC
                             <span className="text-[var(--text-tertiary)]">|</span>
                             <button
                                 onClick={() => onViewModeChange('roadmap')}
-                                className={`bg-transparent border-none px-2 font-mono text-[13px] cursor-pointer relative ${
+                                className={`bg-transparent border-none px-2 font-mono cursor-pointer relative ${
                                     viewMode === 'roadmap' ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)]'
                                 }`}
                             >
@@ -170,7 +170,7 @@ export function Header({ viewMode, onViewModeChange, topicFilter, onTopicFilterC
                         {/* 테마 토글 */}
                         <button
                             onClick={toggleTheme}
-                            className="w-8 h-8 border border-[var(--border-light)] bg-transparent text-[var(--text-tertiary)] flex items-center justify-center cursor-pointer transition-all duration-150 hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                            className="border-highlight-button w-8 h-8 "
                         >
                             {theme === 'light' ? <IconMoon size={16} /> : <IconSun size={16} />}
                         </button>
@@ -219,11 +219,11 @@ export function Header({ viewMode, onViewModeChange, topicFilter, onTopicFilterC
                                             isActive ? 'border-b-2 border-b-[var(--accent)]' : 'border-b-2 border-b-transparent'
                                         }`}
                                     >
-                                        <span className="font-mono text-[11px] text-[var(--text-tertiary)] mr-1.5">
+                                        <span className="font-mono text-sm text-[var(--text-tertiary)] mr-1.5">
                                             {topic.mono}
                                         </span>
                                         <span
-                                            className={`text-sm ${
+                                            className={`${
                                                 isActive
                                                     ? 'font-semibold text-[var(--text-primary)]'
                                                     : 'font-normal text-[var(--text-secondary)]'

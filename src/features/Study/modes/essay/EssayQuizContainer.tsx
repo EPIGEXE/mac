@@ -6,7 +6,8 @@
 import { useEffect } from 'react'
 import type { Note } from '../../../../db/schema/note'
 import { useEssayQuiz } from './hooks/useEssayQuiz'
-import { recordStudy, type RecordStudyInput } from '../../../../db/study/studyService'
+import { recordEssayStudy } from '../../../../db/study/studyService'
+import type { RecordEssayStudyInput } from '../../../../db/study/types'
 import { useStudySessionStore } from '../../../../stores/studySessionStore'
 import { EssayQuizResult } from './components/EssayQuizResult'
 import { EssayQuizQuestion } from './components/EssayQuizQuestion'
@@ -57,37 +58,47 @@ export function EssayQuizContainer({
 
     // 결과 화면 진입 시 학습 기록 저장
     useEffect(() => {
-        if (phase === 'result' && result) {
+        if (phase === 'result' && result && question) {
             const duration = getDuration()
             const correctCount = isCorrect ? 1 : 0
             const wrongCount = isCorrect ? 0 : 1
             const score = isCorrect ? 100 : 0
 
-            // DB에 기록
+            // DB에 기록 (새로운 모드별 함수 사용)
             const dbSessionId = getDbSessionId()
-            const input: RecordStudyInput = {
+
+            const input: RecordEssayStudyInput = {
                 noteId: note.id,
                 noteType,
                 sessionId: dbSessionId || `session-${Date.now()}`,
+                duration,
+                company: question.company,
+                question: question.question,
+                questionType: question.questionType,
+                userAnswer: answer,
+                score: result.score,
+                grade: result.grade,
+                matchedPoints: result.matchedPoints,
+                missedPoints: result.missedPoints,
+                strengths: result.strengths,
+                improvements: result.improvements,
+                feedback: result.feedback,
+                tip: result.tip,
+            }
+            recordEssayStudy(input).catch((e) => console.error('Failed to record study:', e))
+
+            // Store 모드면 세션 결과에도 기록
+            recordNoteResult({
+                noteId: note.id,
+                noteTitle: note.title,
                 totalQuestions: 1,
                 correctCount,
                 wrongCount,
+                score,
                 duration,
-            }
-            recordStudy(input).catch((e) => console.error('Failed to record study:', e))
-
-            // Store 모드면 세션 결과에도 기록
-                recordNoteResult({
-                    noteId: note.id,
-                    noteTitle: note.title,
-                    totalQuestions: 1,
-                    correctCount,
-                    wrongCount,
-                    score,
-                    duration,
-                })
+            })
         }
-    }, [phase, result, note.id, note.title, noteType, isCorrect, getDuration, recordNoteResult, getDbSessionId])
+    }, [phase, result, question, answer, note.id, note.title, noteType, isCorrect, getDuration, recordNoteResult, getDbSessionId])
 
     // 로딩 화면
     if (phase === 'loading') {
