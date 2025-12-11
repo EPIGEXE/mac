@@ -5,6 +5,7 @@ import closureContent from './closure.md?raw'
 import eventloopContent from './eventloop.md?raw'
 import promiseContent from './promise.md?raw'
 import es6Content from './es6.md?raw'
+import hoistingContent from './hoisting.md?raw'
 
 export const javascriptNotes: SystemNote[] = [
     {
@@ -61,6 +62,20 @@ export const javascriptNotes: SystemNote[] = [
             interview: TAG.INTERVIEW.common,
         },
         order: 4,
+        createdAt: Date.now(),
+    },
+    {
+        id: 'sys-js-hoisting',
+        version: 1,
+        title: '호이스팅',
+        content: hoistingContent,
+        category: CATEGORY.JavaScript,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.core,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 5,
         createdAt: Date.now(),
     },
 ]

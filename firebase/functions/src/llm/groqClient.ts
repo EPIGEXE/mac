@@ -52,6 +52,13 @@ export class GroqLLMClient implements LLMClient {
             response_format: { type: 'json_object' },
         })
 
+        // 토큰 사용량 로깅
+        if (response.usage) {
+            console.log(
+                `[Groq Token Usage] model: ${model}, prompt: ${response.usage.prompt_tokens}, completion: ${response.usage.completion_tokens}, total: ${response.usage.total_tokens}`
+            )
+        }
+
         const content = response.choices[0]?.message?.content
         if (!content) {
             throw new Error('Empty response from Groq API')

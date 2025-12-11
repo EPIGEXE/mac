@@ -15,7 +15,6 @@ interface NoteStore {
     notes: Note[];
     selectedNoteId: string | null;
     selectedNoteType: 'system' | 'user' | null;
-    isLoading: boolean;
     error: string | null;
 
     // Actions
@@ -34,11 +33,10 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
     selectedNoteId: null,
     selectedNoteType: null,
     isEditing: false,
-    isLoading: true,
     error: null,
 
     loadNotes: async () => {
-        set({ isLoading: true, error: null });
+        set({ error: null });
 
         try {
             // 노트 서비스 초기화 (systemNotes 로드)
@@ -46,10 +44,10 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
 
             // 모든 노트 조회 (system + user 통합)
             const notes = await getAllNotes();
-            set({ notes, isLoading: false });
+            set({ notes });
         } catch (error) {
             const message = getErrorMessage(error);
-            set({ error: message, isLoading: false });
+            set({ error: message });
             terminalToast.error('노트를 불러오는데 실패했습니다.');
             console.error('[noteStore.loadNotes]', error);
         }

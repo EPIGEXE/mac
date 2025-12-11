@@ -9,13 +9,12 @@ export function NoteDetailWrapper() {
     const navigate = useNavigate() // 네비게이션
     const { noteId } = useParams<{ noteId: string }>() // 노트 ID
     const { theme, toggleTheme } = useTheme() // 테마
-    const {
-        notes, // 노트 목록
-        isLoading, // 로딩 상태
-        loadNotes, // 노트 로드
-        updateNote, // 노트 업데이트
-        deleteNote, // 노트 삭제
-    } = useNoteStore()
+
+    // ==================================== 전역 상태 =====================================
+    const notes = useNoteStore((state) => state.notes) // 노트 목록
+    const loadNotes = useNoteStore((state) => state.loadNotes) // 노트 로드
+    const updateNote = useNoteStore((state) => state.updateNote) // 노트 업데이트
+    const deleteNote = useNoteStore((state) => state.deleteNote) // 노트 삭제
 
     // ==================================== useEffect =====================================
     // 노트 로드
@@ -45,14 +44,6 @@ export function NoteDetailWrapper() {
             await deleteNote(noteId, note.type)
             navigate('/')
         }
-    }
-
-    if (isLoading) {
-        return (
-            <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
-                <div className="text-[var(--text-secondary)]">로딩 중...</div>
-            </div>
-        )
     }
 
     if (!note) {

@@ -19,8 +19,9 @@ export function StudySetupPage() {
     const navigate = useNavigate()
 
     // ================================ 전역 상태 ================================
-    const { notes, isLoading, loadNotes } = useNoteStore()
-    const { startSession } = useStudySessionStore()
+    const notes = useNoteStore((state) => state.notes) // 노트 목록
+    const loadNotes = useNoteStore((state) => state.loadNotes) // 노트 로드
+    const startSession = useStudySessionStore((state) => state.startSession)
 
     // ================================ 로컬 상태 ================================
     const [selectedNoteIds, setSelectedNoteIds] = useState<string[]>([])
@@ -54,15 +55,6 @@ export function StudySetupPage() {
 
         // 학습 페이지로 이동
         navigate(`/study?mode=${mode}`)
-    }
-
-    // ================================ 렌더링 ================================
-    if (isLoading) {
-        return (
-            <div className="h-screen flex items-center justify-center bg-[var(--bg-primary)]">
-                <span className="font-mono text-[var(--text-tertiary)]">loading...</span>
-            </div>
-        )
     }
 
     const canStart = selectedNoteIds.length > 0

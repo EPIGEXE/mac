@@ -10,7 +10,6 @@ interface StudyModeSelectorProps {
     selectedMode: StudyModeType
     onModeChange: (mode: StudyModeType) => void
     onStart: () => void
-    isLoading: boolean
 }
 
 const MODES: { value: StudyModeType; label: string; mono: string; description: string }[] = [
@@ -40,7 +39,6 @@ export function StudyModeSelector({
     selectedMode,
     onModeChange,
     onStart,
-    isLoading,
 }: StudyModeSelectorProps) {
     return (
         <TerminalModal
@@ -118,17 +116,10 @@ export function StudyModeSelector({
             {/* 시작 버튼 */}
             <button
                 onClick={onStart}
-                disabled={isLoading}
                 className="w-full py-3 bg-[var(--accent)] text-white font-mono text-sm cursor-pointer transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-                {isLoading ? (
-                    <span className="animate-pulse">generating quiz...</span>
-                ) : (
-                    <>
-                        <span className="text-xs opacity-80">▶</span>
-                        start
-                    </>
-                )}
+                <span className="text-xs opacity-80">▶</span>
+                start
             </button>
         </TerminalModal>
     )

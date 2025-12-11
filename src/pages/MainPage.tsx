@@ -16,12 +16,9 @@ export function MainPage() {
     const navigate = useNavigate() // 네비게이션
 
     // ==================================== 전역 상태 =====================================
-    const {
-        notes, //노트 목록
-        isLoading, // 로딩 상태
-        loadNotes, // 노트 로드
-        createNote, // 노트 생성
-    } = useNoteStore()
+    const notes = useNoteStore((state) => state.notes) //노트 목록
+    const loadNotes = useNoteStore((state) => state.loadNotes) // 노트 로드
+    const createNote = useNoteStore((state) => state.createNote) // 노트 생성
 
     // ==================================== 상태 관리 =====================================
     const [viewMode, setViewMode] = useState<ViewMode>('list') // 뷰 모드 (리스트 / 맵)
@@ -56,14 +53,6 @@ export function MainPage() {
     // 노트 클릭
     const handleNoteClick = (noteId: string) => {
         navigate(`/note/${noteId}`)
-    }
-
-    if (isLoading) {
-        return (
-            <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
-                <div className="text-[var(--text-secondary)]">로딩 중...</div>
-            </div>
-        )
     }
 
     // roadmap 뷰일 때는 flex로 남은 높이 채우기

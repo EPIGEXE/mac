@@ -39,6 +39,7 @@ export const evaluateAnswer = onCall(
         secrets: getRequiredSecrets(),
         timeoutSeconds: 60, // 면접 평가는 시간이 더 필요
         memory: '256MiB',
+        enforceAppCheck: false, // TODO: App Check throttle 풀리면 true로 변경
     },
     async (request) => {
         const data = request.data as EvaluateEssayRequest
@@ -132,6 +133,7 @@ export const evaluateSentenceAnswers = onCall(
         secrets: getRequiredSecrets(),
         timeoutSeconds: 60, // 여러 답변 평가하므로 시간 늘림
         memory: '256MiB',
+        enforceAppCheck: false, // TODO: App Check throttle 풀리면 true로 변경
     },
     async (request) => {
         const data = request.data as EvaluateSentenceAnswersRequest

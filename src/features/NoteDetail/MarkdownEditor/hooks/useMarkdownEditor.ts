@@ -24,6 +24,8 @@ interface UseMarkdownEditorOptions {
     onChange: (markdown: string) => void // 콘텐츠 변경 핸들러
     editable?: boolean // 에디터 편집 가능 여부
     placeholder?: string // 플레이스홀더 텍스트
+    maxLength?: number // 최대 문자 수 제한
+    onLengthChange?: (length: number) => void // 문자 수 변경 콜백
 }
 
 /**
@@ -34,6 +36,8 @@ export function useMarkdownEditor({
     onChange,
     editable = true,
     placeholder = '내용을 입력하세요...',
+    maxLength,
+    onLengthChange,
 }: UseMarkdownEditorOptions) {
     // =================================== 상태 관리 ===================================
     const [slashCommandState, setSlashCommandState] = useState<SlashCommandState>({
@@ -50,8 +54,12 @@ export function useMarkdownEditor({
     const containerRef = useRef<HTMLDivElement>(null) // 에디터 컨테이너 참조(에디터가 붙을 DOM 요소)
     const viewRef = useRef<EditorView | null>(null) // 에디터 뷰 참조
     const onChangeRef = useRef(onChange) // 콘텐츠 변경 핸들러 참조
+    const onLengthChangeRef = useRef(onLengthChange) // 문자 수 변경 콜백 참조
+    const maxLengthRef = useRef(maxLength) // 최대 문자 수 참조
 
     onChangeRef.current = onChange
+    onLengthChangeRef.current = onLengthChange
+    maxLengthRef.current = maxLength
 
     // 에디터 초기화
     useEffect(() => {
@@ -113,6 +121,12 @@ export function useMarkdownEditor({
                 // 리액트 상태로 업데이트
                 if (tr.docChanged) {
                     const markdown = serializeToMarkdown(newState.doc)
+
+                    // 문자 수 콜백 호출
+                    if (onLengthChangeRef.current) {
+                        onLengthChangeRef.current(markdown.length)
+                    }
+
                     onChangeRef.current(markdown)
                 }
             },
@@ -184,6 +198,11 @@ export function useMarkdownEditor({
 
         viewRef.current = view
         setIsViewReady(true)
+
+        // 초기 콘텐츠 문자 수 콜백
+        if (onLengthChangeRef.current) {
+            onLengthChangeRef.current(initialContent.length)
+        }
 
         // 컬럼 리사이즈 핸들 높이를 테이블 전체 높이로 조정하는 MutationObserver
         const resizeHandleObserver = new MutationObserver((mutations) => {

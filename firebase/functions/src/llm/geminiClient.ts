@@ -53,6 +53,14 @@ export class GeminiLLMClient implements LLMClient {
         const response = result.response
         const content = response.text()
 
+        // 토큰 사용량 로깅
+        const usage = response.usageMetadata
+        if (usage) {
+            console.log(
+                `[Gemini Token Usage] model: ${model}, prompt: ${usage.promptTokenCount}, completion: ${usage.candidatesTokenCount}, total: ${usage.totalTokenCount}`
+            )
+        }
+
         if (!content) {
             throw new Error('Empty response from Gemini API')
         }

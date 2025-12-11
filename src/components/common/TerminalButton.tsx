@@ -16,10 +16,15 @@ const buttonStyles = cva(
                 true: 'border-[var(--accent)] text-[var(--accent)]',
                 false: '',
             },
+            disabled: {
+                true: 'opacity-50 cursor-not-allowed hover:border-[var(--border-light)] hover:text-[var(--text-tertiary)]',
+                false: '',
+            },
         },
         defaultVariants: {
             variant: 'default',
             active: false,
+            disabled: false,
         },
     }
 );
@@ -30,16 +35,19 @@ export function TerminalButton({
     onClick,
     active = false,
     variant = 'default',
+    disabled = false,
 }: {
     children: React.ReactNode;
     onClick: () => void;
     active?: boolean;
     variant?: 'default' | 'accent' | 'danger';
+    disabled?: boolean;
 }) {
     return (
         <button
-            onClick={onClick}
-            className={buttonStyles({ variant, active })}
+            onClick={disabled ? undefined : onClick}
+            disabled={disabled}
+            className={buttonStyles({ variant, active, disabled })}
         >
             {children}
         </button>

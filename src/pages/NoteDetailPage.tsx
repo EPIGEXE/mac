@@ -5,7 +5,7 @@ import { TerminalButton } from '../components/common/TerminalButton'
 import { TerminalModal } from '../components/common/TerminalModal'
 import { NoteHeader } from '../components/common/NoteHeader'
 import { MarkdownEditor } from '../features/NoteDetail/MarkdownEditor/MarkdownEditor'
-import { TableOfContents } from '../features/NoteDetail/TableOfContents/TableOfContents'
+import { TableOfContents } from '../features/NoteDetail/TableOfContents'
 import type { StudyModeType } from '../features/Study/types'
 import type { Note } from '../db/schema/note'
 import { StudyModeSelector } from '../features/Study/components/StudyModeSelector'
@@ -32,9 +32,13 @@ export function NoteDetailPage({
 }: NoteDetailPageProps) {
     const navigate = useNavigate()
 
+    // ==================================== 상수 =====================================
+    const MAX_CONTENT_LENGTH = 15000 // 최대 문자 수 (약 5000 토큰)
+
     // ==================================== 상태 관리 =====================================
     const [title, setTitle] = useState(note.title) // 제목
     const [pendingContent, setPendingContent] = useState<string | null>(null) // 임시 콘텐츠
+    const [contentLength, setContentLength] = useState(note.content?.length || 0) // 콘텐츠 문자 수
     const [studyModalOpen, setStudyModalOpen] = useState(false) // 학습 모달
     const [studyMode, setStudyMode] = useState<StudyModeType>('word') // 학습 모드
     const [unsavedModalOpen, setUnsavedModalOpen] = useState(false) // 저장하지 않은 변경 사항 모달
@@ -47,6 +51,9 @@ export function NoteDetailPage({
         const contentChanged = pendingContent !== null && pendingContent !== note.content
         return titleChanged || contentChanged
     }, [title, note.title, pendingContent, note.content])
+
+    // 저장 가능 여부: dirty이고 문자 수 제한 이하
+    const canSave = isDirty && contentLength <= MAX_CONTENT_LENGTH
 
     // ==================================== useEffect =====================================
     // 제목 설정
@@ -146,7 +153,11 @@ export function NoteDetailPage({
                         </button>
 
                         {/* 저장/삭제 버튼 */}
-                        <TerminalButton onClick={handleSave} active>
+                        <TerminalButton
+                            onClick={handleSave}
+                            active={canSave}
+                            disabled={contentLength > MAX_CONTENT_LENGTH}
+                        >
                             :w save
                         </TerminalButton>
                         <TerminalButton onClick={handleDeleteClick} variant="danger">
@@ -182,8 +193,22 @@ export function NoteDetailPage({
                             initialContent={note.content || ''}
                             onChange={handleContentChange}
                             editable={true}
+                            maxLength={MAX_CONTENT_LENGTH}
+                            onLengthChange={setContentLength}
                         />
                     </ErrorBoundary>
+
+                    {/* 문자 수 표시 */}
+                    <div className="mt-4 mb-8 font-mono text-xs flex items-center justify-end gap-2">
+                        <span className={contentLength > MAX_CONTENT_LENGTH ? 'text-red-400' : 'text-[var(--text-tertiary)]'}>
+                            {contentLength.toLocaleString()} / {MAX_CONTENT_LENGTH.toLocaleString()}자
+                        </span>
+                        {contentLength > MAX_CONTENT_LENGTH && (
+                            <span className="text-red-400">
+                                (제한 초과 - 저장 불가)
+                            </span>
+                        )}
+                    </div>
                 </div>
 
                 {/* 목차 - 화면 우측에 고정 (노션 스타일) */}
@@ -197,7 +222,6 @@ export function NoteDetailPage({
                 selectedMode={studyMode}
                 onModeChange={setStudyMode}
                 onStart={handleStudyStart}
-                isLoading={false}
             />
 
             {/* 저장하지 않은 변경 사항 모달 */}

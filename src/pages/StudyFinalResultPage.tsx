@@ -16,16 +16,14 @@ import type { StudyModeType } from '../features/Study/types'
 export function StudyFinalResultPage() {
     const navigate = useNavigate()
 
-    const {
-        noteResults,
-        selectedNoteIds,
-        mode,
-        order,
-        isActive,
-        getTotalStats,
-        resetSession,
-        startSession,
-    } = useStudySessionStore()
+    const noteResults = useStudySessionStore((state) => state.noteResults)
+    const selectedNoteIds = useStudySessionStore((state) => state.selectedNoteIds)
+    const mode = useStudySessionStore((state) => state.mode)
+    const order = useStudySessionStore((state) => state.order)
+    const isActive = useStudySessionStore((state) => state.isActive)
+    const getTotalStats = useStudySessionStore((state) => state.getTotalStats)
+    const resetSession = useStudySessionStore((state) => state.resetSession)
+    const startSession = useStudySessionStore((state) => state.startSession)
 
     // 통계 계산
     const stats = getTotalStats()
@@ -84,14 +82,6 @@ export function StudyFinalResultPage() {
         const mins = Math.floor(seconds / 60)
         const secs = seconds % 60
         return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`
-    }
-
-    if (noteResults.length === 0) {
-        return (
-            <div className="h-screen flex items-center justify-center bg-[var(--bg-primary)]">
-                <span className="font-mono text-[var(--text-tertiary)]">loading...</span>
-            </div>
-        )
     }
 
     return (

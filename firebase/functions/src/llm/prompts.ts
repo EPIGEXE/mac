@@ -84,11 +84,14 @@ ${content}
 
 1. **Identify ALL sections**: List every distinct topic/section in the document. Do NOT skip any section.
 
-2. **Extract key concepts** from EACH section:
+2. **Extract key concepts** (MAXIMUM 10 concepts total):
+   - LIMIT: Extract only the TOP 10 most important concepts for interviews
+   - Prioritize: critical > high > medium
+   - Focus on specificity: concept/implementation over abstract
    - importance levels:
-     - "critical": Must-know for interviews, core to the topic
+     - "critical": Must-know for interviews (limit to 3-5 max)
      - "high": Important supporting concepts
-     - "medium": Nice-to-know details
+     - "medium": Nice-to-know details (avoid if possible)
    - types:
      - "term": Technical terminology (e.g., DOM, CSSOM, Reflow)
      - "process": Sequence/order that should be tested (e.g., rendering pipeline)
@@ -142,7 +145,8 @@ Return ONLY valid JSON:
   - "리소스 힌트 사용" (abstract) - general method
 
 CRITICAL: Do NOT skip any section. Every section in the document must appear in the output.
-CRITICAL: Correctly classify specificity - abstract concepts should NOT become quiz blanks.`
+CRITICAL: Correctly classify specificity - abstract concepts should NOT become quiz blanks.
+CRITICAL: MAXIMUM 10 concepts total. Only extract the most interview-essential concepts.`
 }
 
 // ================================ Stage 2: 퀴즈 생성 프롬프트 (개념 기반) ================================
@@ -153,7 +157,7 @@ interface BlindQuizPromptParams {
     content: string
     blankCount: number
     difficulty: DifficultyLevel
-    extractedConcepts?: ExtractedConcepts
+    extractedConcepts: ExtractedConcepts
 }
 
 export function buildBlindQuizPrompt(params: BlindQuizPromptParams): string {
@@ -165,37 +169,35 @@ export function buildBlindQuizPrompt(params: BlindQuizPromptParams): string {
             : 'Select complete key sentences or important phrases'
 
     // Stage 2: 개념 정보가 있는 경우 (2단계 파이프라인)
-    if (extractedConcepts) {
-        // 방안 1: specificity 기반 필터링 - abstract 제외
-        const quizWorthy = extractedConcepts.concepts
-            .filter(c => c.specificity !== 'abstract') // abstract 제외
-            .filter(c => c.importance === 'critical' || c.importance === 'high')
+    // 방안 1: specificity 기반 필터링 - abstract 제외
+    const quizWorthy = extractedConcepts.concepts
+        .filter((c) => c.specificity !== 'abstract') // abstract 제외
+        .filter((c) => c.importance === 'critical' || c.importance === 'high')
 
-        // critical/high + non-abstract 개념 목록 (우선순위순)
-        const priorityConcepts = quizWorthy
-            .sort((a, b) => {
-                const order = { critical: 0, high: 1, medium: 2 }
-                return order[a.importance] - order[b.importance]
-            })
-            .map(c => `- "${c.term}" (${c.importance}, ${c.type}, ${c.specificity})`)
-            .join('\n')
+    // 개념 수 제한: blankCount의 1.5배 또는 최대 10개 중 작은 값
+    const maxConcepts = Math.min(10, Math.ceil(blankCount * 1.5))
 
-        // critical 개념 목록 (abstract 제외)
-        const criticalConcepts = quizWorthy
-            .filter(c => c.importance === 'critical')
-            .map(c => c.term)
+    // critical/high + non-abstract 개념 목록 (우선순위순, 최대 maxConcepts개)
+    const sortedConcepts = quizWorthy.sort((a, b) => {
+        const order = { critical: 0, high: 1, medium: 2 }
+        return order[a.importance] - order[b.importance]
+    })
+    const limitedConcepts = sortedConcepts.slice(0, maxConcepts)
 
-        // 제외된 abstract 개념 목록 (LLM에게 명시적으로 알려줌)
-        const excludedAbstract = extractedConcepts.concepts
-            .filter(c => c.specificity === 'abstract')
-            .map(c => c.term)
+    const priorityConcepts = limitedConcepts
+        .map((c) => `- "${c.term}" (${c.importance}, ${c.type}, ${c.specificity})`)
+        .join('\n')
 
-        // 프로세스 정보
-        const processInfo = extractedConcepts.processes.map(p =>
-            `- ${p.name}: ${p.steps.join(' → ')}`
-        ).join('\n')
+    // critical 개념 목록 (limitedConcepts 기반 - 제한된 개념 내에서만)
+    const criticalConcepts = limitedConcepts.filter((c) => c.importance === 'critical').map((c) => c.term)
 
-        return `Task: Create an interview-prep fill-in-the-blank quiz based on extracted concepts.
+    // 제외된 abstract 개념 목록 (LLM에게 명시적으로 알려줌)
+    const excludedAbstract = extractedConcepts.concepts.filter((c) => c.specificity === 'abstract').map((c) => c.term)
+
+    // 프로세스 정보
+    const processInfo = extractedConcepts.processes.map((p) => `- ${p.name}: ${p.steps.join(' → ')}`).join('\n')
+
+    return `Task: Create an interview-prep fill-in-the-blank quiz based on extracted concepts.
 
 ## STRICT REQUIREMENTS
 
@@ -210,7 +212,7 @@ Focus on HIGH-VALUE technical concepts regardless of which section they belong t
 ${priorityConcepts}
 
 **EXCLUDED - DO NOT USE AS BLANKS (specificity: abstract):**
-${excludedAbstract.length > 0 ? excludedAbstract.map(t => `❌ "${t}"`).join('\n') : '(none)'}
+${excludedAbstract.length > 0 ? excludedAbstract.map((t) => `❌ "${t}"`).join('\n') : '(none)'}
 
 ### 2. Critical Concepts (MUST include ALL)
 These terms MUST appear as blanks: ${criticalConcepts.join(', ') || '(none - all critical concepts were abstract)'}
@@ -281,7 +283,7 @@ USE AT LEAST 3 DIFFERENT STRATEGIES in your quiz!
 ❌ Abstract nouns ending with: ~최적화, ~전략, ~방법, ~방식, ~하기
 ❌ Abstract concepts marked above in EXCLUDED list
 ✅ ONLY use: Specific APIs, attributes, properties, acronyms, error/phenomenon names
-   Good examples: defer, async, preload, prefetch, FOUC, font-display, loading="lazy", CRP, Reflow
+   Good examples: defer, async, preload, prefetch, font-display, loading="lazy", CRP, Reflow
 
 ### 5. Process Sequences Available
 ${processInfo || '(no processes extracted)'}
@@ -328,50 +330,6 @@ NOTE: Do NOT include blindedContent. The client will find and replace these keyw
 □ No answer longer than 3 words
 □ No duplicate answers
 □ Total blanks = ${blankCount}`
-    }
-
-    // 기존 로직 (Stage 1 없이 직접 생성) - fallback
-    return `Task: Extract key technical keywords for a fill-in-the-blank quiz.
-
-Context: This is for developer interview preparation. The quiz should test concepts that are commonly asked in technical interviews.
-
-Note Title: ${title}
-Note Content:
-${content}
-
-Requirements:
-1. **Select ${blankCount} UNIQUE keywords**: Each keyword must be DIFFERENT. Never select the same word/term twice.
-   - ${modeGuide}
-   - Focus on: core concepts, technical terms, important mechanisms, key differences
-   - Avoid: generic words, articles, prepositions, common verbs
-
-2. **Interview-level difficulty**: Select terms that:
-   - Interviewers commonly ask about
-   - Demonstrate deep understanding of the topic
-   - Are essential to explaining the concept correctly
-
-3. **Diverse coverage**: Spread keywords across different aspects:
-   - Definitions and core concepts
-   - How it works (mechanisms)
-   - Why it matters (benefits/purposes)
-   - Related concepts or comparisons
-
-4. **Hint format**:
-   - Korean words: first consonant (초성) e.g., "클로저" → "ㅋㄹㅈ"
-   - English words: first 2-3 letters e.g., "closure" → "clo"
-
-Return ONLY valid JSON:
-{
-  "blanks": [
-    { "id": "1", "answer": "keyword1", "hint": "힌트" },
-    { "id": "2", "answer": "keyword2", "hint": "hin" }
-  ]
-}
-
-NOTE: Do NOT include blindedContent. Only return the keywords to be blanked.
-The client will find and replace these keywords in the original document.
-
-CRITICAL: All ${blankCount} answers MUST be different from each other.`
 }
 
 // ================================ 서술형 질문 생성 프롬프트 ================================
@@ -572,40 +530,6 @@ Return ONLY valid JSON:
 }`
 }
 
-// ================================ 힌트 생성 프롬프트 ================================
-
-interface HintPromptParams {
-    answer: string
-    hintLevel: number
-    previousHints: string[]
-}
-
-export function buildHintPrompt(params: HintPromptParams): string {
-    const { answer, hintLevel, previousHints } = params
-
-    const levelGuide = {
-        1: 'Give a vague category or context hint',
-        2: 'Give more specific characteristics without revealing the answer',
-        3: 'Give a strong hint that almost reveals the answer',
-    }
-
-    return `Task: Generate a hint for a quiz answer.
-
-Answer (DO NOT reveal): ${answer}
-Hint Level: ${hintLevel} - ${levelGuide[hintLevel as 1 | 2 | 3]}
-${previousHints.length > 0 ? `Previous Hints Given: ${previousHints.join(', ')}` : ''}
-
-Instructions:
-1. Provide a helpful hint WITHOUT revealing the exact answer
-2. Hint should be in Korean
-3. Each level should be progressively more helpful
-
-Return ONLY valid JSON:
-{
-  "hint": "Your hint in Korean"
-}`
-}
-
 // ================================ 문장 모드 전용 프롬프트 ================================
 
 interface SentenceQuizPromptParams {
@@ -754,12 +678,16 @@ interface EvaluateSentenceAnswersParams {
 export function buildEvaluateSentenceAnswersPrompt(params: EvaluateSentenceAnswersParams): string {
     const { blanks } = params
 
-    const blanksInfo = blanks.map((b, i) => `
+    const blanksInfo = blanks
+        .map(
+            (b, i) => `
 ### 문제 ${i + 1} (${b.id})
 정답: ${b.correctAnswer}
 핵심 포인트: ${b.keyPoints.join(', ')}
 사용자 답변: ${b.userAnswer}
-`).join('\n')
+`
+        )
+        .join('\n')
 
     return `Task: Evaluate multiple sentence-completion answers.
 

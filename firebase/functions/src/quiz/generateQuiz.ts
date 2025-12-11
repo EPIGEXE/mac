@@ -219,6 +219,7 @@ export const generateQuiz = onCall(
         secrets: getRequiredSecrets(),
         timeoutSeconds: 120, // 2단계이므로 시간 늘림
         memory: '256MiB',
+        enforceAppCheck: false, // TODO: App Check throttle 풀리면 true로 변경
     },
     async (request) => {
         // 입력 검증
@@ -259,7 +260,25 @@ export const generateQuiz = onCall(
                     { model: MODELS.ACCURATE }
                 )
 
-                console.log('[Word Mode] Generated quiz with', llmResponse.blanks.length, 'blanks')
+                // ========== DEBUG: LLM 응답 상세 로깅 ==========
+                console.log('[Word Mode] ========== LLM Response Debug ==========')
+                console.log('[Word Mode] Requested blankCount:', minBlanks)
+                console.log('[Word Mode] Actual blanks returned:', llmResponse.blanks.length)
+                console.log('[Word Mode] Blanks detail:', JSON.stringify(llmResponse.blanks, null, 2))
+
+                // 중복 답변 분석
+                const allAnswers = llmResponse.blanks.map(b => b.answer)
+                const answerCounts: Record<string, number> = {}
+                allAnswers.forEach(a => {
+                    answerCounts[a] = (answerCounts[a] || 0) + 1
+                })
+                const duplicateAnswers = Object.entries(answerCounts)
+                    .filter(([_, count]) => count > 1)
+                    .map(([answer, count]) => `${answer} (${count}회)`)
+
+                console.log('[Word Mode] All answers:', allAnswers)
+                console.log('[Word Mode] Duplicate answers:', duplicateAnswers.length > 0 ? duplicateAnswers : 'None')
+                console.log('[Word Mode] ==========================================')
 
                 // Stage 3: 품질 검증
                 console.log('[Word Mode] Starting Stage 3: Quality Validation')

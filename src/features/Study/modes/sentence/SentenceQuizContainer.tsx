@@ -59,7 +59,7 @@ export function SentenceQuizContainer({
     // 컴포넌트 마운트 시 퀴즈 시작
     useEffect(() => {
         startQuiz()
-    }, [startQuiz])
+    }, [])
 
     // Store에서 결과 기록 함수와 DB 세션 ID 가져오기
     const recordNoteResult = useStudySessionStore((state) => state.recordNoteResult)

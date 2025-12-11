@@ -20,20 +20,17 @@ export function StudyModePage() {
     const [searchParams] = useSearchParams()
 
     // Store 상태
-    const {
-        selectedNoteIds,
-        currentIndex: storeIndex,
-        goToNextNote,
-        isSingleNoteMode,
-        completeSession,
-    } = useStudySessionStore()
+    const selectedNoteIds = useStudySessionStore((state) => state.selectedNoteIds)
+    const storeIndex = useStudySessionStore((state) => state.currentIndex)
+    const goToNextNote = useStudySessionStore((state) => state.goToNextNote)
+    const isSingleNoteMode = useStudySessionStore((state) => state.isSingleNoteMode)
+    const completeSession = useStudySessionStore((state) => state.completeSession)
 
     const progress = useStudyProgress()
     const progressText = useStudyProgressText()
 
     // ================================ 상태 관리 ================================
     const [notes, setNotes] = useState<Note[]>([])
-    const [isLoading, setIsLoading] = useState(true)
 
     // ================================ URL 파라미터 (legacy 모드용) ================================
     const noteId = searchParams.get('noteId')
@@ -59,7 +56,6 @@ export function StudyModePage() {
     // ================================ useEffect ================================
     useEffect(() => {
         async function loadNotes() {
-            setIsLoading(true)
             const loadedNotes: Note[] = []
 
             for (const id of selectedNoteIds) {
@@ -68,7 +64,6 @@ export function StudyModePage() {
             }
 
             setNotes(loadedNotes)
-            setIsLoading(false)
         }
 
         loadNotes()
@@ -96,15 +91,6 @@ export function StudyModePage() {
             }
         }
     }, [goToNextNote, isSingleNote, navigate, storeIndex, selectedNoteIds, completeSession])
-
-    // ================================ 렌더링 ================================
-    if (isLoading) {
-        return (
-            <div className="h-screen flex items-center justify-center bg-[var(--bg-primary)]">
-                <span className="font-mono text-[var(--text-tertiary)]">loading...</span>
-            </div>
-        )
-    }
 
     if (!currentNote) {
         return (

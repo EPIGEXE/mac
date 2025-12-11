@@ -5,6 +5,7 @@ import { initializeApp } from 'firebase/app'
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
 import { getFunctions, connectFunctionsEmulator } from 'firebase/functions'
 import { getAuth, connectAuthEmulator } from 'firebase/auth'
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
 
 // Firebase 설정 (환경 변수에서 가져옴)
 const firebaseConfig = {
@@ -20,6 +21,14 @@ const firebaseConfig = {
 // Firebase 앱 초기화
 const app = initializeApp(firebaseConfig)
 
+// App Check 초기화 (Cloud Functions 보호)
+if (import.meta.env.VITE_RECAPTCHA_SITE_KEY) {
+    initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
+        isTokenAutoRefreshEnabled: true,
+    })
+}
+
 // Firestore 인스턴스
 export const db = getFirestore(app)
 
@@ -34,7 +43,7 @@ if (import.meta.env.DEV && import.meta.env.VITE_USE_FIREBASE_EMULATOR === 'true'
     connectFirestoreEmulator(db, 'localhost', 8080)
     connectFunctionsEmulator(functions, 'localhost', 5001)
     connectAuthEmulator(auth, 'http://localhost:9099')
-    console.log('🔧 Firebase emulators connected')
+    console.log('Firebase emulators connected')
 }
 
 export default app

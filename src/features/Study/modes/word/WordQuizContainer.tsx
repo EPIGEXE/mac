@@ -23,14 +23,6 @@ interface WordQuizContainerProps {
 export function WordQuizContainer({ note, onNext }: WordQuizContainerProps) {
     const noteType = note.id.startsWith('system-') ? 'system' : 'user' // 노트 타입
 
-    // DEBUG: 컴포넌트 마운트/언마운트 추적
-    useEffect(() => {
-        console.log('[WordQuizContainer] MOUNTED', { noteId: note.id, noteTitle: note.title })
-        return () => {
-            console.log('[WordQuizContainer] UNMOUNTED', { noteId: note.id })
-        }
-    }, [note.id, note.title])
-
     // ================================ Hooks ================================
     const {
         phase, // 퀴즈 단계
@@ -83,7 +75,7 @@ export function WordQuizContainer({ note, onNext }: WordQuizContainerProps) {
     useEffect(() => {
         console.log('[WordQuizContainer] startQuiz useEffect triggered', { noteId: note.id })
         startQuiz()
-    }, [startQuiz, note.id])
+    }, [note.id])
 
     // Store에서 결과 기록 함수와 DB 세션 ID 가져오기
     const recordNoteResult = useStudySessionStore((state) => state.recordNoteResult)

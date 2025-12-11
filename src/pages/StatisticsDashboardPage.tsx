@@ -62,10 +62,9 @@ const reasonColors: Record<RecommendedNote['reason'], string> = {
 
 export function StatisticsDashboardPage() {
     const navigate = useNavigate()
-    const { startSession } = useStudySessionStore()
+    const startSession  = useStudySessionStore((state) => state.startSession)
 
     // ================================ 상태 ================================
-    const [isLoading, setIsLoading] = useState(true)
     const [overallStats, setOverallStats] = useState<OverallStats | null>(null)
     const [periodStats, setPeriodStats] = useState<PeriodStats[]>([])
     const [noteStats, setNoteStats] = useState<NoteStats[]>([])
@@ -77,7 +76,6 @@ export function StatisticsDashboardPage() {
     // ================================ 데이터 로드 ================================
     useEffect(() => {
         async function loadData() {
-            setIsLoading(true)
             try {
                 const [overall, period, notes, recommended, today] = await Promise.all([
                     getOverallStats(),
@@ -109,8 +107,6 @@ export function StatisticsDashboardPage() {
                 setNoteTitles(titles)
             } catch (err) {
                 console.error('Failed to load statistics:', err)
-            } finally {
-                setIsLoading(false)
             }
         }
 
@@ -183,15 +179,6 @@ export function StatisticsDashboardPage() {
         if (diffDays === 1) return '어제'
         if (diffDays < 7) return `${diffDays}일 전`
         return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })
-    }
-
-    // ================================ 렌더링 ================================
-    if (isLoading) {
-        return (
-            <div className="h-screen flex items-center justify-center bg-[var(--bg-primary)]">
-                <span className="font-mono text-[var(--text-tertiary)]">loading statistics...</span>
-            </div>
-        )
     }
 
     const hasData = overallStats && overallStats.totalSessions > 0

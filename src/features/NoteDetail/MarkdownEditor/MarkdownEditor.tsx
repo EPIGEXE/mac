@@ -7,6 +7,8 @@ export interface MarkdownEditorProps {
     initialContent: string;
     onChange: (content: string) => void;
     editable?: boolean;
+    maxLength?: number; // 최대 문자 수 제한
+    onLengthChange?: (length: number) => void; // 문자 수 변경 콜백
   }
 
 /**
@@ -32,7 +34,7 @@ export interface MarkdownEditorProps {
  * - --- → horizontal rule
  * - | | | → table
  */
-export function MarkdownEditor({ initialContent, onChange, editable = true }: MarkdownEditorProps) {
+export function MarkdownEditor({ initialContent, onChange, editable = true, maxLength, onLengthChange }: MarkdownEditorProps) {
     // =================================== Hooks ===================================
     const {
         containerRef, // 에디터 컨테이너 참조(에디터가 붙을 DOM 요소)
@@ -45,6 +47,8 @@ export function MarkdownEditor({ initialContent, onChange, editable = true }: Ma
         onChange, // 콘텐츠 변경 핸들러
         editable, // 에디터 편집 가능 여부
         placeholder: '내용을 입력하세요...',
+        maxLength, // 최대 문자 수 제한
+        onLengthChange, // 문자 수 변경 콜백
     })
 
     return (

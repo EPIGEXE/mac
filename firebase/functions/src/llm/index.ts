@@ -67,19 +67,22 @@ export async function callLLMJson<T>(
 
     console.log(`[LLM] Using provider: ${client.provider}, model: ${finalOptions.model}`)
 
-    return client.callJson<T>(prompt, systemPrompt, finalOptions)
+    const result = await client.callJson<T>(prompt, systemPrompt, finalOptions)
+
+    // ========== DEBUG: LLM 응답 로깅 ==========
+    console.log('[LLM] ========== Response Debug ==========')
+    console.log('[LLM] Response:', JSON.stringify(result, null, 2))
+    console.log('[LLM] ======================================')
+
+    return result
 }
 
 /**
  * 사용되는 모든 시크릿 export (Cloud Functions에서 필요)
+ * 배포 시점에는 provider를 알 수 없으므로 둘 다 등록
  */
 export function getRequiredSecrets() {
-    const provider = getCurrentProvider()
-
-    if (provider === 'groq') {
-        return [groqApiKey]
-    }
-    return [geminiApiKey]
+    return [geminiApiKey, groqApiKey]
 }
 
 // 타입 및 유틸리티 re-export
