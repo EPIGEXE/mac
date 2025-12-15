@@ -137,13 +137,13 @@ export function TableOfContents({ content, onHeadingClick }: TableOfContentsProp
                 }`}
             >
                 {/* // toc 라벨 */}
-                <div className="font-mono text-[10px] text-[var(--text-tertiary)] opacity-50 mb-2 writing-mode-vertical">
-                    <span className="opacity-60">//</span> toc
+                <div className="font-mono text-sm text-[var(--text-primary)] mb-2 writing-mode-vertical">
+                    <span>//</span> toc
                 </div>
 
                 {/* 미니맵 바 */}
                 <div
-                    className="flex flex-col gap-1.5 p-2 border-r-2 border-[var(--border-light)]"
+                    className="flex flex-col gap-3 p-2 border-r-2 border-[var(--border-light)]"
                     style={{ maxHeight: '70vh' }}
                 >
                     {headings.map((heading, index) => (
@@ -156,8 +156,8 @@ export function TableOfContents({ content, onHeadingClick }: TableOfContentsProp
                                     : 'bg-[var(--text-tertiary)] opacity-50 hover:opacity-80'
                             }`}
                             style={{
-                                width: heading.level === 1 ? '28px' : heading.level === 2 ? '20px' : '14px',
-                                marginLeft: `${(heading.level - 1) * 6}px`,
+                                width: heading.level === 1 ? '40px' : heading.level === 2 ? '30px' : '20px',
+                                marginLeft: `${(heading.level - 1) * 10}px`,
                             }}
                             title={heading.text}
                         />
@@ -173,11 +173,11 @@ export function TableOfContents({ content, onHeadingClick }: TableOfContentsProp
                 style={{ maxHeight: '70vh' }}
             >
                 {/* 헤더 - 터미널 스타일 */}
-                <div className="font-mono text-[11px] text-[var(--text-tertiary)] mb-3 pb-2 border-b border-[var(--border-light)]">
+                <div className="font-mono text-sm text-[var(--text-primary)] mb-3 pb-2 border-b border-[var(--border-light)]">
                     <span className="text-[var(--accent)]">$</span> cat ./toc
                 </div>
 
-                {/* 목차 항목들 - 스크롤 가능 */}
+                {/* 목차 항목들 */}
                 <nav className="flex flex-col gap-0.5 overflow-y-auto" style={{ maxHeight: 'calc(70vh - 80px)' }}>
                     {headings.map((heading, index) => (
                         <button
@@ -191,8 +191,8 @@ export function TableOfContents({ content, onHeadingClick }: TableOfContentsProp
                             }}
                         >
                             <span className="flex items-center gap-1.5 min-w-0">
-                                <span className={`font-mono text-[10px] shrink-0 ${
-                                    index === activeIndex ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)] opacity-50'
+                                <span className={`font-mono text-sm shrink-0 ${
+                                    index === activeIndex ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)] opacity-50'
                                 }`}>
                                     {'#'.repeat(heading.level)}
                                 </span>
@@ -203,8 +203,8 @@ export function TableOfContents({ content, onHeadingClick }: TableOfContentsProp
                                             : heading.level === 1
                                               ? 'text-[var(--text-primary)]'
                                               : heading.level === 2
-                                                ? 'text-[var(--text-secondary)]'
-                                                : 'text-[var(--text-tertiary)]'
+                                                ? 'text-[var(--text-primary)]'
+                                                : 'text-[var(--text-secondary)]'
                                     } group-hover:text-[var(--accent)]`}
                                     title={heading.text}
                                 >
@@ -216,7 +216,7 @@ export function TableOfContents({ content, onHeadingClick }: TableOfContentsProp
                 </nav>
 
                 {/* 푸터 - 진행률 표시 */}
-                <div className="font-mono text-[10px] text-[var(--text-tertiary)] mt-3 pt-2 border-t border-[var(--border-light)] opacity-60">
+                <div className="font-mono text-sm text-[var(--text-tertiary)] mt-3 pt-2 border-t border-[var(--border-light)] opacity-60">
                     [{activeIndex + 1}/{headings.length}] sections
                 </div>
             </div>

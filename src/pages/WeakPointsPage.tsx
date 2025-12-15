@@ -11,9 +11,6 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
     IconArrowLeft,
-    IconAbc,
-    IconMessageQuestion,
-    IconWriting,
     IconAlertTriangle,
     IconPlayerPlay,
     IconTrophy,
@@ -22,6 +19,7 @@ import {
     IconChevronDown,
     IconChevronUp,
 } from '@tabler/icons-react'
+import { WordModeIcon, SentenceModeIcon, EssayModeIcon } from '../components/icons/StudyModeIcons'
 import { getWeakNotes, getAllNoteStats } from '../db/study/statisticsService'
 import { findNoteById } from '../db/note/noteService'
 import type { NoteStats, ModeBreakdownStats } from '../db/study/types'
@@ -29,9 +27,9 @@ import type { StudyModeType } from '../db/schema/study'
 
 // 모드별 설정
 const modeConfig: Record<StudyModeType, { icon: React.ReactNode; label: string; color: string }> = {
-    word: { icon: <IconAbc size={14} />, label: '단어', color: 'text-blue-500' },
-    sentence: { icon: <IconMessageQuestion size={14} />, label: '문장', color: 'text-green-500' },
-    essay: { icon: <IconWriting size={14} />, label: '서술형', color: 'text-purple-500' },
+    word: { icon: <WordModeIcon size={14} />, label: '단어', color: 'text-blue-500' },
+    sentence: { icon: <SentenceModeIcon size={14} />, label: '문장', color: 'text-green-500' },
+    essay: { icon: <EssayModeIcon size={14} />, label: '서술형', color: 'text-purple-500' },
 }
 
 // 정답률에 따른 색상

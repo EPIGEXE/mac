@@ -5,10 +5,19 @@
  */
 import { useNavigate } from 'react-router-dom'
 import { IconPlayerPlay, IconCards, IconChartBar } from '@tabler/icons-react'
+import { Badge } from '../../components/common/Badge'
 
 export function StudyCTABanner() {
-    const navigate = useNavigate()
+    // ==================================== Hooks =====================================
+    const navigate = useNavigate() // 네비게이션
 
+    // ==================================== 핸들러 =====================================
+
+    const handleStatistics = () => {
+        navigate('/statistics')
+    }
+
+    // 학습 설정 페이지로 이동
     const handleStartStudy = () => {
         navigate('/study/setup')
     }
@@ -30,30 +39,30 @@ export function StudyCTABanner() {
                     {/* 텍스트 */}
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <h2 className="text-lg font-semibold text-[var(--text-primary)]">
-                                학습 모드
-                            </h2>
-                            <span className="font-mono text-xs px-1.5 py-0.5 bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/30">
-                                QUIZ
-                            </span>
+                            <h2 className="text-lg font-semibold text-[var(--text-primary)]">학습 모드</h2>
+                            <Badge>QUIZ</Badge>
                         </div>
-                        <p className="comment-text">
-                            // 노트 선택 → 모드 선택 → 퀴즈로 복습
-                        </p>
+                        <p className="comment-text">// 노트 선택 → 모드 선택 → 퀴즈로 복습</p>
                     </div>
 
                     {/* 모드 미리보기 */}
                     <div className="hidden md:flex items-center gap-3 ml-4 pl-6 border-l border-[var(--border-light)]">
                         <div className="flex items-center gap-1.5 text-[var(--text-secondary)]">
-                            <span className="font-mono text-xs px-2 py-1 bg-[var(--bg-primary)] border border-[var(--border-light)]">word</span>
+                            <span className="font-mono text-xs px-2 py-1 bg-[var(--bg-primary)] border border-[var(--border-light)]">
+                                word
+                            </span>
                             <span className="text-xs">빈칸</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-[var(--text-secondary)]">
-                            <span className="font-mono text-xs px-2 py-1 bg-[var(--bg-primary)] border border-[var(--border-light)]">sent</span>
+                            <span className="font-mono text-xs px-2 py-1 bg-[var(--bg-primary)] border border-[var(--border-light)]">
+                                sent
+                            </span>
                             <span className="text-xs">문장</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-[var(--text-secondary)]">
-                            <span className="font-mono text-xs px-2 py-1 bg-[var(--bg-primary)] border border-[var(--border-light)]">essay</span>
+                            <span className="font-mono text-xs px-2 py-1 bg-[var(--bg-primary)] border border-[var(--border-light)]">
+                                essay
+                            </span>
                             <span className="text-xs">서술</span>
                         </div>
                     </div>
@@ -63,7 +72,7 @@ export function StudyCTABanner() {
                 <div className="flex items-center gap-3">
                     {/* 통계 버튼 */}
                     <button
-                        onClick={() => navigate('/statistics')}
+                        onClick={handleStatistics}
                         className="flex items-center gap-2 px-5 py-3 font-mono text-sm font-medium border border-[var(--accent)] text-[var(--accent)] bg-transparent cursor-pointer transition-all duration-200 hover:bg-[var(--accent)] hover:text-white"
                     >
                         <IconChartBar size={18} />
@@ -82,7 +91,9 @@ export function StudyCTABanner() {
                         <span className="relative">학습 시작</span>
 
                         {/* 화살표 애니메이션 */}
-                        <span className="relative ml-1 transition-transform duration-200 group-hover:translate-x-3">→</span>
+                        <span className="relative ml-1 transition-transform duration-200 group-hover:translate-x-3">
+                            →
+                        </span>
                     </button>
                 </div>
             </div>

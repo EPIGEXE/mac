@@ -1,18 +1,19 @@
 import { useNavigate } from 'react-router-dom'
 import { IconSun, IconMoon, IconPlayerPlay } from '@tabler/icons-react'
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useTheme } from '../../contexts/useTheme'
 import { mainCategories } from '../../data/categories'
+import { Badge } from '../../components/common/Badge'
 
 export type ViewMode = 'list' | 'roadmap'
 export type TopicFilter = 'all' | (typeof mainCategories)[number]['id']
 
 interface HeaderProps {
-    viewMode: ViewMode
-    onViewModeChange: (mode: ViewMode) => void
-    topicFilter: TopicFilter
-    onTopicFilterChange: (topic: TopicFilter) => void
+    viewMode: ViewMode // 뷰 모드 (리스트 / 맵)
+    onViewModeChange: (mode: ViewMode) => void // 뷰 모드 변경 핸들러
+    topicFilter: TopicFilter // 대주제 필터
+    onTopicFilterChange: (topic: TopicFilter) => void // 대주제 필터 변경 핸들러
 }
 
 // 대주제 필터 버튼
@@ -29,11 +30,18 @@ const topicButtons: { value: TopicFilter; label: string; mono: string }[] = [
 const SCROLL_THRESHOLD = 50
 
 export function MainHeader({ viewMode, onViewModeChange, topicFilter, onTopicFilterChange }: HeaderProps) {
-    const navigate = useNavigate()
-    const { theme, toggleTheme } = useTheme()
-    const [isCompact, setIsCompact] = useState(false)
-    const lastScrollY = useState(0)
+    // ==================================== Hooks =====================================
+    const navigate = useNavigate() // 네비게이션
+    const { theme, toggleTheme } = useTheme() // 테마 Hook
+    const { scrollY } = useScroll() // 스크롤 위치 Hook
 
+    // ==================================== 상태 관리 =====================================
+    const [isCompact, setIsCompact] = useState(false) // 컴팩트 모드 (스크롤 시 인라인으로 표시)
+
+    // ==================================== useRef =====================================
+    const lastScrollY = useRef(0) // 스크롤 위치
+
+    // ==================================== 핸들러 =====================================
     // Topic 필터 변경 시 스크롤 최상위로 이동
     const handleTopicChange = (topic: TopicFilter) => {
         window.scrollTo({ top: 0, behavior: 'instant' })
@@ -41,10 +49,9 @@ export function MainHeader({ viewMode, onViewModeChange, topicFilter, onTopicFil
         onTopicFilterChange(topic)
     }
 
-    const { scrollY } = useScroll()
-
+    // framer-motion의 MotionValueEvent를 사용하여 스크롤 위치 변경 시 컴팩트 모드 변경
     useMotionValueEvent(scrollY, 'change', (latest) => {
-        const previous = lastScrollY[0]
+        const previous = lastScrollY.current
 
         // 아래로 스크롤하면 축소
         if (latest > previous && latest > SCROLL_THRESHOLD) {
@@ -55,9 +62,10 @@ export function MainHeader({ viewMode, onViewModeChange, topicFilter, onTopicFil
             setIsCompact(false)
         }
 
-        lastScrollY[0] = latest
+        lastScrollY.current = latest
     })
 
+    // 학습 버튼 클릭 시 학습 페이지로 이동
     const handleStudyClick = () => {
         navigate('/study/setup')
     }
@@ -88,12 +96,14 @@ export function MainHeader({ viewMode, onViewModeChange, topicFilter, onTopicFil
                     <div className="flex items-center gap-6">
                         {/* 로고 + 서브타이틀 */}
                         <div className="flex flex-col">
-                            <h1 className="font-display text-[32px] text-[var(--text-primary)] tracking-[0.05em] leading-none flex items-baseline gap-2">
-                                맥
-                                <span className="font-mono text-[10px] px-1.5 py-0.5 bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/30 rounded-sm uppercase tracking-wider">
-                                    beta
-                                </span>
-                            </h1>
+                            <div className="flex items-baseline gap-2">
+                                <h1 className="font-display text-[32px] text-[var(--text-primary)] tracking-[0.05em] leading-none">
+                                    맥
+                                </h1>
+                                <Badge variant="accent" size="xs">
+                                    BETA
+                                </Badge>
+                            </div>
                             <motion.p
                                 className="comment-text"
                                 initial={false}
@@ -178,7 +188,7 @@ export function MainHeader({ viewMode, onViewModeChange, topicFilter, onTopicFil
                         {/* Study 버튼 (스크롤 시에만 표시) */}
                         <motion.button
                             onClick={handleStudyClick}
-                            className="flex items-center gap-1.5 font-mono text-xs font-medium bg-[var(--accent)] text-white border-none cursor-pointer transition-colors duration-150 hover:bg-[var(--accent-hover)] overflow-hidden whitespace-nowrap"
+                            className="flex items-center gap-1.5 font-mono text-sm font-medium bg-[var(--accent)] text-white border-none cursor-pointer transition-colors duration-150 hover:bg-[var(--accent-hover)] overflow-hidden whitespace-nowrap"
                             initial={false}
                             animate={{
                                 width: isCompact ? 'auto' : 0,

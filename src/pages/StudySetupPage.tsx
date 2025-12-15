@@ -14,6 +14,7 @@ import { StudyModeInlineSelector } from '../features/Study/components/StudyModeI
 import { StudyOrderSelector } from '../features/Study/components/StudyOrderSelector'
 import type { StudyModeType } from '../features/Study/types'
 import { shuffleArray } from '../utils/funtion'
+import { SectionTitle } from '../components/common/SectionTitle'
 
 export function StudySetupPage() {
     const navigate = useNavigate()
@@ -42,9 +43,7 @@ export function StudySetupPage() {
         if (selectedNoteIds.length === 0) return
 
         // 순서에 따라 노트 ID 정렬
-        const orderedIds = order === 'random'
-            ? shuffleArray(selectedNoteIds)
-            : selectedNoteIds
+        const orderedIds = order === 'random' ? shuffleArray(selectedNoteIds) : selectedNoteIds
 
         // 세션 시작
         startSession({
@@ -79,9 +78,10 @@ export function StudySetupPage() {
                         disabled={!canStart}
                         className={`
                             flex items-center gap-2 px-6 py-2.5 font-mono text-sm transition-all
-                            ${canStart
-                                ? 'bg-[var(--accent)] text-white cursor-pointer hover:opacity-90'
-                                : 'bg-[var(--bg-secondary)] text-[var(--text-tertiary)] cursor-not-allowed'
+                            ${
+                                canStart
+                                    ? 'bg-[var(--accent)] text-white cursor-pointer hover:opacity-90'
+                                    : 'bg-[var(--bg-secondary)] text-[var(--text-tertiary)] cursor-not-allowed'
                             }
                         `}
                     >
@@ -96,43 +96,37 @@ export function StudySetupPage() {
                 <div className="max-w-[800px] mx-auto px-6 py-8">
                     {/* 페이지 제목 */}
                     <div className="mb-8">
-                        <h1 className="font-display text-2xl text-[var(--text-primary)] mb-2">
-                            학습 준비
-                        </h1>
-                        <p className="font-mono text-sm text-[var(--text-tertiary)]">
+                        <h1 className="font-display text-2xl text-[var(--text-primary)] mb-2">학습 준비</h1>
+                        <p className="font-mono text-sm text-[var(--text-secondary)]">
                             // 학습할 노트와 모드를 선택하세요
                         </p>
                     </div>
 
                     {/* 학습 모드 선택 */}
                     <section className="mb-8">
-                        <div className="flex items-center gap-2 mb-4">
-                            <span className="font-mono text-[var(--accent)]">#</span>
-                            <h2 className="font-mono text-sm text-[var(--text-primary)]">학습 모드</h2>
-                        </div>
+                        <SectionTitle className="mb-6">학습 모드</SectionTitle>
                         <StudyModeInlineSelector value={mode} onChange={setMode} />
                     </section>
 
                     {/* 학습 순서 선택 */}
                     <section className="mb-8">
-                        <div className="flex items-center gap-2 mb-4">
-                            <span className="font-mono text-[var(--accent)]">#</span>
-                            <h2 className="font-mono text-sm text-[var(--text-primary)]">학습 순서</h2>
-                        </div>
+                        <SectionTitle className="mb-6">학습 순서</SectionTitle>
                         <StudyOrderSelector value={order} onChange={setOrder} />
                     </section>
 
                     {/* 노트 선택 */}
                     <section className="mb-8">
-                        <div className="flex items-center gap-2 mb-4">
-                            <span className="font-mono text-[var(--accent)]">#</span>
-                            <h2 className="font-mono text-sm text-[var(--text-primary)]">노트 선택</h2>
-                            {selectedNoteIds.length > 0 && (
-                                <span className="font-mono text-xs text-[var(--text-tertiary)]">
-                                    ({selectedNoteIds.length}개 선택됨)
-                                </span>
-                            )}
-                        </div>
+                        <SectionTitle className="mb-6">
+                            <span className="flex items-center gap-2">
+                                <span>노트 선택</span>
+                                {selectedNoteIds.length > 0 && (
+                                    <span className="font-mono text-sm text-[var(--text-secondary)]">
+                                        ({selectedNoteIds.length}개 선택됨)
+                                    </span>
+                                )}
+                            </span>
+                        </SectionTitle>
+
                         <NoteSelector
                             notes={notes}
                             selectedIds={selectedNoteIds}

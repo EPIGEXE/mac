@@ -6,7 +6,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { StudyQuizViewer } from '../features/Study/StudyQuizViewer'
-import { useStudySessionStore, useStudyProgress, useStudyProgressText } from '../stores/studySessionStore'
+import { useStudySessionStore } from '../stores/studySessionStore'
 import { findNoteById } from '../db/note/noteService'
 import type { Note } from '../db/schema/note'
 import { ErrorBoundary } from '../components/ErrorBoundary/ErrorBoundary'
@@ -23,11 +23,7 @@ export function StudyModePage() {
     const selectedNoteIds = useStudySessionStore((state) => state.selectedNoteIds)
     const storeIndex = useStudySessionStore((state) => state.currentIndex)
     const goToNextNote = useStudySessionStore((state) => state.goToNextNote)
-    const isSingleNoteMode = useStudySessionStore((state) => state.isSingleNoteMode)
     const completeSession = useStudySessionStore((state) => state.completeSession)
-
-    const progress = useStudyProgress()
-    const progressText = useStudyProgressText()
 
     // ================================ 상태 관리 ================================
     const [notes, setNotes] = useState<Note[]>([])
@@ -45,21 +41,12 @@ export function StudyModePage() {
         return found
     }, [notes, selectedNoteIds, storeIndex])
 
-    // 다음 노트 존재 여부
-    const hasNextNote = useMemo(() => {
-        return storeIndex < selectedNoteIds.length - 1
-    }, [storeIndex, selectedNoteIds.length])
-
-    // 단일 노트 모드 여부 (최종 결과 페이지 스킵용)
-    const isSingleNote = isSingleNoteMode()
 
     // ================================ DEBUG ================================
     console.log('[StudyModePage] render', {
         selectedNoteIds,
         selectedNoteIdsLength: selectedNoteIds.length,
         storeIndex,
-        isSingleNote,
-        hasNextNote,
     })
 
     // ================================ useEffect ================================
@@ -91,7 +78,8 @@ export function StudyModePage() {
 
     const handleNext = useCallback(async () => {
         // 실시간으로 store에서 값을 가져와야 함 (클로저 캡처 문제 방지)
-        const currentIsSingleNote = isSingleNoteMode()
+        const currentSelectedNoteIds = useStudySessionStore.getState().selectedNoteIds
+        const currentIsSingleNote = currentSelectedNoteIds.length === 1
 
         const hasMore = goToNextNote()
         console.log('[StudyModePage] handleNext', { hasMore, isSingleNote: currentIsSingleNote })
@@ -108,7 +96,7 @@ export function StudyModePage() {
                 navigate('/study/result')
             }
         }
-    }, [goToNextNote, isSingleNoteMode, navigate, completeSession])
+    }, [goToNextNote, navigate, completeSession])
 
     if (!currentNote) {
         return (
@@ -131,10 +119,6 @@ export function StudyModePage() {
                 note={currentNote}
                 onExit={handleExit}
                 onNext={handleNext}
-                hasNextNote={hasNextNote}
-                showProgress={!isSingleNote}
-                progress={progress}
-                progressText={progressText}
             />
         </ErrorBoundary>
     )

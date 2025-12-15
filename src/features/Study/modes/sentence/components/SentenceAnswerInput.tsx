@@ -73,7 +73,7 @@ export function SentenceAnswerInput({
                 <div className="flex items-center gap-3 mb-2">
                     <span
                         className={`
-                        font-mono text-xs px-2 py-0.5
+                        font-mono text-sm px-2 py-0.5
                         ${
                             isFocused
                                 ? 'bg-[var(--accent)] text-white'
@@ -84,11 +84,11 @@ export function SentenceAnswerInput({
                         Q{String(index + 1).padStart(2, '0')}
                     </span>
                     {question.hint && (
-                        <span className="font-mono text-[10px] text-[var(--text-tertiary)]">// {question.hint}</span>
+                        <span className="font-mono text-sm text-[var(--text-tertiary)]">// {question.hint}</span>
                     )}
                 </div>
                 {/* 질문 텍스트 */}
-                <p className="text-[15px] text-[var(--text-primary)] leading-relaxed">{question.question}</p>
+                <p className="text-md text-[var(--text-primary)] leading-relaxed">{question.question}</p>
             </div>
 
             {/* 답변 영역 */}
@@ -133,13 +133,13 @@ export function SentenceAnswerInput({
                 {/* 상태 바 */}
                 <div className="flex items-center justify-between mt-2 pt-2 border-t border-[var(--border-light)]">
                     {/* 가이드 */}
-                    <span className="font-mono text-[10px] text-[var(--text-tertiary)]">
+                    <span className="font-mono text-sm text-[var(--text-tertiary)]">
                         {MIN_LENGTH}~{MAX_LENGTH}자 권장
                     </span>
                     {/* 글자 수 */}
                     <span
                         className={`
-                        font-mono text-[10px] transition-colors
+                        font-mono text-sm transition-colors
                         ${
                             isAtMax
                                 ? 'text-[var(--error)]'

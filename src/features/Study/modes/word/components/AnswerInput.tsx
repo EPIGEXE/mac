@@ -4,7 +4,9 @@
  */
 import { useState, useRef, useEffect } from 'react'
 import { IconCheck, IconArrowRight } from '@tabler/icons-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
+import { Badge } from '../../../../../components/common/Badge'
+import { TerminalButton } from '../../../../../components/common/TerminalButton'
 
 interface AnswerInputProps {
     blankId: string // Blank의 String ID (BLANK_1, BLANK_2, ...)
@@ -67,61 +69,17 @@ export function AnswerInput({
         >
             <div className="px-6 py-4">
                 <div className="max-w-[800px] mx-auto">
-                    {/* 헤더: 배지 + 힌트 (SentenceAnswerInput 스타일) */}
+                    {/* 헤더: 배지 + 힌트 */}
                     <div className="flex items-center gap-3 mb-3">
-                        <span className={`
-                            font-mono text-xs px-2 py-0.5
-                            ${isCorrect
-                                ? 'bg-green-500 text-white'
-                                : isWrong
-                                    ? 'bg-red-500 text-white'
-                                    : 'bg-[var(--accent)] text-white'
-                            }
-                        `}>
+                        <Badge>
                             B{String(blankIndex).padStart(2, '0')}
-                        </span>
+                        </Badge>
                         {hint && (
-                            <span className="font-mono text-[11px] text-[var(--text-tertiary)]">
+                            <span className="font-mono text-sm text-[var(--text-secondary)]">
                                 // {hint}
                             </span>
                         )}
                     </div>
-
-                    {/* 결과 표시 */}
-                    <AnimatePresence mode="wait">
-                        {isAnswered && (
-                            <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className="mb-3 overflow-hidden"
-                            >
-                                <div
-                                    className={`
-                                        p-3 border-l-2 font-mono text-sm
-                                        ${isCorrect
-                                            ? 'bg-green-500/10 border-l-green-500 text-green-600'
-                                            : 'bg-red-500/10 border-l-red-500 text-red-500'
-                                        }
-                                    `}
-                                >
-                                    {isCorrect ? (
-                                        <span>// correct!</span>
-                                    ) : (
-                                        <div className="space-y-1">
-                                            <div>// wrong</div>
-                                            {correctAnswer && (
-                                                <div className="text-[var(--text-secondary)]">
-                                                    // answer: <span className="text-[var(--text-primary)]">{correctAnswer}</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
 
                     {/* 입력 폼 */}
                     <form onSubmit={handleSubmit} className="flex gap-3">
@@ -129,7 +87,7 @@ export function AnswerInput({
                         <div className="flex-1 flex items-center gap-2">
                             <span className={`
                                 font-mono text-sm select-none transition-colors
-                                ${isAnswered ? 'text-[var(--text-tertiary)]' : 'text-[var(--accent)]'}
+                                ${isCorrect ? 'text-[var(--success)]' : isWrong ? 'text-[var(--error)]' : 'text-[var(--accent)]'}
                             `}>
                                 {'>'}
                             </span>
@@ -141,31 +99,35 @@ export function AnswerInput({
                                     onChange={(e) => setInputValue(e.target.value)}
                                     disabled={isLoading || isAnswered}
                                     placeholder="답을 입력하세요..."
-                                    className="
+                                    className={`
                                         w-full px-3 py-2
                                         font-mono text-sm
                                         bg-[var(--bg-primary)]
-                                        border border-[var(--border-light)]
+                                        border
                                         text-[var(--text-primary)]
                                         placeholder:text-[var(--text-tertiary)]/50
-                                        focus:outline-none focus:border-[var(--accent)]
-                                        disabled:opacity-50 disabled:cursor-not-allowed
+                                        focus:outline-none
+                                        disabled:cursor-not-allowed
                                         transition-colors duration-150
-                                    "
+                                        ${isCorrect ? 'border-[var(--success)]' : isWrong ? 'border-[var(--error)]' : 'border-[var(--border-light)] focus:border-[var(--accent)]'}
+                                        ${isAnswered ? 'opacity-70' : ''}
+                                    `}
                                 />
-                                {/* 커서 (빈 입력 + 포커스 + 미채점) */}
+                                {/* 커서 (빈 입력 + 미채점) */}
                                 {!isAnswered && inputValue.length === 0 && (
                                     <span className="absolute left-3 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-[var(--accent)] animate-pulse pointer-events-none" />
                                 )}
                             </div>
+
                         </div>
 
                         {/* 제출 버튼 */}
                         {!isAnswered && (
-                            <button
+                            <TerminalButton
                                 type="submit"
+                                variant="filled"
                                 disabled={isLoading || !inputValue.trim()}
-                                className="px-4 py-2 bg-[var(--accent)] text-white font-mono text-sm cursor-pointer flex items-center gap-2 transition-opacity duration-150 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-4 py-2"
                             >
                                 {isLoading ? (
                                     <span className="animate-pulse">...</span>
@@ -175,9 +137,17 @@ export function AnswerInput({
                                         <span>submit</span>
                                     </>
                                 )}
-                            </button>
+                            </TerminalButton>
                         )}
                     </form>
+
+                    {/* 오답 시 정답 표시 */}
+                    {isWrong && correctAnswer && (
+                        <div className="mt-2 flex items-center gap-2 pl-5">
+                            <span className="font-mono text-sm text-[var(--text-tertiary)]">정답:</span>
+                            <span className="font-mono text-sm text-[var(--success)]">{correctAnswer}</span>
+                        </div>
+                    )}
 
                     {/* 모든 문제 완료 시 결과 보기 버튼 */}
                     {allAnswered && onShowResult && (
@@ -186,20 +156,21 @@ export function AnswerInput({
                             animate={{ opacity: 1, y: 0 }}
                             className="mt-4 pt-4 border-t border-dashed border-[var(--border-light)]"
                         >
-                            <button
+                            <TerminalButton
                                 onClick={onShowResult}
-                                className="w-full py-3 bg-[var(--accent)] text-white font-mono text-sm cursor-pointer flex items-center justify-center gap-2 transition-opacity duration-150 hover:opacity-90"
+                                variant="filled"
+                                className="w-full h-10 py-3 justify-center"
                             >
                                 <span>// 모든 문제 완료!</span>
                                 <IconArrowRight size={16} />
                                 <span>결과 보기</span>
-                            </button>
+                            </TerminalButton>
                         </motion.div>
                     )}
 
                     {/* 단축키 안내 + 진행 상황 */}
                     <div className="mt-2 flex items-center justify-between">
-                        <div className="flex items-center gap-4 font-mono text-[10px] text-[var(--text-tertiary)]">
+                        <div className="flex items-center gap-4 font-mono text-xs text-[var(--text-secondary)]">
                             <span>
                                 <span className="text-[var(--accent)]">Enter</span> submit
                             </span>
@@ -214,7 +185,7 @@ export function AnswerInput({
                             <span className="opacity-50">|</span>
                         </div>
                         {/* 진행 상황 */}
-                        <span className="font-mono text-[10px] text-[var(--text-tertiary)]">
+                        <span className="font-mono text-xs text-[var(--text-secondary)]">
                             {answeredCount}/{totalBlanks} completed
                         </span>
                     </div>

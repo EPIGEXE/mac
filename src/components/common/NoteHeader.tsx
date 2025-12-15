@@ -31,8 +31,8 @@ export function NoteHeader(props: NoteHeaderProps) {
         <div className="main-container px-6 py-12">
             {/* 카테고리 */}
             <div className="flex items-center gap-2 mb-5">
-                <span className="font-mono text-[13px] text-[var(--accent)]">#</span>
-                <span className="font-mono text-[13px] text-[var(--text-tertiary)]">
+                <span className="font-mono text-xs text-[var(--accent)]">#</span>
+                <span className="font-mono text-xs text-[var(--text-tertiary)]">
                     {category}
                 </span>
             </div>

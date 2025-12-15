@@ -9,6 +9,7 @@ import { IconBuilding, IconBulb, IconSend, IconChevronDown, IconChevronUp } from
 import { motion, AnimatePresence } from 'framer-motion'
 import type { EssayQuestionInfo } from '../../../types'
 import { COMPANY_COLORS, QUESTION_TYPE_LABELS } from '../constants'
+import { SectionTitle } from '../../../../../components/common/SectionTitle'
 
 interface EssayQuizQuestionProps {
     question: EssayQuestionInfo
@@ -64,42 +65,28 @@ export function EssayQuizQuestion({
         <div className="flex-1 overflow-y-auto bg-[var(--bg-primary)]">
             <div className="max-w-[800px] mx-auto px-6 py-12">
                 {/* 터미널 스타일 헤더 */}
-                <motion.div
-                    className="font-mono text-xs text-[var(--text-tertiary)] mb-6"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                >
-                    <span className="text-[var(--accent)]">$</span> interview --company {question.company} --type{' '}
-                    {question.questionType}
-                </motion.div>
+                <SectionTitle className="mb-6">면접 질문</SectionTitle>
 
                 {/* 회사 배지 */}
-                <motion.div
+                <div
                     className={`inline-flex items-center gap-2 px-4 py-2 ${companyStyle.bg} ${companyStyle.border} border mb-6`}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: 0.1 }}
                 >
                     <IconBuilding size={18} className={companyStyle.text} />
                     <span className={`font-mono text-sm font-bold ${companyStyle.text}`}>
                         {question.company} 기술 면접
                     </span>
-                    <span className="font-mono text-xs text-[var(--text-tertiary)] ml-2">[{questionTypeLabel}]</span>
-                </motion.div>
+                    <span className="font-mono text-sm text-[var(--text-tertiary)] ml-2">[{questionTypeLabel}] 분야</span>
+                </div>
 
                 {/* 면접 질문 */}
-                <motion.div
+                <div
                     className="mb-8"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.2 }}
                 >
-                    <div className="font-mono text-xs text-[var(--text-tertiary)] mb-3">// interviewer question</div>
+                    <div className="font-mono text-sm text-[var(--text-secondary)] mb-3">// interviewer question</div>
                     <p className="font-display text-xl text-[var(--text-primary)] leading-relaxed">
                         "{question.question}"
                     </p>
-                </motion.div>
+                </div>
 
                 {/* 꼬리 질문 미리보기 (접기/펼치기) */}
                 {question.followUpQuestions && question.followUpQuestions.length > 0 && (
@@ -143,13 +130,10 @@ export function EssayQuizQuestion({
                 )}
 
                 {/* 답변 입력 영역 */}
-                <motion.div
+                <div
                     className="mb-6"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.4 }}
                 >
-                    <div className="font-mono text-xs text-[var(--text-tertiary)] mb-3">// your answer</div>
+                    <div className="font-mono text-sm text-[var(--text-secondary)] mb-3">// your answer</div>
 
                     <div className="relative">
                         <textarea
@@ -196,34 +180,26 @@ export function EssayQuizQuestion({
                             <span> / 500 (50~500자)</span>
                         </div>
                     </div>
-                </motion.div>
+                </div>
 
                 {/* 안내 문구 */}
-                <motion.div
+                <div
                     className="mb-6 p-3 bg-[var(--bg-secondary)] border-l-2 border-[var(--accent)]"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3, delay: 0.5 }}
                 >
-                    <p className="font-mono text-xs text-[var(--text-tertiary)]">
+                    <p className="font-mono text-xs text-[var(--text-secondary)]">
                         <span className="text-[var(--accent)]">tip:</span> 면접에서는 "왜"와 "어떻게"를 설명하는 것이
                         중요합니다. 단순히 정의만 말하기보다 실제 경험이나 구체적인 예시를 함께 설명해보세요.
                     </p>
-                </motion.div>
+                </div>
 
                 {/* 제출 버튼 */}
-                <motion.div
+                <div
                     className="flex justify-end"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3, delay: 0.6 }}
                 >
-                    <motion.button
+                    <button
                         onClick={onSubmit}
                         disabled={isEvaluating || answer.trim().length < 50}
                         className="flex items-center gap-2 px-6 py-3 bg-[var(--accent)] text-white font-mono text-sm cursor-pointer transition-opacity duration-150 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
                     >
                         {isEvaluating ? (
                             <span className="animate-pulse">평가 중...</span>
@@ -233,8 +209,8 @@ export function EssayQuizQuestion({
                                 <span>답변 제출</span>
                             </>
                         )}
-                    </motion.button>
-                </motion.div>
+                    </button>
+                </div>
 
                 <div className="mt-4 text-center font-mono text-[10px] text-[var(--text-tertiary)]">
                     <span className="text-[var(--accent)]">Ctrl</span> +{' '}

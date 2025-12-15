@@ -1,10 +1,10 @@
 /**
  * 학습 모드 선택 모달
  */
-import { TerminalModal } from '../../../components/common/TerminalModal'
-import type { StudyModeType } from '../types'
+import { TerminalModal } from '../../components/common/TerminalModal'
+import type { StudyModeType } from '../Study/types'
 
-interface StudyModeSelectorProps {
+interface StudyModeSelectModalProps {
     open: boolean
     onOpenChange: (open: boolean) => void
     selectedMode: StudyModeType
@@ -33,13 +33,13 @@ const MODES: { value: StudyModeType; label: string; mono: string; description: s
     },
 ]
 
-export function StudyModeSelector({
+export function StudyModeSelectModal({
     open,
     onOpenChange,
     selectedMode,
     onModeChange,
     onStart,
-}: StudyModeSelectorProps) {
+}: StudyModeSelectModalProps) {
     return (
         <TerminalModal
             open={open}
@@ -50,7 +50,7 @@ export function StudyModeSelector({
         >
             {/* 모드 선택 */}
             <div className="mb-6">
-                <div className="font-mono text-xs text-[var(--text-tertiary)] mb-3 uppercase tracking-wider">
+                <div className="font-mono text-sm text-[var(--text-secondary)] mb-3 uppercase tracking-wider">
                     // mode
                 </div>
                 <div className="flex flex-col border-l-2 border-[var(--border-light)]">
@@ -84,7 +84,7 @@ export function StudyModeSelector({
                                     </span>
                                     {/* 모노 접두사 */}
                                     <span
-                                        className={`font-mono text-[11px] ${
+                                        className={`font-mono text-xs ${
                                             isSelected
                                                 ? 'text-[var(--accent)]'
                                                 : 'text-[var(--text-tertiary)]'
@@ -94,7 +94,7 @@ export function StudyModeSelector({
                                     </span>
                                     {/* 라벨 */}
                                     <span
-                                        className={`text-sm ${
+                                        className={`text-md ${
                                             isSelected
                                                 ? 'font-semibold text-[var(--text-primary)]'
                                                 : 'font-normal text-[var(--text-secondary)]'
@@ -104,7 +104,7 @@ export function StudyModeSelector({
                                     </span>
                                 </div>
                                 {/* 설명 */}
-                                <div className="font-mono text-xs text-[var(--text-tertiary)] mt-1 ml-6">
+                                <div className="font-mono text-sm text-[var(--text-secondary)] mt-1 ml-6">
                                     {mode.description}
                                 </div>
                             </button>
@@ -118,7 +118,7 @@ export function StudyModeSelector({
                 onClick={onStart}
                 className="w-full py-3 bg-[var(--accent)] text-white font-mono text-sm cursor-pointer transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-                <span className="text-xs opacity-80">▶</span>
+                <span className="text-sm opacity-80">▶</span>
                 start
             </button>
         </TerminalModal>

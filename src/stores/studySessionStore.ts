@@ -73,9 +73,6 @@ interface StudySessionActions {
     completeSession: () => Promise<void>
     resetSession: () => void
 
-    // 단일 노트 모드 (기존 호환성)
-    isSingleNoteMode: () => boolean
-
     // DB 세션 ID getter
     getDbSessionId: () => string | null
 }
@@ -236,19 +233,6 @@ export const useStudySessionStore = create<StudySessionStore>((set, get) => ({
      */
     resetSession: () => {
         set(initialState)
-    },
-
-    /**
-     * 단일 노트 모드인지 확인 (기존 호환성)
-     */
-    isSingleNoteMode: () => {
-        const { selectedNoteIds } = get()
-        const result = selectedNoteIds.length === 1
-        console.log('[StudySessionStore] isSingleNoteMode called', {
-            selectedNoteIdsLength: selectedNoteIds.length,
-            result,
-        })
-        return result
     },
 
     /**

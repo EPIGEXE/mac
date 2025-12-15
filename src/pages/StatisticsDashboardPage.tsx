@@ -10,19 +10,15 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
     IconArrowLeft,
-    IconClock,
-    IconBooks,
     IconChecks,
     IconX,
     IconAlertTriangle,
     IconTrendingUp,
     IconRefresh,
-    IconAbc,
-    IconMessageQuestion,
-    IconWriting,
     IconHistory,
     IconChevronRight,
 } from '@tabler/icons-react'
+import { WordModeIcon, SentenceModeIcon, EssayModeIcon } from '../components/icons/StudyModeIcons'
 import {
     BarChart,
     Bar,
@@ -53,6 +49,9 @@ import type { WeakPoint } from '../db/schema/study'
 import type { WeakPointSummary, SessionHistoryItem } from '../db/study/types'
 import { findNoteById } from '../db/note/noteService'
 import { useStudySessionStore } from '../stores/studySessionStore'
+import { DashboardGrid } from '../components/common/DashboardGrid'
+import { DashboardCard } from '../components/common/DashboardCard'
+import { SectionTitle } from '../components/common/SectionTitle'
 import type { StudyModeType } from '../features/Study/types'
 
 // 추천 이유 라벨
@@ -73,9 +72,9 @@ const reasonColors: Record<RecommendedNote['reason'], string> = {
 
 // 모드별 아이콘 및 라벨
 const modeConfig: Record<StudyModeType, { icon: React.ReactNode; label: string; color: string }> = {
-    word: { icon: <IconAbc size={16} />, label: '단어', color: 'text-blue-500' },
-    sentence: { icon: <IconMessageQuestion size={16} />, label: '문장', color: 'text-green-500' },
-    essay: { icon: <IconWriting size={16} />, label: '서술형', color: 'text-purple-500' },
+    word: { icon: <WordModeIcon size={16} />, label: '단어', color: 'text-blue-500' },
+    sentence: { icon: <SentenceModeIcon size={16} />, label: '문장', color: 'text-green-500' },
+    essay: { icon: <EssayModeIcon size={16} />, label: '서술형', color: 'text-purple-500' },
 }
 
 export function StatisticsDashboardPage() {
@@ -230,9 +229,6 @@ export function StatisticsDashboardPage() {
 
                     <div className="flex items-center gap-3">
                         <span className="font-mono text-lg text-[var(--text-primary)]">학습 통계</span>
-                        <span className="font-mono text-xs text-[var(--text-tertiary)] px-2 py-1 border border-[var(--border-light)]">
-                            // dashboard
-                        </span>
                     </div>
 
                     <div className="w-24" />
@@ -248,7 +244,7 @@ export function StatisticsDashboardPage() {
                         <span className="font-mono text-lg text-[var(--text-secondary)] mb-2">
                             // no data yet
                         </span>
-                        <span className="font-mono text-sm text-[var(--text-tertiary)] mb-6">
+                        <span className="font-mono text-sm text-[var(--text-secondary)] mb-6">
                             학습을 시작하면 통계가 기록됩니다
                         </span>
                         <button
@@ -267,50 +263,35 @@ export function StatisticsDashboardPage() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3 }}
                         >
-                            <div className="flex items-center gap-2 mb-4">
-                                <span className="font-mono text-[var(--accent)]">#</span>
-                                <span className="font-mono text-base text-[var(--text-primary)]">오늘의 학습</span>
-                            </div>
+                            <SectionTitle className="mb-4">오늘의 학습</SectionTitle>
 
-                            <div className="grid grid-cols-4 gap-4">
-                                <div className="p-4 border border-[var(--accent)]/30 bg-[var(--accent)]/5">
-                                    <div className="font-mono text-xs text-[var(--text-tertiary)] mb-2">
-                                        // 학습 시간
-                                    </div>
+                            <DashboardGrid>
+                                <DashboardCard label="학습 시간" className="border-[var(--accent)]/30 bg-[var(--accent)]/5">
                                     <div className="font-mono text-2xl text-[var(--accent)]">
                                         {formatDuration(todayStats?.studyTime || 0)}
                                     </div>
-                                </div>
+                                </DashboardCard>
 
-                                <div className="p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
-                                    <div className="font-mono text-xs text-[var(--text-tertiary)] mb-2">
-                                        // 세션
-                                    </div>
+                                <DashboardCard label="세션">
                                     <div className="font-mono text-2xl text-[var(--text-primary)]">
                                         {todayStats?.sessionCount || 0}
                                     </div>
-                                </div>
+                                </DashboardCard>
 
-                                <div className="p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
-                                    <div className="font-mono text-xs text-[var(--text-tertiary)] mb-2">
-                                        // 문제 수
-                                    </div>
+                                <DashboardCard label="문제 수">
                                     <div className="font-mono text-2xl text-[var(--text-primary)]">
                                         {todayStats?.questionsAnswered || 0}
                                     </div>
-                                </div>
+                                </DashboardCard>
 
-                                <div className="p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
-                                    <div className="font-mono text-xs text-[var(--text-tertiary)] mb-2">
-                                        // 정답률
-                                    </div>
+                                <DashboardCard label="정답률">
                                     <div
                                         className={`font-mono text-2xl ${(todayStats?.accuracy || 0) >= 80 ? 'text-[var(--success)]' : (todayStats?.accuracy || 0) >= 60 ? 'text-[var(--warning)]' : 'text-[var(--text-primary)]'}`}
                                     >
                                         {todayStats?.accuracy || 0}%
                                     </div>
-                                </div>
-                            </div>
+                                </DashboardCard>
+                            </DashboardGrid>
                         </motion.section>
 
                         {/* ======================== 전체 통계 대시보드 ======================== */}
@@ -320,19 +301,11 @@ export function StatisticsDashboardPage() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3, delay: 0.05 }}
                         >
-                            <div className="flex items-center gap-2 mb-4">
-                                <span className="font-mono text-[var(--accent)]">#</span>
-                                <span className="font-mono text-base text-[var(--text-primary)]">
-                                    전체 통계
-                                </span>
-                            </div>
+                            <SectionTitle className="mb-4">전체 통계</SectionTitle>
 
-                            <div className="grid grid-cols-4 gap-4">
+                            <DashboardGrid>
                                 {/* 전체 정답률 (메인) */}
-                                <div className="col-span-2 row-span-2 p-6 border border-[var(--border-light)] bg-[var(--bg-paper)]">
-                                    <div className="font-mono text-xs text-[var(--text-tertiary)] mb-2">
-                                        // 전체 정답률
-                                    </div>
+                                <DashboardCard label="전체 정답률" colSpan={2} rowSpan={2} className="p-6">
                                     <div className="flex items-baseline gap-2">
                                         <span
                                             className={`font-score text-7xl font-light ${overallStats!.overallAccuracy >= 80 ? 'text-[var(--success)]' : overallStats!.overallAccuracy >= 60 ? 'text-[var(--warning)]' : 'text-[var(--text-primary)]'}`}
@@ -351,53 +324,38 @@ export function StatisticsDashboardPage() {
                                             {overallStats!.totalWrong}
                                         </span>
                                     </div>
-                                </div>
+                                </DashboardCard>
 
                                 {/* 총 학습 시간 */}
-                                <div className="p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
-                                    <div className="font-mono text-xs text-[var(--text-tertiary)] mb-2 flex items-center gap-1.5">
-                                        <IconClock size={12} />
-                                        총 학습 시간
-                                    </div>
+                                <DashboardCard label="총 학습 시간">
                                     <div className="font-mono text-2xl text-[var(--text-primary)]">
                                         {formatDuration(overallStats!.totalStudyTime)}
                                     </div>
-                                </div>
+                                </DashboardCard>
 
                                 {/* 총 세션 */}
-                                <div className="p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
-                                    <div className="font-mono text-xs text-[var(--text-tertiary)] mb-2">
-                                        // 세션 수
-                                    </div>
+                                <DashboardCard label="세션 수">
                                     <div className="font-mono text-2xl text-[var(--text-primary)]">
                                         {overallStats!.totalSessions}
                                     </div>
-                                </div>
+                                </DashboardCard>
 
                                 {/* 학습한 노트 */}
-                                <div className="p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
-                                    <div className="font-mono text-xs text-[var(--text-tertiary)] mb-2 flex items-center gap-1.5">
-                                        <IconBooks size={12} />
-                                        학습한 노트
-                                    </div>
+                                <DashboardCard label="학습한 노트">
                                     <div className="font-mono text-2xl text-[var(--accent)]">
                                         {overallStats!.studiedNoteCount}
                                     </div>
-                                </div>
+                                </DashboardCard>
 
                                 {/* 취약점 */}
-                                <div className="p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
-                                    <div className="font-mono text-xs text-[var(--text-tertiary)] mb-2 flex items-center gap-1.5">
-                                        <IconAlertTriangle size={12} />
-                                        취약점
-                                    </div>
+                                <DashboardCard label="취약점">
                                     <div
                                         className={`font-mono text-2xl ${overallStats!.unresolvedWeakPoints > 0 ? 'text-[var(--error)]' : 'text-[var(--text-primary)]'}`}
                                     >
                                         {overallStats!.unresolvedWeakPoints}
                                     </div>
-                                </div>
-                            </div>
+                                </DashboardCard>
+                            </DashboardGrid>
                         </motion.section>
 
                         {/* ======================== 모드별 통계 ======================== */}
@@ -408,12 +366,7 @@ export function StatisticsDashboardPage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.3, delay: 0.08 }}
                             >
-                                <div className="flex items-center gap-2 mb-4">
-                                    <span className="font-mono text-[var(--accent)]">#</span>
-                                    <span className="font-mono text-base text-[var(--text-primary)]">
-                                        모드별 통계
-                                    </span>
-                                </div>
+                                <SectionTitle className="mb-4">모드별 통계</SectionTitle>
 
                                 <div className="grid grid-cols-3 gap-4">
                                     {modeStats.map((stat) => {
@@ -468,10 +421,7 @@ export function StatisticsDashboardPage() {
                         >
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2">
-                                    <span className="font-mono text-[var(--accent)]">#</span>
-                                    <span className="font-mono text-base text-[var(--text-primary)]">
-                                        학습 추이
-                                    </span>
+                                    <SectionTitle>학습 추이</SectionTitle>
                                     <IconTrendingUp size={16} className="text-[var(--text-tertiary)]" />
                                 </div>
 
@@ -650,12 +600,7 @@ export function StatisticsDashboardPage() {
                                 transition={{ duration: 0.3, delay: 0.2 }}
                             >
                                 <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-2">
-                                        <span className="font-mono text-[var(--accent)]">#</span>
-                                        <span className="font-mono text-base text-[var(--text-primary)]">
-                                            노트별 성취도
-                                        </span>
-                                    </div>
+                                    <SectionTitle>노트별 성취도</SectionTitle>
                                     <span className="font-mono text-sm text-[var(--text-tertiary)]">
                                         [{noteStats.length}]
                                     </span>
@@ -667,7 +612,7 @@ export function StatisticsDashboardPage() {
                                         <div className="font-mono text-xs text-[var(--text-tertiary)] mb-3">
                                             // 노트별 정답률 (상위 10개)
                                         </div>
-                                        <ResponsiveContainer width="100%" height={200}>
+                                        <ResponsiveContainer width="100%" height={300}>
                                             <BarChart
                                                 data={noteChartData}
                                                 layout="vertical"
@@ -809,13 +754,13 @@ export function StatisticsDashboardPage() {
                                 {/* 상위 취약점 목록 */}
                                 {topWeakPoints.length > 0 && (
                                     <div className="border border-[var(--error)]/30 bg-[var(--error)]/5">
-                                        {topWeakPoints.map((wp, idx) => {
+                                        {topWeakPoints.map((wp: WeakPoint, idx: number) => {
                                             const config = modeConfig[wp.mode]
                                             const displayContent = wp.mode === 'word'
-                                                ? (wp as any).keyword
+                                                ? wp.keyword
                                                 : wp.mode === 'sentence'
-                                                    ? (wp as any).question?.slice(0, 50)
-                                                    : (wp as any).question?.slice(0, 50)
+                                                    ? wp.question?.slice(0, 50)
+                                                    : wp.question?.slice(0, 50)
 
                                             return (
                                                 <div

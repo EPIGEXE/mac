@@ -11,19 +11,24 @@ import { IconArrowLeft, IconRefresh, IconAlertTriangle } from '@tabler/icons-rea
 import { BarChart, Bar, XAxis, YAxis, Cell, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { useStudySessionStore } from '../stores/studySessionStore'
 import { ScoreMessage } from '../features/Study/components/ScoreMessage'
+import { DashboardCard } from '../components/common/DashboardCard'
+import { DashboardGrid } from '../components/common/DashboardGrid'
+import { TerminalButton } from '../components/common/TerminalButton'
+import { SectionTitle } from '../components/common/SectionTitle'
 import type { StudyModeType } from '../features/Study/types'
 
 export function StudyFinalResultPage() {
-    const navigate = useNavigate()
+    // ================================ Hooks ================================
+    const navigate = useNavigate() // 네비게이션
 
-    const noteResults = useStudySessionStore((state) => state.noteResults)
-    const selectedNoteIds = useStudySessionStore((state) => state.selectedNoteIds)
-    const mode = useStudySessionStore((state) => state.mode)
-    const order = useStudySessionStore((state) => state.order)
-    const isActive = useStudySessionStore((state) => state.isActive)
-    const getTotalStats = useStudySessionStore((state) => state.getTotalStats)
-    const resetSession = useStudySessionStore((state) => state.resetSession)
-    const startSession = useStudySessionStore((state) => state.startSession)
+    const noteResults = useStudySessionStore((state) => state.noteResults) // 노트 학습 결과
+    const selectedNoteIds = useStudySessionStore((state) => state.selectedNoteIds) // 선택된 노트 ID들
+    const mode = useStudySessionStore((state) => state.mode) // 학습 모드 (word, sentence, essay)
+    const order = useStudySessionStore((state) => state.order) // 순서 (sequential, random)
+    const isActive = useStudySessionStore((state) => state.isActive) // 세션 활성화 여부
+    const getTotalStats = useStudySessionStore((state) => state.getTotalStats) // 전체 통계 계산
+    const resetSession = useStudySessionStore((state) => state.resetSession) // 세션 초기화
+    const startSession = useStudySessionStore((state) => state.startSession) // 세션 시작
 
     // 통계 계산
     const stats = getTotalStats()
@@ -114,60 +119,51 @@ export function StudyFinalResultPage() {
                         transition={{ duration: 0.3 }}
                     >
                         {/* 타이틀 */}
-                        <div className="flex items-center gap-2 mb-6">
-                            <span className="font-mono text-[var(--accent)]">#</span>
-                            <span className="font-mono text-base text-[var(--text-primary)]">Dashboard</span>
-                        </div>
+                        <SectionTitle size="lg" className="mb-6">대시 보드</SectionTitle>
 
                         {/* 대시보드 그리드 */}
-                        <div className="grid grid-cols-4 gap-4">
+                        <DashboardGrid>
                             {/* 평균 점수 (메인) */}
-                            <div className="col-span-2 p-6 border border-[var(--border-light)] bg-[var(--bg-paper)]">
-                                <div className="font-mono text-xs text-[var(--text-tertiary)] mb-2">// avg_score</div>
+                            <DashboardCard label="평균 점수" colSpan={2} className="p-6">
                                 <div className="flex items-baseline gap-2">
                                     <span
                                         className={`font-score text-6xl font-light ${isPerfect ? 'text-[var(--success)]' : 'text-[var(--text-primary)]'}`}
                                     >
                                         {stats.averageScore}
                                     </span>
-                                    <span className="font-score text-2xl text-[var(--text-tertiary)]">%</span>
+                                    <span className="font-score text-2xl text-[var(--text-secondary)]">%</span>
                                 </div>
                                 <div className="mt-3">
                                     <ScoreMessage score={stats.averageScore} isPerfect={isPerfect} />
                                 </div>
-                            </div>
+                            </DashboardCard>
 
                             {/* 노트 수 */}
-                            <div className="p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
-                                <div className="font-mono text-xs text-[var(--text-tertiary)] mb-2">// notes</div>
+                            <DashboardCard label="공부한 노트 수">
                                 <div className="font-mono text-3xl text-[var(--accent)]">{noteResults.length}</div>
-                            </div>
+                            </DashboardCard>
 
                             {/* 총 문제 수 */}
-                            <div className="p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
-                                <div className="font-mono text-xs text-[var(--text-tertiary)] mb-2">// questions</div>
+                            <DashboardCard label="문제 수">
                                 <div className="font-mono text-3xl text-[var(--accent)]">{stats.totalQuestions}</div>
-                            </div>
+                            </DashboardCard>
 
                             {/* 정답/오답 */}
-                            <div className="p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
-                                <div className="font-mono text-xs text-[var(--text-tertiary)] mb-2">// correct</div>
+                            <DashboardCard label="정답">
                                 <div className="font-mono text-3xl text-[var(--success)]">{stats.totalCorrect}</div>
-                            </div>
+                            </DashboardCard>
 
-                            <div className="p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
-                                <div className="font-mono text-xs text-[var(--text-tertiary)] mb-2">// wrong</div>
+                            <DashboardCard label="오답">
                                 <div className="font-mono text-3xl text-[var(--error)]">{stats.totalWrong}</div>
-                            </div>
+                            </DashboardCard>
 
                             {/* 소요 시간 */}
-                            <div className="col-span-2 p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
-                                <div className="font-mono text-xs text-[var(--text-tertiary)] mb-2">// duration</div>
+                            <DashboardCard label="소요 시간" colSpan={2}>
                                 <div className="font-mono text-3xl text-[var(--text-primary)]">
                                     {formatDuration(stats.totalDuration)}
                                 </div>
-                            </div>
-                        </div>
+                            </DashboardCard>
+                        </DashboardGrid>
                     </motion.section>
 
                     {/* ======================== 그래프 섹션 ======================== */}
@@ -179,11 +175,8 @@ export function StudyFinalResultPage() {
                     >
                         {/* 타이틀 */}
                         <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2">
-                                <span className="font-mono text-[var(--accent)]">#</span>
-                                <span className="font-mono text-base text-[var(--text-primary)]">Score Distribution</span>
-                            </div>
-                            <span className="font-mono text-xs text-[var(--text-tertiary)]">[{noteResults.length}]</span>
+                            <SectionTitle size="lg" className="mb-6">점수 분포</SectionTitle>
+                            <span className="font-mono text-sm text-[var(--text-tertiary)]">[{noteResults.length}]</span>
                         </div>
 
                         {/* 바 차트 */}
@@ -303,11 +296,8 @@ export function StudyFinalResultPage() {
                     >
                         {/* 타이틀 */}
                         <div className="flex items-center justify-between mb-4 pb-2 border-b border-[var(--border-light)]">
-                            <div className="flex items-center gap-2">
-                                <span className="font-mono text-[var(--accent)]">#</span>
-                                <span className="font-mono text-base text-[var(--text-primary)]">All Notes</span>
-                            </div>
-                            <span className="font-mono text-sm text-[var(--text-secondary)]">
+                            <SectionTitle size="lg" className="mb-6">전체 노트 리스트</SectionTitle>
+                            <span className="font-mono text-sm text-[var(--text-tertiary)]">
                                 [{noteResults.length}]
                             </span>
                         </div>
@@ -348,7 +338,7 @@ export function StudyFinalResultPage() {
                                             </span>
 
                                             {/* 정답/오답 */}
-                                            <div className="flex items-center gap-2 font-mono text-xs text-[var(--text-tertiary)]">
+                                            <div className="flex items-center gap-2 font-mono text-sm text-[var(--text-tertiary)]">
                                                 <span className="text-[var(--success)]">+{result.correctCount}</span>
                                                 <span className="text-[var(--error)]">-{result.wrongCount}</span>
                                             </div>
@@ -374,19 +364,13 @@ export function StudyFinalResultPage() {
                         transition={{ duration: 0.2, delay: 0.35 }}
                     >
                         <div className="flex gap-3">
-                            <button
-                                onClick={handleExit}
-                                className="flex-1 py-3 px-4 font-mono text-base border border-[var(--border-light)] text-[var(--text-secondary)] cursor-pointer transition-colors hover:border-[var(--text-tertiary)]"
-                            >
+                            <TerminalButton onClick={handleExit} className="flex-1 justify-center">
                                 :q exit
-                            </button>
-                            <button
-                                onClick={handleRetry}
-                                className="flex-1 py-3 px-4 bg-[var(--accent)] text-white font-mono text-base cursor-pointer transition-opacity hover:opacity-90 flex items-center justify-center gap-2"
-                            >
+                            </TerminalButton>
+                            <TerminalButton onClick={handleRetry} variant="filled" className="flex-1 justify-center">
                                 <IconRefresh size={18} />
                                 retry all
-                            </button>
+                            </TerminalButton>
                         </div>
                     </motion.section>
                 </div>

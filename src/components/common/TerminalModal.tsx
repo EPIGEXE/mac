@@ -73,11 +73,11 @@ export function TerminalModal({
                             >
                                 {/* 터미널 스타일 상단 바 */}
                                 <div className="flex items-center gap-1.5 px-4 py-2 bg-[var(--bg-secondary)] border-b border-[var(--border-light)]">
-                                    <span className="ml-3 font-mono text-xs text-[var(--text-tertiary)]">
+                                    <span className="ml-3 font-mono text-sm text-[var(--text-secondary)]">
                                         {command}
                                     </span>
                                     <Dialog.Close asChild>
-                                        <button className="ml-auto p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">
+                                        <button className="ml-auto p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                                             <IconX size={14} />
                                         </button>
                                     </Dialog.Close>

@@ -5,6 +5,7 @@
  */
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
+import { IconChevronDown, IconChevronRight } from '@tabler/icons-react'
 import type { SentenceQuestionInfo, SentenceEvaluationResult } from '../../../types'
 import { ScoreMessage } from '../../../components/ScoreMessage'
 
@@ -89,7 +90,7 @@ export function SentenceQuizResult({
                         transition={{ duration: 0.2, delay: 0.15 }}
                     >
                         <div className="font-mono text-sm text-[var(--text-secondary)] mb-2">// feedback</div>
-                        <p className="text-base text-[var(--text-primary)] leading-relaxed">{overallFeedback}</p>
+                        <p className="text-[var(--text-primary)] leading-relaxed">{overallFeedback}</p>
                     </motion.div>
                 )}
 
@@ -104,7 +105,7 @@ export function SentenceQuizResult({
                     <div className="flex items-center justify-between mb-4 pb-2 border-b border-[var(--border-light)]">
                         <div className="flex items-center gap-2">
                             <span className="font-mono text-[var(--accent)]">#</span>
-                            <span className="font-mono text-base text-[var(--text-primary)]">Review</span>
+                            <span className="font-mono text-[var(--text-primary)]">Review</span>
                         </div>
                         <span className="font-mono text-sm text-[var(--text-secondary)]">[{totalQuestions}]</span>
                     </div>
@@ -178,9 +179,11 @@ export function SentenceQuizResult({
                                                 >
                                                     {questionScore}점
                                                 </span>
-                                                <span className="font-mono text-sm text-[var(--text-secondary)]">
-                                                    {isExpanded ? '▼ 접기' : '▶ 상세보기'}
-                                                </span>
+                                                {isExpanded ? (
+                                                    <IconChevronDown size={16} className="text-[var(--text-secondary)]" />
+                                                ) : (
+                                                    <IconChevronRight size={16} className="text-[var(--text-secondary)]" />
+                                                )}
                                             </div>
                                         </div>
                                     </div>

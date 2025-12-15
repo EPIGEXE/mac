@@ -12,7 +12,7 @@ export function NoteTags({ tag, className = '' }: NoteTagsProps) {
     return (
         <div className={`flex gap-2 flex-wrap ${className}`}>
             <span
-                className={`font-mono text-[11px] px-2 py-0.5 border whitespace-nowrap ${
+                className={`font-mono text-xs px-2 py-0.5 border whitespace-nowrap ${
                     tag.level === 'beginner'
                         ? 'text-[var(--text-tertiary)] border-[var(--border-light)]'
                         : tag.level === 'advanced'
@@ -24,7 +24,7 @@ export function NoteTags({ tag, className = '' }: NoteTagsProps) {
                 {TAG_LABELS.LEVEL[tag.level]}
             </span>
             <span
-                className={`font-mono text-[11px] px-2 py-0.5 border whitespace-nowrap ${
+                className={`font-mono text-xs px-2 py-0.5 border whitespace-nowrap ${
                     tag.importance === 'good'
                         ? 'text-[var(--text-tertiary)] border-[var(--border-light)]'
                         : tag.importance === 'core'
@@ -37,7 +37,7 @@ export function NoteTags({ tag, className = '' }: NoteTagsProps) {
             </span>
             {tag.interview && (
                 <span
-                    className={`font-mono text-[11px] px-2 py-0.5 border whitespace-nowrap ${
+                    className={`font-mono text-xs px-2 py-0.5 border whitespace-nowrap ${
                         tag.interview === 'must'
                             ? 'font-medium text-[var(--accent)] border-[var(--accent)]'
                             : 'text-[var(--text-tertiary)] border-[var(--border-light)]'

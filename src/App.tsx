@@ -1,7 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import { RootLayout } from './components/layouts/RootLayout';
 import { MainPage } from './pages/MainPage';
-import { NoteDetailWrapper } from './pages/NoteDetailWrapper';
 import { StudyModePage } from './pages/StudyModePage';
 import { StudySetupPage } from './pages/StudySetupPage';
 import { StudyFinalResultPage } from './pages/StudyFinalResultPage';
@@ -11,6 +10,7 @@ import { SessionHistoryPage } from './pages/SessionHistoryPage';
 import { TerminalToast } from './features/Toast/components/TerminalToast';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import { AppCrashFallback } from './components/ErrorBoundary/ErrorFallback';
+import { NoteDetailPage } from './pages/NoteDetailPage';
 
 function App() {
     return (
@@ -19,7 +19,7 @@ function App() {
             <Routes>
                 <Route element={<RootLayout />}>
                     <Route path="/" element={<MainPage />} />
-                    <Route path="/note/:noteId" element={<NoteDetailWrapper />} />
+                    <Route path="/note/:noteId" element={<NoteDetailPage />} />
                     <Route path="/study/setup" element={<StudySetupPage />} />
                     <Route path="/study" element={<StudyModePage />} />
                     <Route path="/study/result" element={<StudyFinalResultPage />} />

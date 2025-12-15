@@ -14,6 +14,7 @@ import { useStudySessionStore } from '../../../../stores/studySessionStore'
 import { SentenceQuizResult } from './components/SentenceQuizResult'
 import { SentenceAnswerInput } from './components/SentenceAnswerInput'
 import { GenerateingQuizLoading } from '../../components/GenerateingQuizLoading'
+import { TerminalButton } from '../../../../components/common/TerminalButton'
 
 interface SentenceQuizContainerProps {
     note: Note
@@ -144,13 +145,13 @@ export function SentenceQuizContainer({
                     {/* 헤더 */}
                     <div className="mb-8">
                         <div className="flex items-center gap-2 mb-2">
-                            <span className="font-mono text-xs text-[var(--accent)]">#</span>
-                            <span className="font-mono text-xs text-[var(--text-tertiary)]">{note.category}</span>
+                            <span className="font-mono text-sm text-[var(--accent)]">#</span>
+                            <span className="font-mono text-sm text-[var(--text-secondary)]">{note.category}</span>
                         </div>
-                        <h2 className="text-xl font-medium text-[var(--text-primary)] mb-1">
+                        <h2 className="text-2xl font-medium text-[var(--text-primary)] mb-1">
                             {note.title}
                         </h2>
-                        <p className="font-mono text-xs text-[var(--text-tertiary)]">
+                        <p className="font-mono text-sm text-[var(--text-secondary)]">
                             // {questions.length} questions
                         </p>
                     </div>
@@ -181,17 +182,19 @@ export function SentenceQuizContainer({
             {/* 하단 제출 바 */}
             <footer className="border-t border-[var(--border-light)] bg-[var(--bg-paper)]">
                 <div className="max-w-[800px] mx-auto px-6 py-4 flex items-center justify-between">
-                    <div className="font-mono text-xs text-[var(--text-tertiary)]">
+                    <div className="font-mono text-sm text-[var(--text-secondary)]">
                         <span className={answeredCount === totalQuestions ? 'text-green-500' : 'text-[var(--accent)]'}>
                             {answeredCount}
                         </span>
                         <span> / {totalQuestions} answered</span>
                     </div>
 
-                    <button
+                    <TerminalButton
+                        type="submit"
+                        variant="filled"
                         onClick={submitAllAnswers}
                         disabled={isEvaluating || answeredCount === 0}
-                        className="flex items-center gap-2 px-5 py-2 font-mono text-sm bg-[var(--accent)] text-white border-none cursor-pointer transition-all duration-150 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-2 px-5 py-2"
                     >
                         {isEvaluating ? (
                             <>
@@ -204,7 +207,7 @@ export function SentenceQuizContainer({
                                 <span>제출</span>
                             </>
                         )}
-                    </button>
+                    </TerminalButton>
                 </div>
             </footer>
         </>

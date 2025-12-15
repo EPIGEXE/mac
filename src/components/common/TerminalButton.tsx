@@ -1,23 +1,25 @@
 import { cva } from 'class-variance-authority';
 
 const buttonStyles = cva(
-    'font-mono bg-transparent border px-3.5 py-[5px] text-sm cursor-pointer transition-all duration-150 flex items-center gap-1.5',
+    'font-mono border px-3.5 py-3 text-sm cursor-pointer transition-all duration-150 flex items-center gap-1.5',
     {
         variants: {
             variant: {
                 default:
-                    'border-[var(--border-light)] text-[var(--text-tertiary)] hover:border-[var(--accent)] hover:text-[var(--accent)]',
+                    'bg-transparent border-[var(--border-light)] text-[var(--text-tertiary)] hover:border-[var(--accent)] hover:text-[var(--accent)]',
                 danger:
-                    'border-[var(--border-light)] text-[var(--warning)] hover:border-[var(--warning)] hover:text-[var(--warning)]',
+                    'bg-transparent border-[var(--border-light)] text-[var(--warning)] hover:border-[var(--warning)] hover:text-[var(--warning)]',
                 accent:
-                    'border-[var(--accent)] text-[var(--accent)] hover:border-[var(--accent)] hover:text-[var(--accent)]',
+                    'bg-transparent border-[var(--accent)] text-[var(--accent)] hover:border-[var(--accent)] hover:text-[var(--accent)]',
+                filled:
+                    'bg-[var(--accent)] border-[var(--accent)] text-white hover:opacity-90',
             },
             active: {
                 true: 'border-[var(--accent)] text-[var(--accent)]',
                 false: '',
             },
             disabled: {
-                true: 'opacity-50 cursor-not-allowed hover:border-[var(--border-light)] hover:text-[var(--text-tertiary)]',
+                true: 'opacity-50 cursor-not-allowed pointer-events-none',
                 false: '',
             },
         },
@@ -36,18 +38,23 @@ export function TerminalButton({
     active = false,
     variant = 'default',
     disabled = false,
+    type = 'button',
+    className = '',
 }: {
     children: React.ReactNode;
-    onClick: () => void;
+    onClick?: () => void;
     active?: boolean;
-    variant?: 'default' | 'accent' | 'danger';
+    variant?: 'default' | 'accent' | 'danger' | 'filled';
     disabled?: boolean;
+    type?: 'button' | 'submit';
+    className?: string;
 }) {
     return (
         <button
+            type={type}
             onClick={disabled ? undefined : onClick}
             disabled={disabled}
-            className={buttonStyles({ variant, active, disabled })}
+            className={`${buttonStyles({ variant, active, disabled })} ${className}`}
         >
             {children}
         </button>

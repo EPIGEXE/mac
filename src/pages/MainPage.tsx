@@ -9,7 +9,7 @@ import { ListView } from '../features/Main/ListView/ListView'
 import { RoadmapView } from '../features/Main/roadmap/RoadmapView'
 import type { ViewMode } from '../features/Main/MainHeader'
 
-// 대주제 필터 타입 (all + 각 mainCategory id)
+// 대주제 필터 타입
 export type TopicFilter = 'all' | (typeof mainCategories)[number]['id']
 
 export function MainPage() {
@@ -45,7 +45,7 @@ export function MainPage() {
         backend: mainCategories[2].categories,
     }
 
-    const filteredCategories = [...topicCategories[topicFilter]] // 필터링된 카테고리 (mutable copy)
+    const filteredCategories = [...topicCategories[topicFilter]] // 필터링된 카테고리
     const filteredNotes = notes.filter((n) =>
         filteredCategories.includes(n.category as (typeof filteredCategories)[number])
     ) // 필터링된 노트
@@ -62,11 +62,10 @@ export function MainPage() {
         navigate(`/note/${noteId}`)
     }
 
-    // roadmap 뷰일 때는 flex로 남은 높이 채우기
+    // roadmap 뷰
     const isRoadmapView = viewMode === 'roadmap'
 
-    // Roadmap 뷰: 고정 높이 + overflow-hidden
-    // List 뷰: 일반 스크롤 (body 스크롤 사용)
+    // Roadmap 뷰
     if (isRoadmapView) {
         return (
             <div className="h-screen bg-[var(--bg-primary)] flex flex-col overflow-hidden">
@@ -83,7 +82,7 @@ export function MainPage() {
         )
     }
 
-    // List 뷰: body 스크롤 사용 (sticky 헤더를 위해)
+    // List 뷰
     return (
         <div className="min-h-screen bg-[var(--bg-primary)]">
             <MainHeader

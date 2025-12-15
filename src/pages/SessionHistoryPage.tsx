@@ -9,9 +9,6 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
     IconArrowLeft,
-    IconAbc,
-    IconMessageQuestion,
-    IconWriting,
     IconHistory,
     IconClock,
     IconChecks,
@@ -20,15 +17,16 @@ import {
     IconChevronRight,
     IconCalendar,
 } from '@tabler/icons-react'
+import { WordModeIcon, SentenceModeIcon, EssayModeIcon } from '../components/icons/StudyModeIcons'
 import { getSessionHistory, getSessionModeDetails } from '../db/study/studyService'
 import type { StudyModeType } from '../db/schema/study'
 import type { SessionHistoryItem, SessionModeDetail } from '../db/study/types'
 
 // 모드별 설정
 const modeConfig: Record<StudyModeType, { icon: React.ReactNode; label: string; color: string; bgColor: string }> = {
-    word: { icon: <IconAbc size={14} />, label: '단어', color: 'text-blue-500', bgColor: 'bg-blue-500' },
-    sentence: { icon: <IconMessageQuestion size={14} />, label: '문장', color: 'text-green-500', bgColor: 'bg-green-500' },
-    essay: { icon: <IconWriting size={14} />, label: '서술형', color: 'text-purple-500', bgColor: 'bg-purple-500' },
+    word: { icon: <WordModeIcon size={14} />, label: '단어', color: 'text-blue-500', bgColor: 'bg-blue-500' },
+    sentence: { icon: <SentenceModeIcon size={14} />, label: '문장', color: 'text-green-500', bgColor: 'bg-green-500' },
+    essay: { icon: <EssayModeIcon size={14} />, label: '서술형', color: 'text-purple-500', bgColor: 'bg-purple-500' },
 }
 
 // 요일 라벨

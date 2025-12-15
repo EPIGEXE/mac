@@ -61,7 +61,7 @@ export function BlankButton({
             {isAnswered ? (
                 <span className="font-medium">{answer}</span>
             ) : (
-                <span className="opacity-60 text-xs">{hint ? `${hint}...` : '[ ? ]'}</span>
+                <span className="opacity-80 text-xs">{hint ? `${hint}...` : '[ ? ]'}</span>
             )}
         </button>
     )

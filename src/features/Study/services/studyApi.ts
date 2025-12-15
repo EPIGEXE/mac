@@ -18,7 +18,7 @@ import type {
 
 // ================================ Mock 모드 설정 ================================
 // UI 개발 시 true로 설정하면 백엔드 호출 없이 목 데이터 사용
-const USE_MOCK_API = false
+const USE_MOCK_API = true
 
 // Mock 응답 지연 시간 (ms) - 실제 API 느낌을 위해
 const MOCK_DELAY = 800

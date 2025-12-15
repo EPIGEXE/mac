@@ -21,7 +21,7 @@ export const CategorySection = forwardRef<HTMLDivElement, CategorySectionProps>(
 
         return (
             <div ref={ref} className="mb-12 scroll-mt-[100px]">
-                {/* 카테고리 헤더 - 터미널 스타일 */}
+                {/* 카테고리 헤더 */}
                 <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-light)]">
                     <div className="flex items-baseline gap-2">
                         <span className="font-mono text-base text-[var(--accent)]">#</span>
@@ -31,12 +31,12 @@ export const CategorySection = forwardRef<HTMLDivElement, CategorySectionProps>(
                     </div>
                     <div className="flex items-center gap-4">
                         {/* 배열 인덱스 스타일 카운트 */}
-                        <span className="font-mono text-[13px] text-[var(--text-tertiary)]">[{notes.length}]</span>
+                        <span className="font-mono text-sm text-[var(--text-tertiary)]">[{notes.length}]</span>
 
                         {/* 터미널 스타일 새 노트 버튼 */}
                         <button
                             onClick={() => onCreateNote(category)}
-                            className="p-0 font-mono text-[13px] text-[var(--text-tertiary)] bg-transparent border-none cursor-pointer transition-colors duration-150 hover:text-[var(--accent)]"
+                            className="p-0 font-mono text-sm text-[var(--text-tertiary)] bg-transparent border-none cursor-pointer transition-colors duration-150 hover:text-[var(--accent)]"
                         >
                             + new
                         </button>

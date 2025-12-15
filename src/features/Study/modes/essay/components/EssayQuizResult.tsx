@@ -8,6 +8,7 @@ import { useState } from 'react'
 import type { EssayQuestionInfo, EvaluateEssayResponse } from '../../../types'
 import { ScoreMessage } from '../../../components/ScoreMessage'
 import { COMPANY_COLORS } from '../constants'
+import { SectionTitle } from '../../../../../components/common/SectionTitle'
 
 interface EssayQuizResultProps {
     question: EssayQuestionInfo // 질문 정보
@@ -67,6 +68,8 @@ export function EssayQuizResult({ question, userAnswer, result, onNext }: EssayQ
                     {/* 점수 평가 메시지 */}
                     <ScoreMessage score={result.score} isPerfect={isPerfect} />
                 </motion.div>
+
+                <SectionTitle size="lg" className="mb-6">평가 결과</SectionTitle>
 
                 {/*  원본 질문  */}
                 <motion.div
@@ -164,6 +167,8 @@ export function EssayQuizResult({ question, userAnswer, result, onNext }: EssayQ
                         </div>
                     )}
                 </motion.div>
+
+                <SectionTitle size="lg" className="mb-6">피드백</SectionTitle>
 
                 {/*  면접관 피드백  */}
                 <motion.div

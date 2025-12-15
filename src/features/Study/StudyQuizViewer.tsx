@@ -11,32 +11,28 @@ import '../NoteDetail/MarkdownEditor/styles/editor.css'
 import { WordQuizContainer } from './modes/word/WordQuizContainer'
 import { SentenceQuizContainer } from './modes/sentence/SentenceQuizContainer'
 import { EssayQuizContainer } from './modes/essay/EssayQuizContainer'
-import { useStudySessionStore } from '../../stores/studySessionStore'
+import { useStudyProgress, useStudyProgressText, useStudySessionStore } from '../../stores/studySessionStore'
 
 interface StudyQuizViewerProps {
     note: Note
     onExit: () => void
     onNext: () => void
-    hasNextNote: boolean
-    showProgress?: boolean
-    progress?: number          // 0-100
-    progressText?: string      // "3/10"
 }
 
 export function StudyQuizViewer({
     note,
     onExit,
     onNext,
-    hasNextNote,
-    showProgress = false,
-    progress = 0,
-    progressText = '',
 }: StudyQuizViewerProps) {
     // ================================ Store ================================
     const mode = useStudySessionStore((state) => state.mode)
+    const progress = useStudyProgress()
+    const progressText = useStudyProgressText()
+    const selectedNoteIds = useStudySessionStore((state) => state.selectedNoteIds)
 
     // ================================ 상수 ================================
     const studyMode: StudyModeType | null = mode
+    const isSingleNote = selectedNoteIds.length === 1
 
     // 모드 라벨
     const modeLabel = studyMode === 'word' ? '단어'
@@ -59,7 +55,7 @@ export function StudyQuizViewer({
                     </button>
 
                     {/* Center: Progress (Store 모드) */}
-                    {showProgress && (
+                    {!isSingleNote && (
                         <div className="flex items-center gap-4">
                             {/* 모드 표시 */}
                             <span className="font-mono text-xs text-[var(--text-tertiary)] px-2 py-1 border border-[var(--border-light)]">
@@ -81,8 +77,8 @@ export function StudyQuizViewer({
                         </div>
                     )}
 
-                    {/* Right: 모드 표시 (Legacy 모드) */}
-                    {!showProgress && studyMode && (
+                    {/* Right: 모드 표시 */}
+                    {studyMode && (
                         <span className="font-mono text-xs text-[var(--text-tertiary)] px-2 py-1 border border-[var(--border-light)]">
                             {studyMode} · {modeLabel}
                         </span>

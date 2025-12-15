@@ -192,12 +192,12 @@ export function NoteSelector({ notes, selectedIds, onSelectionChange }: NoteSele
             <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-light)]">
                 <div className="font-mono text-sm text-[var(--text-secondary)]">
                     선택됨: <span className="text-[var(--accent)]">{selectedIds.length}</span>
-                    <span className="text-[var(--text-tertiary)]">/{MAX_SELECTION}</span>
+                    <span className="text-[var(--text-secondary)]">/{MAX_SELECTION}</span>
                 </div>
                 <div className="flex gap-2">
                     <button
                         onClick={handleDeselectAll}
-                        className="px-3 py-1 font-mono text-xs border border-[var(--border-light)] text-[var(--text-tertiary)] hover:border-[var(--text-tertiary)] transition-colors cursor-pointer"
+                        className="px-3 py-1 font-mono text-xs border border-[var(--border-light)] text-[var(--text-secondary)] hover:border-[var(--text-secondary)] transition-colors cursor-pointer"
                     >
                         전체 해제
                     </button>
@@ -332,7 +332,7 @@ export function NoteSelector({ notes, selectedIds, onSelectionChange }: NoteSele
             {/* Empty State */}
             {notes.length === 0 && (
                 <div className="px-4 py-8 text-center">
-                    <span className="font-mono text-sm text-[var(--text-tertiary)]">
+                    <span className="font-mono text-sm text-[var(--text-primary)]">
                         // 노트가 없습니다
                     </span>
                 </div>
