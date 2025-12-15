@@ -21,7 +21,7 @@ export function SectionTitle({ size = 'base', children, className = '' }: Sectio
     return (
         <div className={`flex items-center gap-2 ${className}`}>
             <span className={`font-mono text-[var(--accent)] ${sizeStyles[size]}`}>#</span>
-            <span className={`font-mono text-[var(--text-primary)] ${sizeStyles[size]}`}>{children}</span>
+            <span className={`text-[var(--text-primary)] ${sizeStyles[size]}`}>{children}</span>
         </div>
     )
 }

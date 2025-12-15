@@ -16,7 +16,7 @@
 
 @theme {
     --font-system: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    --font-display: 'Cafe24ClassicType', 'Georgia', serif;
+    --font-display: 'Georgia', serif;
     --font-mono: 'D2Coding', 'Consolas', monospace;
     --font-score: 'Rajdhani', sans-serif;
 }
