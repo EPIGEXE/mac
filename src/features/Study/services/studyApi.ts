@@ -18,7 +18,7 @@ import type {
 
 // ================================ Mock 모드 설정 ================================
 // UI 개발 시 true로 설정하면 백엔드 호출 없이 목 데이터 사용
-const USE_MOCK_API = true
+const USE_MOCK_API = false
 
 // Mock 응답 지연 시간 (ms) - 실제 API 느낌을 위해
 const MOCK_DELAY = 800
@@ -171,9 +171,65 @@ function escapeRegex(str: string): string {
 }
 
 /**
+ * Blank 검증 결과 타입
+ */
+export interface ValidatedBlanksResult {
+    validBlanks: Array<{ id: string; answer: string; hint?: string }> // 검증 통과한 blanks
+    invalidBlanks: Array<{ id: string; answer: string; hint?: string; reason: string }> // 검증 실패한 blanks
+    blindedContent: string // blank 치환된 콘텐츠
+}
+
+/**
+ * Blanks를 검증하고 유효한 것만 필터링
+ * - 실제 콘텐츠에 존재하는 단어만 유효한 blank로 인정
+ * - 유효한 blank만으로 blindedContent 생성
+ */
+export function validateAndCreateBlindedContent(
+    originalContent: string,
+    blanks: Array<{ id: string; answer: string; hint?: string }>
+): ValidatedBlanksResult {
+    const validBlanks: Array<{ id: string; answer: string; hint?: string }> = []
+    const invalidBlanks: Array<{ id: string; answer: string; hint?: string; reason: string }> = []
+    let result = originalContent
+    let newId = 1 // 유효한 blank에 새 ID 부여 (순차적으로)
+
+    blanks.forEach((blank) => {
+        const pattern = escapeRegex(blank.answer)
+        const regex = new RegExp(pattern, 'gi')
+
+        // 콘텐츠에 해당 단어가 존재하는지 확인
+        if (regex.test(result)) {
+            // 유효한 blank - 새 ID 부여하고 치환
+            const newBlank = { ...blank, id: String(newId) }
+            validBlanks.push(newBlank)
+            result = result.replace(new RegExp(pattern, 'gi'), `[BLANK_${newId}]`)
+            newId++
+        } else {
+            // 무효한 blank
+            invalidBlanks.push({
+                ...blank,
+                reason: `"${blank.answer}" not found in content`,
+            })
+        }
+    })
+
+    // 무효한 blank가 있으면 로그 출력
+    if (invalidBlanks.length > 0) {
+        console.warn('[validateAndCreateBlindedContent] Invalid blanks filtered out:', invalidBlanks)
+    }
+
+    return {
+        validBlanks,
+        invalidBlanks,
+        blindedContent: result,
+    }
+}
+
+/**
  * 원본 콘텐츠에서 키워드를 찾아 [BLANK_N]으로 치환
  * - 대소문자 구분 없이 모든 해당 단어를 blind 처리
  * - 마크다운 문법 내부(코드블록 등)도 처리
+ * @deprecated validateAndCreateBlindedContent 사용 권장
  */
 export function createBlindedContent(
     originalContent: string,
