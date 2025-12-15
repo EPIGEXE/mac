@@ -57,7 +57,6 @@ export async function addWordWeakPoint(input: AddWordWeakPointInput): Promise<Wo
                 wrongCount: existing.wrongCount + 1,
                 lastWrongAt: now,
                 wrongAnswers,
-                consecutiveCorrect: 0, // 틀렸으므로 리셋
             };
 
             await db.weakPoints.update(existing.id, updated);
@@ -74,11 +73,8 @@ export async function addWordWeakPoint(input: AddWordWeakPointInput): Promise<Wo
             hint: input.hint,
             wrongAnswers: input.userAnswer ? [input.userAnswer] : [],
             wrongCount: 1,
-            correctCount: 0,
             lastWrongAt: now,
-            lastCorrectAt: null,
             isResolved: false,
-            consecutiveCorrect: 0,
             createdAt: now,
         };
 
@@ -113,7 +109,6 @@ export async function addSentenceWeakPoint(input: AddSentenceWeakPointInput): Pr
                 wrongCount: existing.wrongCount + 1,
                 lastWrongAt: now,
                 lastMissedPoints: input.missedPoints,
-                consecutiveCorrect: 0,
             };
 
             await db.weakPoints.update(existing.id, updated);
@@ -132,11 +127,8 @@ export async function addSentenceWeakPoint(input: AddSentenceWeakPointInput): Pr
             keyPoints: input.keyPoints,
             lastMissedPoints: input.missedPoints,
             wrongCount: 1,
-            correctCount: 0,
             lastWrongAt: now,
-            lastCorrectAt: null,
             isResolved: false,
-            consecutiveCorrect: 0,
             createdAt: now,
         };
 
@@ -176,7 +168,6 @@ export async function addEssayWeakPoint(input: AddEssayWeakPointInput): Promise<
                 wrongCount: existing.wrongCount + 1,
                 lastWrongAt: now,
                 lastMissedPoints: input.missedPoints,
-                consecutiveCorrect: 0,
             };
 
             await db.weakPoints.update(existing.id, updated);
@@ -195,80 +186,13 @@ export async function addEssayWeakPoint(input: AddEssayWeakPointInput): Promise<
             expectedPoints: input.expectedPoints,
             lastMissedPoints: input.missedPoints,
             wrongCount: 1,
-            correctCount: 0,
             lastWrongAt: now,
-            lastCorrectAt: null,
             isResolved: false,
-            consecutiveCorrect: 0,
             createdAt: now,
         };
 
         await db.weakPoints.add(weakPoint);
         return weakPoint;
-    });
-}
-
-// ============================================================================
-// 취약점 복습 결과 기록
-// ============================================================================
-
-/**
- * 취약점 복습 시도 기록 (맞음)
- * - 연속 3회 정답 시 자동 해결 처리
- */
-export async function recordWeakPointCorrect(id: string): Promise<WeakPoint> {
-    return withErrorHandling('recordWeakPointCorrect', async () => {
-        const weakPoint = await db.weakPoints.get(id);
-        if (!weakPoint) {
-            throw new NotFoundError('WeakPoint', id);
-        }
-
-        const now = Date.now();
-        const newConsecutive = weakPoint.consecutiveCorrect + 1;
-        const isResolved = newConsecutive >= 3;
-
-        const updated: Partial<WeakPoint> = {
-            correctCount: weakPoint.correctCount + 1,
-            lastCorrectAt: now,
-            consecutiveCorrect: newConsecutive,
-            isResolved,
-        };
-
-        await db.weakPoints.update(id, updated);
-        return { ...weakPoint, ...updated } as WeakPoint;
-    });
-}
-
-/**
- * 취약점 복습 시도 기록 (틀림)
- */
-export async function recordWeakPointWrong(id: string, userAnswer?: string): Promise<WeakPoint> {
-    return withErrorHandling('recordWeakPointWrong', async () => {
-        const weakPoint = await db.weakPoints.get(id);
-        if (!weakPoint) {
-            throw new NotFoundError('WeakPoint', id);
-        }
-
-        const now = Date.now();
-        const updated: Partial<WeakPoint> = {
-            wrongCount: weakPoint.wrongCount + 1,
-            lastWrongAt: now,
-            consecutiveCorrect: 0,
-        };
-
-        // 단어 모드인 경우 오답 기록 추가
-        if (weakPoint.mode === 'word' && userAnswer) {
-            const wordWp = weakPoint as WordWeakPoint;
-            const wrongAnswers = [...wordWp.wrongAnswers];
-            if (!wrongAnswers.includes(userAnswer)) {
-                wrongAnswers.push(userAnswer);
-                if (wrongAnswers.length > 5) wrongAnswers.shift();
-            }
-            (updated as Partial<WordWeakPoint>).wrongAnswers = wrongAnswers;
-        }
-
-        await db.weakPoints.update(id, updated);
-        return { ...weakPoint, ...updated } as WeakPoint;
     });
 }
 
@@ -287,24 +211,6 @@ export async function resolveWeakPoint(id: string): Promise<boolean> {
         }
 
         await db.weakPoints.update(id, { isResolved: true });
-        return true;
-    });
-}
-
-/**
- * 취약점 해결 취소
- */
-export async function unresolveWeakPoint(id: string): Promise<boolean> {
-    return withErrorHandling('unresolveWeakPoint', async () => {
-        const weakPoint = await db.weakPoints.get(id);
-        if (!weakPoint) {
-            throw new NotFoundError('WeakPoint', id);
-        }
-
-        await db.weakPoints.update(id, {
-            isResolved: false,
-            consecutiveCorrect: 0,
-        });
         return true;
     });
 }
@@ -472,10 +378,8 @@ export async function getWeakPointSummary(): Promise<WeakPointSummary> {
         const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
 
         const unresolved = all.filter(wp => !wp.isResolved);
+        const resolved = all.filter(wp => wp.isResolved);
         const recentlyAdded = all.filter(wp => wp.createdAt >= oneWeekAgo);
-        const recentlyResolved = all.filter(wp =>
-            wp.isResolved && wp.lastCorrectAt && wp.lastCorrectAt >= oneWeekAgo
-        );
 
         const byMode = {
             word: unresolved.filter(wp => wp.mode === 'word').length,
@@ -486,9 +390,9 @@ export async function getWeakPointSummary(): Promise<WeakPointSummary> {
         return {
             totalCount: all.length,
             unresolvedCount: unresolved.length,
+            resolvedCount: resolved.length,
             byMode,
             recentlyAdded: recentlyAdded.length,
-            recentlyResolved: recentlyResolved.length,
         };
     });
 }

@@ -8,6 +8,7 @@ import { useState, useCallback, useMemo, useRef } from 'react'
 import type { BlankInfo, GenerateQuizResponse } from '../../../types'
 import { generateQuiz, evaluateBlankAnswer, handleStudyApiError, validateAndCreateBlindedContent } from '../../../services/studyApi'
 import { useWordWeakPointRecorder } from '../../../hooks/useWeakPointRecorder'
+import { getQuizCache, saveQuizCache, clearQuizCache } from '../../../utils/quizCache'
 
 type WordQuizPhase = 'loading' | 'quiz' | 'result'
 
@@ -65,6 +66,22 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
         startTimeRef.current = Date.now()
 
         try {
+            // 캐시 확인
+            const cached = getQuizCache('word', noteId)
+
+            if (cached) {
+                console.log('[useWordQuiz] Using cached quiz data')
+                setQuizData(cached.response)
+                setValidatedBlanks(cached.validatedBlanks)
+                setBlindedContent(cached.blindedContent)
+                setCurrentBlankIndex(0)
+                setAnswers({})
+                setResults({})
+                setPhase('quiz')
+                return
+            }
+
+            // 캐시 없으면 LLM 호출
             console.log('[useWordQuiz] Generating quiz...')
             const response = await generateQuiz({
                 noteId,
@@ -92,6 +109,13 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
             if (validBlanks.length === 0) {
                 throw new Error('퀴즈를 생성할 수 없습니다. 유효한 빈칸이 없습니다.')
             }
+
+            // 캐시에 저장
+            saveQuizCache('word', noteId, {
+                response,
+                validatedBlanks: validBlanks as BlankInfo[],
+                blindedContent: validated,
+            })
 
             // 검증된 데이터만 저장
             setQuizData(response) // 원본 응답도 보관 (디버깅용)
@@ -122,7 +146,7 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
         setResults((prev) => ({ ...prev, [blankKey]: evalResult.isCorrect }))
 
         // 오답이면 약점 기록
-        await recordWordIfWrong(!evalResult.isCorrect, {
+        await recordWordIfWrong(evalResult.isCorrect, {
             keyword: currentBlank.answer,
             hint: currentBlank.hint || '',
             userAnswer: answer,
@@ -151,6 +175,11 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
         return Math.floor((Date.now() - startTimeRef.current) / 1000)
     }, [])
 
+    // 캐시 삭제 (퀴즈 완료 시 호출)
+    const clearCache = useCallback(() => {
+        clearQuizCache('word', noteId)
+    }, [noteId])
+
     return {
         // 상태
         phase,
@@ -178,5 +207,6 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
         showResult,
         getDuration,
         setPhase,
+        clearCache,
     }
 }

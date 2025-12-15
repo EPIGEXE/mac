@@ -5,8 +5,9 @@
  * - DB 세션과 연동
  */
 import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import type { StudyModeType } from '../features/Study/types'
-import { startSession as dbStartSession, endSession as dbEndSession } from '../db/study/studyService'
+import { endSession as dbEndSession, startSession } from '../db/study/studyService'
 
 // ================================ 타입 정의 ================================
 
@@ -95,153 +96,173 @@ const initialState: StudySession = {
 
 // ================================ Store 생성 ================================
 
-export const useStudySessionStore = create<StudySessionStore>((set, get) => ({
-    ...initialState,
+export const useStudySessionStore = create<StudySessionStore>()(
+    persist(
+        (set, get) => ({
+            ...initialState,
 
-    /**
-     * 세션 시작
-     */
-    startSession: async ({ noteIds, mode, order }) => {
-        console.log('[StudySessionStore] startSession', { noteIds, noteIdsLength: noteIds.length, mode, order })
+            /**
+             * 세션 시작
+             */
+            startSession: async ({ noteIds, mode, order }) => {
+                console.log('[StudySessionStore] startSession', { noteIds, noteIdsLength: noteIds.length, mode, order })
 
-        // DB에 세션 생성
-        const dbSession = await dbStartSession()
+                // DB에 세션 생성
+                const dbSession = await startSession({ noteIds, mode, order })
 
-        set({
-            selectedNoteIds: noteIds,
-            mode,
-            order,
-            currentIndex: 0,
-            isActive: true,
-            noteResults: [],
-            startedAt: Date.now(),
-            completedAt: null,
-            dbSessionId: dbSession.id,
-        })
+                set({
+                    selectedNoteIds: noteIds,
+                    mode,
+                    order,
+                    currentIndex: 0,
+                    isActive: true,
+                    noteResults: [],
+                    startedAt: Date.now(),
+                    completedAt: null,
+                    dbSessionId: dbSession.id,
+                })
 
-        console.log('[StudySessionStore] startSession completed', { dbSessionId: dbSession.id })
-    },
+                console.log('[StudySessionStore] startSession completed', { dbSessionId: dbSession.id })
+            },
 
-    /**
-     * 현재 노트 ID 반환
-     */
-    getCurrentNoteId: () => {
-        const { selectedNoteIds, currentIndex, isActive } = get()
-        if (!isActive || selectedNoteIds.length === 0) return null
-        return selectedNoteIds[currentIndex] ?? null
-    },
+            /**
+             * 현재 노트 ID 반환
+             */
+            getCurrentNoteId: () => {
+                const { selectedNoteIds, currentIndex, isActive } = get()
+                if (!isActive || selectedNoteIds.length === 0) return null
+                return selectedNoteIds[currentIndex] ?? null
+            },
 
-    /**
-     * 다음 노트로 이동
-     * @returns 다음 노트가 있으면 true, 마지막이면 false
-     */
-    goToNextNote: () => {
-        const { selectedNoteIds, currentIndex } = get()
-        const nextIndex = currentIndex + 1
+            /**
+             * 다음 노트로 이동
+             * @returns 다음 노트가 있으면 true, 마지막이면 false
+             */
+            goToNextNote: () => {
+                const { selectedNoteIds, currentIndex } = get()
+                const nextIndex = currentIndex + 1
 
-        console.log('[StudySessionStore] goToNextNote', {
-            currentIndex,
-            nextIndex,
-            selectedNoteIdsLength: selectedNoteIds.length,
-            hasMore: nextIndex < selectedNoteIds.length,
-        })
+                console.log('[StudySessionStore] goToNextNote', {
+                    currentIndex,
+                    nextIndex,
+                    selectedNoteIdsLength: selectedNoteIds.length,
+                    hasMore: nextIndex < selectedNoteIds.length,
+                })
 
-        if (nextIndex >= selectedNoteIds.length) {
-            return false
+                if (nextIndex >= selectedNoteIds.length) {
+                    return false
+                }
+
+                set({ currentIndex: nextIndex })
+                return true
+            },
+
+            /**
+             * 노트별 결과 기록
+             */
+            recordNoteResult: (result) => {
+                console.log('[StudySessionStore] recordNoteResult', {
+                    noteId: result.noteId,
+                    noteTitle: result.noteTitle,
+                    score: result.score,
+                    currentResultsCount: get().noteResults.length,
+                })
+
+                set((state) => ({
+                    noteResults: [...state.noteResults, result],
+                }))
+            },
+
+            /**
+             * 전체 통계 계산
+             */
+            getTotalStats: () => {
+                const { noteResults } = get()
+
+                if (noteResults.length === 0) {
+                    return {
+                        totalQuestions: 0,
+                        totalCorrect: 0,
+                        totalWrong: 0,
+                        averageScore: 0,
+                        totalDuration: 0,
+                    }
+                }
+
+                const totalQuestions = noteResults.reduce((sum, r) => sum + r.totalQuestions, 0)
+                const totalCorrect = noteResults.reduce((sum, r) => sum + r.correctCount, 0)
+                const totalWrong = noteResults.reduce((sum, r) => sum + r.wrongCount, 0)
+                const totalDuration = noteResults.reduce((sum, r) => sum + r.duration, 0)
+                const averageScore = noteResults.reduce((sum, r) => sum + r.score, 0) / noteResults.length
+
+                return {
+                    totalQuestions,
+                    totalCorrect,
+                    totalWrong,
+                    averageScore: Math.round(averageScore),
+                    totalDuration,
+                }
+            },
+
+            /**
+             * 세션 완료
+             */
+            completeSession: async () => {
+                const { dbSessionId, selectedNoteIds, noteResults } = get()
+
+                console.log('[StudySessionStore] completeSession called', {
+                    dbSessionId,
+                    selectedNoteIdsLength: selectedNoteIds.length,
+                    noteResultsLength: noteResults.length,
+                })
+
+                // DB 세션 종료
+                if (dbSessionId) {
+                    await dbEndSession(dbSessionId).catch((e) =>
+                        console.error('Failed to end DB session:', e)
+                    )
+                }
+
+                set({
+                    isActive: false,
+                    completedAt: Date.now(),
+                })
+
+                console.log('[StudySessionStore] completeSession done - isActive set to false')
+            },
+
+            /**
+             * 세션 초기화
+             */
+            resetSession: () => {
+                set(initialState)
+            },
+
+            /**
+             * DB 세션 ID getter
+             */
+            getDbSessionId: () => {
+                return get().dbSessionId
+            },
+        }),
+        {
+            name: 'mac-study-session-storage',
+            storage: createJSONStorage(() => sessionStorage),
+            // 함수는 제외하고 상태만 persist
+            partialize: (state) => ({
+                selectedNoteIds: state.selectedNoteIds,
+                mode: state.mode,
+                order: state.order,
+                currentIndex: state.currentIndex,
+                isActive: state.isActive,
+                noteResults: state.noteResults,
+                startedAt: state.startedAt,
+                completedAt: state.completedAt,
+                dbSessionId: state.dbSessionId,
+            }),
         }
-
-        set({ currentIndex: nextIndex })
-        return true
-    },
-
-    /**
-     * 노트별 결과 기록
-     */
-    recordNoteResult: (result) => {
-        console.log('[StudySessionStore] recordNoteResult', {
-            noteId: result.noteId,
-            noteTitle: result.noteTitle,
-            score: result.score,
-            currentResultsCount: get().noteResults.length,
-        })
-
-        set((state) => ({
-            noteResults: [...state.noteResults, result],
-        }))
-    },
-
-    /**
-     * 전체 통계 계산
-     */
-    getTotalStats: () => {
-        const { noteResults } = get()
-
-        if (noteResults.length === 0) {
-            return {
-                totalQuestions: 0,
-                totalCorrect: 0,
-                totalWrong: 0,
-                averageScore: 0,
-                totalDuration: 0,
-            }
-        }
-
-        const totalQuestions = noteResults.reduce((sum, r) => sum + r.totalQuestions, 0)
-        const totalCorrect = noteResults.reduce((sum, r) => sum + r.correctCount, 0)
-        const totalWrong = noteResults.reduce((sum, r) => sum + r.wrongCount, 0)
-        const totalDuration = noteResults.reduce((sum, r) => sum + r.duration, 0)
-        const averageScore = noteResults.reduce((sum, r) => sum + r.score, 0) / noteResults.length
-
-        return {
-            totalQuestions,
-            totalCorrect,
-            totalWrong,
-            averageScore: Math.round(averageScore),
-            totalDuration,
-        }
-    },
-
-    /**
-     * 세션 완료
-     */
-    completeSession: async () => {
-        const { dbSessionId, selectedNoteIds, noteResults } = get()
-
-        console.log('[StudySessionStore] completeSession called', {
-            dbSessionId,
-            selectedNoteIdsLength: selectedNoteIds.length,
-            noteResultsLength: noteResults.length,
-        })
-
-        // DB 세션 종료
-        if (dbSessionId) {
-            await dbEndSession(dbSessionId).catch((e) =>
-                console.error('Failed to end DB session:', e)
-            )
-        }
-
-        set({
-            isActive: false,
-            completedAt: Date.now(),
-        })
-
-        console.log('[StudySessionStore] completeSession done - isActive set to false')
-    },
-
-    /**
-     * 세션 초기화
-     */
-    resetSession: () => {
-        set(initialState)
-    },
-
-    /**
-     * DB 세션 ID getter
-     */
-    getDbSessionId: () => {
-        return get().dbSessionId
-    },
-}))
+    )
+)
 
 // ================================ Selector Hooks ================================
 

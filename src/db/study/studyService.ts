@@ -37,8 +37,8 @@ export type { RecordStudyInput } from './types';
 /**
  * 새 학습 세션 시작 (NEW - 모드/순서 포함)
  */
-export async function startSessionV2(input: StartSessionInput): Promise<StudySession> {
-    return withErrorHandling('startSessionV2', async () => {
+export async function startSession(input: StartSessionInput): Promise<StudySession> {
+    return withErrorHandling('startSession', async () => {
         const now = Date.now();
         const session: StudySession = {
             id: generateId('session'),
@@ -57,30 +57,8 @@ export async function startSessionV2(input: StartSessionInput): Promise<StudySes
 }
 
 /**
- * 새 학습 세션 시작 (Legacy - 호환성 유지)
- * @deprecated startSessionV2 사용 권장
- */
-export async function startSession(): Promise<StudySession> {
-    return withErrorHandling('startSession', async () => {
-        const now = Date.now();
-        const session: StudySession = {
-            id: generateId('session'),
-            mode: 'word',           // 기본값
-            order: 'sequential',    // 기본값
-            noteIds: [],
-            startedAt: now,
-            endedAt: null,
-            totalDuration: 0,
-            summary: null,
-        };
-
-        await db.studySessions.add(session);
-        return session;
-    });
-}
-
-/**
  * 학습 세션 종료 (요약 포함)
+ * summary가 없으면 학습 기록에서 자동 계산
  */
 export async function endSession(sessionId: string, summary?: SessionSummary): Promise<StudySession> {
     return withErrorHandling('endSession', async () => {
@@ -99,6 +77,29 @@ export async function endSession(sessionId: string, summary?: SessionSummary): P
 
         if (summary) {
             updateData.summary = summary;
+        } else {
+            // summary가 없으면 학습 기록에서 자동 계산
+            const records = await db.studyRecords
+                .where('sessionId')
+                .equals(sessionId)
+                .toArray();
+
+            if (records.length > 0) {
+                const totalQuestions = records.reduce((sum, r) => sum + r.totalQuestions, 0);
+                const correctCount = records.reduce((sum, r) => sum + r.correctCount, 0);
+                const wrongCount = records.reduce((sum, r) => sum + r.wrongCount, 0);
+                const totalScore = records.reduce((sum, r) => sum + r.score, 0);
+                const uniqueNoteIds = new Set(records.map(r => r.noteId));
+
+                updateData.summary = {
+                    totalNotes: session.noteIds.length,
+                    completedNotes: uniqueNoteIds.size,
+                    totalQuestions,
+                    correctCount,
+                    wrongCount,
+                    averageScore: records.length > 0 ? Math.round(totalScore / records.length) : 0,
+                };
+            }
         }
 
         await db.studySessions.update(sessionId, updateData);
@@ -148,10 +149,11 @@ export async function getRecentSessions(limit: number = 10): Promise<StudySessio
 
 /**
  * 세션 히스토리 조회 (필터 지원)
+ * summary가 없는 기존 세션은 학습 기록에서 데이터를 가져옴
  */
 export async function getSessionHistory(filter?: SessionFilter): Promise<SessionHistoryItem[]> {
     return withErrorHandling('getSessionHistory', async () => {
-        let collection = db.studySessions.orderBy('startedAt').reverse();
+        const collection = db.studySessions.orderBy('startedAt').reverse();
 
         const sessions = await collection.toArray();
 
@@ -174,20 +176,47 @@ export async function getSessionHistory(filter?: SessionFilter): Promise<Session
             filtered = filtered.slice(0, filter.limit);
         }
 
-        // SessionHistoryItem으로 변환
-        return filtered.map(s => ({
-            id: s.id,
-            mode: s.mode,
-            order: s.order,
-            noteCount: s.noteIds.length,
-            startedAt: s.startedAt,
-            endedAt: s.endedAt,
-            totalDuration: s.totalDuration,
-            totalQuestions: s.summary?.totalQuestions ?? 0,
-            correctCount: s.summary?.correctCount ?? 0,
-            wrongCount: s.summary?.wrongCount ?? 0,
-            averageScore: s.summary?.averageScore ?? 0,
-        }));
+        // SessionHistoryItem으로 변환 (summary 없으면 학습 기록에서 계산)
+        const results: SessionHistoryItem[] = [];
+
+        for (const s of filtered) {
+            let totalQuestions = s.summary?.totalQuestions ?? 0;
+            let correctCount = s.summary?.correctCount ?? 0;
+            let wrongCount = s.summary?.wrongCount ?? 0;
+            let averageScore = s.summary?.averageScore ?? 0;
+
+            // summary가 없으면 학습 기록에서 계산
+            if (!s.summary) {
+                const records = await db.studyRecords
+                    .where('sessionId')
+                    .equals(s.id)
+                    .toArray();
+
+                if (records.length > 0) {
+                    totalQuestions = records.reduce((sum, r) => sum + r.totalQuestions, 0);
+                    correctCount = records.reduce((sum, r) => sum + r.correctCount, 0);
+                    wrongCount = records.reduce((sum, r) => sum + r.wrongCount, 0);
+                    const totalScore = records.reduce((sum, r) => sum + r.score, 0);
+                    averageScore = Math.round(totalScore / records.length);
+                }
+            }
+
+            results.push({
+                id: s.id,
+                mode: s.mode,
+                order: s.order,
+                noteCount: s.noteIds.length,
+                startedAt: s.startedAt,
+                endedAt: s.endedAt,
+                totalDuration: s.totalDuration,
+                totalQuestions,
+                correctCount,
+                wrongCount,
+                averageScore,
+            });
+        }
+
+        return results;
     });
 }
 
@@ -397,7 +426,7 @@ export async function getStudyHistory(noteId: string): Promise<StudyRecord[]> {
  */
 export async function getStudyHistoryByMode(mode: StudyModeType, limit?: number): Promise<StudyRecord[]> {
     return withErrorHandling('getStudyHistoryByMode', async () => {
-        let collection = db.studyRecords.where('mode').equals(mode);
+        const collection = db.studyRecords.where('mode').equals(mode);
         const records = await collection.reverse().sortBy('createdAt');
         return limit ? records.slice(0, limit) : records;
     });

@@ -19,17 +19,7 @@ import {
     IconChevronRight,
 } from '@tabler/icons-react'
 import { WordModeIcon, SentenceModeIcon, EssayModeIcon } from '../components/icons/StudyModeIcons'
-import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    ResponsiveContainer,
-    LineChart,
-    Line,
-    Tooltip,
-    Cell,
-} from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LineChart, Line, Tooltip, Cell } from 'recharts'
 import {
     getOverallStats,
     getPeriodStats,
@@ -79,7 +69,7 @@ const modeConfig: Record<StudyModeType, { icon: React.ReactNode; label: string; 
 
 export function StatisticsDashboardPage() {
     const navigate = useNavigate()
-    const startSession  = useStudySessionStore((state) => state.startSession)
+    const startSession = useStudySessionStore((state) => state.startSession)
 
     // ================================ 상태 ================================
     const [overallStats, setOverallStats] = useState<OverallStats | null>(null)
@@ -100,17 +90,18 @@ export function StatisticsDashboardPage() {
     useEffect(() => {
         async function loadData() {
             try {
-                const [overall, period, notes, recommended, today, modes, wpSummary, wpTop, sessions] = await Promise.all([
-                    getOverallStats(),
-                    getPeriodStats(periodDays),
-                    getAllNoteStats(),
-                    getRecommendedNotes(5),
-                    getTodayStats(),
-                    getAllModeStats(),
-                    getWeakPointSummary(),
-                    getTopWeakPoints(5),
-                    getSessionHistory({ limit: 5 }),
-                ])
+                const [overall, period, notes, recommended, today, modes, wpSummary, wpTop, sessions] =
+                    await Promise.all([
+                        getOverallStats(),
+                        getPeriodStats(periodDays),
+                        getAllNoteStats(),
+                        getRecommendedNotes(5),
+                        getTodayStats(),
+                        getAllModeStats(),
+                        getWeakPointSummary(),
+                        getTopWeakPoints(5),
+                        getSessionHistory({ limit: 5 }),
+                    ])
 
                 setOverallStats(overall)
                 setPeriodStats(period)
@@ -126,6 +117,7 @@ export function StatisticsDashboardPage() {
                 const allNoteIds = new Set([
                     ...notes.map((n) => n.noteId),
                     ...recommended.map((r) => r.noteId),
+                    ...wpTop.map((wp) => wp.noteId),
                 ])
 
                 const titles: Record<string, string> = {}
@@ -155,14 +147,12 @@ export function StatisticsDashboardPage() {
 
     // 노트별 정답률 차트 데이터 (상위 10개)
     const noteChartData = useMemo(() => {
-        return noteStats
-            .slice(0, 10)
-            .map((stat) => ({
-                noteId: stat.noteId,
-                name: noteTitles[stat.noteId]?.slice(0, 8) || stat.noteId.slice(0, 8),
-                accuracy: stat.accuracy,
-                studyCount: stat.studyCount,
-            }))
+        return noteStats.slice(0, 10).map((stat) => ({
+            noteId: stat.noteId,
+            name: noteTitles[stat.noteId]?.slice(0, 8) || stat.noteId.slice(0, 8),
+            accuracy: stat.accuracy,
+            studyCount: stat.studyCount,
+        }))
     }, [noteStats, noteTitles])
 
     // ================================ 핸들러 ================================
@@ -241,9 +231,7 @@ export function StatisticsDashboardPage() {
                     // 데이터 없음 상태
                     <div className="flex flex-col items-center justify-center py-20">
                         <span className="font-mono text-6xl text-[var(--text-tertiary)] mb-4">∅</span>
-                        <span className="font-mono text-lg text-[var(--text-secondary)] mb-2">
-                            // no data yet
-                        </span>
+                        <span className="font-mono text-lg text-[var(--text-secondary)] mb-2">// no data yet</span>
                         <span className="font-mono text-sm text-[var(--text-secondary)] mb-6">
                             학습을 시작하면 통계가 기록됩니다
                         </span>
@@ -266,7 +254,10 @@ export function StatisticsDashboardPage() {
                             <SectionTitle className="mb-4">오늘의 학습</SectionTitle>
 
                             <DashboardGrid>
-                                <DashboardCard label="학습 시간" className="border-[var(--accent)]/30 bg-[var(--accent)]/5">
+                                <DashboardCard
+                                    label="학습 시간"
+                                    className="border-[var(--accent)]/30 bg-[var(--accent)]/5"
+                                >
                                     <div className="font-mono text-2xl text-[var(--accent)]">
                                         {formatDuration(todayStats?.studyTime || 0)}
                                     </div>
@@ -393,7 +384,9 @@ export function StatisticsDashboardPage() {
                                                             >
                                                                 {stat.accuracy}
                                                             </span>
-                                                            <span className="font-mono text-sm text-[var(--text-tertiary)]">%</span>
+                                                            <span className="font-mono text-sm text-[var(--text-tertiary)]">
+                                                                %
+                                                            </span>
                                                         </div>
                                                         <div className="flex items-center gap-3 font-mono text-xs text-[var(--text-tertiary)]">
                                                             <span>{stat.totalSessions} 세션</span>
@@ -450,16 +443,27 @@ export function StatisticsDashboardPage() {
                                         // 정답률 추이
                                     </div>
                                     <ResponsiveContainer width="100%" height={150}>
-                                        <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 10, left: 20 }}>
+                                        <LineChart
+                                            data={chartData}
+                                            margin={{ top: 10, right: 20, bottom: 10, left: 20 }}
+                                        >
                                             <XAxis
                                                 dataKey="dateLabel"
-                                                tick={{ fill: 'var(--text-tertiary)', fontSize: 10, fontFamily: 'D2Coding' }}
+                                                tick={{
+                                                    fill: 'var(--text-tertiary)',
+                                                    fontSize: 10,
+                                                    fontFamily: 'D2Coding',
+                                                }}
                                                 axisLine={{ stroke: 'var(--border-light)' }}
                                                 tickLine={false}
                                             />
                                             <YAxis
                                                 domain={[0, 100]}
-                                                tick={{ fill: 'var(--text-tertiary)', fontSize: 10, fontFamily: 'D2Coding' }}
+                                                tick={{
+                                                    fill: 'var(--text-tertiary)',
+                                                    fontSize: 10,
+                                                    fontFamily: 'D2Coding',
+                                                }}
                                                 axisLine={{ stroke: 'var(--border-light)' }}
                                                 tickLine={false}
                                                 width={30}
@@ -490,20 +494,35 @@ export function StatisticsDashboardPage() {
                                         // 일별 문제 풀이
                                     </div>
                                     <ResponsiveContainer width="100%" height={100}>
-                                        <BarChart data={chartData} margin={{ top: 10, right: 20, bottom: 10, left: 20 }}>
+                                        <BarChart
+                                            data={chartData}
+                                            margin={{ top: 10, right: 20, bottom: 10, left: 20 }}
+                                        >
                                             <XAxis
                                                 dataKey="dateLabel"
-                                                tick={{ fill: 'var(--text-tertiary)', fontSize: 10, fontFamily: 'D2Coding' }}
+                                                tick={{
+                                                    fill: 'var(--text-tertiary)',
+                                                    fontSize: 10,
+                                                    fontFamily: 'D2Coding',
+                                                }}
                                                 axisLine={{ stroke: 'var(--border-light)' }}
                                                 tickLine={false}
                                             />
                                             <YAxis
-                                                tick={{ fill: 'var(--text-tertiary)', fontSize: 10, fontFamily: 'D2Coding' }}
+                                                tick={{
+                                                    fill: 'var(--text-tertiary)',
+                                                    fontSize: 10,
+                                                    fontFamily: 'D2Coding',
+                                                }}
                                                 axisLine={{ stroke: 'var(--border-light)' }}
                                                 tickLine={false}
                                                 width={30}
                                             />
-                                            <Bar dataKey="questionsAnswered" fill="var(--accent)" radius={[2, 2, 0, 0]} />
+                                            <Bar
+                                                dataKey="questionsAnswered"
+                                                fill="var(--accent)"
+                                                radius={[2, 2, 0, 0]}
+                                            />
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </div>
@@ -621,14 +640,22 @@ export function StatisticsDashboardPage() {
                                                 <XAxis
                                                     type="number"
                                                     domain={[0, 100]}
-                                                    tick={{ fill: 'var(--text-tertiary)', fontSize: 10, fontFamily: 'D2Coding' }}
+                                                    tick={{
+                                                        fill: 'var(--text-tertiary)',
+                                                        fontSize: 10,
+                                                        fontFamily: 'D2Coding',
+                                                    }}
                                                     axisLine={{ stroke: 'var(--border-light)' }}
                                                     tickLine={false}
                                                 />
                                                 <YAxis
                                                     type="category"
                                                     dataKey="name"
-                                                    tick={{ fill: 'var(--text-tertiary)', fontSize: 10, fontFamily: 'D2Coding' }}
+                                                    tick={{
+                                                        fill: 'var(--text-tertiary)',
+                                                        fontSize: 10,
+                                                        fontFamily: 'D2Coding',
+                                                    }}
                                                     axisLine={{ stroke: 'var(--border-light)' }}
                                                     tickLine={false}
                                                     width={60}
@@ -701,7 +728,7 @@ export function StatisticsDashboardPage() {
                         )}
 
                         {/* ======================== 취약점 요약 ======================== */}
-                        {weakPointSummary && weakPointSummary.unresolvedCount > 0 && (
+                        {weakPointSummary && weakPointSummary.totalCount > 0 && (
                             <motion.section
                                 className="mb-10"
                                 initial={{ opacity: 0, y: 10 }}
@@ -711,11 +738,12 @@ export function StatisticsDashboardPage() {
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center gap-2">
                                         <IconAlertTriangle size={16} className="text-[var(--error)]" />
-                                        <span className="font-mono text-base text-[var(--text-primary)]">
-                                            취약점
-                                        </span>
-                                        <span className="font-mono text-sm text-[var(--error)]">
-                                            [{weakPointSummary.unresolvedCount}]
+                                        <span className="font-mono text-base text-[var(--text-primary)]">취약점</span>
+                                        <span className="font-mono text-sm text-[var(--text-tertiary)]">
+                                            [미해결 <span className="text-[var(--error)]">{weakPointSummary.unresolvedCount}</span>
+                                            {weakPointSummary.resolvedCount > 0 && (
+                                                <> / 해결 <span className="text-[var(--success)]">{weakPointSummary.resolvedCount}</span></>
+                                            )}]
                                         </span>
                                     </div>
 
@@ -743,7 +771,9 @@ export function StatisticsDashboardPage() {
                                                 <span className="font-mono text-sm text-[var(--text-secondary)]">
                                                     {config.label}
                                                 </span>
-                                                <span className={`ml-auto font-mono text-lg ${count > 0 ? 'text-[var(--error)]' : 'text-[var(--text-tertiary)]'}`}>
+                                                <span
+                                                    className={`ml-auto font-mono text-lg ${count > 0 ? 'text-[var(--error)]' : 'text-[var(--text-tertiary)]'}`}
+                                                >
                                                     {count}
                                                 </span>
                                             </div>
@@ -756,11 +786,13 @@ export function StatisticsDashboardPage() {
                                     <div className="border border-[var(--error)]/30 bg-[var(--error)]/5">
                                         {topWeakPoints.map((wp: WeakPoint, idx: number) => {
                                             const config = modeConfig[wp.mode]
-                                            const displayContent = wp.mode === 'word'
-                                                ? wp.keyword
-                                                : wp.mode === 'sentence'
-                                                    ? wp.question?.slice(0, 50)
-                                                    : wp.question?.slice(0, 50)
+                                            const displayContent =
+                                                wp.mode === 'word'
+                                                    ? wp.keyword
+                                                    : wp.mode === 'sentence'
+                                                      ? wp.question?.slice(0, 50)
+                                                      : wp.question?.slice(0, 50)
+                                            const noteTitle = noteTitles[wp.noteId]
 
                                             return (
                                                 <div
@@ -768,10 +800,17 @@ export function StatisticsDashboardPage() {
                                                     className={`flex items-center gap-3 px-4 py-2.5 ${idx < topWeakPoints.length - 1 ? 'border-b border-[var(--error)]/20' : ''}`}
                                                 >
                                                     <span className={config.color}>{config.icon}</span>
-                                                    <span className="flex-1 font-mono text-sm text-[var(--text-primary)] truncate">
-                                                        {displayContent || '(내용 없음)'}
-                                                    </span>
-                                                    <span className="font-mono text-xs text-[var(--error)]">
+                                                    <div className="flex-1 min-w-0 gap-1 flex flex-col">
+                                                        {noteTitle && (
+                                                            <span className="font-mono text-xs text-[var(--text-secondary)] truncate block">
+                                                                @ {noteTitle}
+                                                            </span>
+                                                        )}
+                                                        <span className="font-mono text-sm text-[var(--text-primary)] truncate block">
+                                                            {displayContent || '(내용 없음)'}
+                                                        </span>
+                                                    </div>
+                                                    <span className="font-mono text-xs text-[var(--error)] whitespace-nowrap">
                                                         {wp.wrongCount}회 오답
                                                     </span>
                                                 </div>
@@ -810,9 +849,10 @@ export function StatisticsDashboardPage() {
                                 <div className="border border-[var(--border-light)]">
                                     {recentSessions.map((session, idx) => {
                                         const config = modeConfig[session.mode]
-                                        const accuracy = session.totalQuestions > 0
-                                            ? Math.round((session.correctCount / session.totalQuestions) * 100)
-                                            : 0
+                                        const accuracy =
+                                            session.totalQuestions > 0
+                                                ? Math.round((session.correctCount / session.totalQuestions) * 100)
+                                                : 0
 
                                         return (
                                             <div

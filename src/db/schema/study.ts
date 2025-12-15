@@ -104,11 +104,8 @@ interface WeakPointBase {
     noteType: NoteType;
     mode: StudyModeType;
     wrongCount: number;         // 틀린 횟수
-    correctCount: number;       // 복습 후 맞은 횟수
     lastWrongAt: number;
-    lastCorrectAt: number | null;
-    isResolved: boolean;        // 3회 연속 정답 시 true
-    consecutiveCorrect: number; // 연속 정답 횟수
+    isResolved: boolean;        // 사용자가 수동으로 해제
     createdAt: number;
 }
 

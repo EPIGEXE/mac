@@ -8,6 +8,7 @@ import { useState, useCallback, useMemo, useRef } from 'react'
 import type { SentenceQuestionInfo, GenerateQuizResponse, SentenceEvaluationResult } from '../../../types'
 import { generateQuiz, evaluateSentenceAnswers, handleStudyApiError } from '../../../services/studyApi'
 import { useSentenceWeakPointRecorder } from '../../../hooks/useWeakPointRecorder'
+import { getQuizCache, saveQuizCache, clearQuizCache } from '../../../utils/quizCache'
 
 type SentenceQuizPhase = 'loading' | 'quiz' | 'result'
 
@@ -64,6 +65,23 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
         startTimeRef.current = Date.now()
 
         try {
+            // 캐시 확인
+            const cached = getQuizCache('sentence', noteId)
+
+            if (cached) {
+                console.log('[useSentenceQuiz] Using cached quiz data')
+                setQuizData(cached.response)
+                setAnswers({})
+                setResults({})
+                setEvaluationResults([])
+                setTotalScore(0)
+                setOverallFeedback('')
+                setPhase('quiz')
+                return
+            }
+
+            // 캐시 없으면 LLM 호출
+            console.log('[useSentenceQuiz] Generating quiz...')
             const response = await generateQuiz({
                 noteId,
                 noteContent,
@@ -71,6 +89,9 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
                 mode: 'sentence',
                 blankCount: 5,
             })
+
+            // 캐시에 저장
+            saveQuizCache('sentence', noteId, { response })
 
             setQuizData(response)
             setAnswers({})
@@ -147,6 +168,11 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
         return Math.floor((Date.now() - startTimeRef.current) / 1000)
     }, [])
 
+    // 캐시 삭제 (퀴즈 완료 시 호출)
+    const clearCache = useCallback(() => {
+        clearQuizCache('sentence', noteId)
+    }, [noteId])
+
     return {
         // 상태
         phase,
@@ -175,5 +201,6 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
         setFocusedQuestionId,
         getDuration,
         setPhase,
+        clearCache,
     }
 }

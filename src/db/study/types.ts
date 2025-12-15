@@ -195,13 +195,13 @@ export interface RecommendedNote {
 export interface WeakPointSummary {
     totalCount: number;
     unresolvedCount: number;
+    resolvedCount: number;
     byMode: {
         word: number;
         sentence: number;
         essay: number;
     };
     recentlyAdded: number;      // 최근 7일 추가
-    recentlyResolved: number;   // 최근 7일 해결
 }
 
 /** 취약점 필터 옵션 */

@@ -6,6 +6,8 @@
 import { useState, useCallback, useMemo, useRef } from 'react'
 import type { EssayQuestionInfo, GenerateQuizResponse, EvaluateEssayResponse } from '../../../types'
 import { generateQuiz, evaluateEssay, handleStudyApiError } from '../../../services/studyApi'
+import { getQuizCache, saveQuizCache, clearQuizCache } from '../../../utils/quizCache'
+import { useEssayWeakPointRecorder } from '../../../hooks/useWeakPointRecorder'
 
 type EssayQuizPhase = 'loading' | 'quiz' | 'result'
 
@@ -28,6 +30,9 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
     // 시간 추적
     const startTimeRef = useRef<number>(Date.now())
 
+    // 약점 기록 훅
+    const { recordEssayIfWrong } = useEssayWeakPointRecorder({ noteId, noteType })
+
     // 질문
     const question = useMemo(() => quizData?.essay as EssayQuestionInfo | undefined, [quizData?.essay])
 
@@ -38,6 +43,20 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
         startTimeRef.current = Date.now()
 
         try {
+            // 캐시 확인
+            const cached = getQuizCache('essay', noteId)
+
+            if (cached) {
+                console.log('[useEssayQuiz] Using cached quiz data')
+                setQuizData(cached.response)
+                setAnswer('')
+                setResult(null)
+                setPhase('quiz')
+                return
+            }
+
+            // 캐시 없으면 LLM 호출
+            console.log('[useEssayQuiz] Generating quiz...')
             const response = await generateQuiz({
                 noteId,
                 noteContent,
@@ -45,6 +64,9 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
                 mode: 'essay',
                 blankCount: 5,
             })
+
+            // 캐시에 저장
+            saveQuizCache('essay', noteId, { response })
 
             setQuizData(response)
             setAnswer('')
@@ -74,6 +96,16 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
             })
 
             setResult(response)
+
+            // 70점 미만이면 약점 기록
+            await recordEssayIfWrong(response.score, {
+                company: question.company,
+                question: question.question,
+                questionType: question.questionType,
+                expectedPoints: question.expectedPoints,
+                missedPoints: response.missedPoints,
+            })
+
             setPhase('result')
         } catch (err) {
             console.error('[Essay Mode] Evaluation error:', err)
@@ -81,7 +113,7 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
         } finally {
             setIsEvaluating(false)
         }
-    }, [question, answer])
+    }, [question, answer, recordEssayIfWrong])
 
     // 다시 풀기
     const retry = useCallback(() => {
@@ -94,6 +126,11 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
     const getDuration = useCallback(() => {
         return Math.floor((Date.now() - startTimeRef.current) / 1000)
     }, [])
+
+    // 캐시 삭제 (퀴즈 완료 시 호출)
+    const clearCache = useCallback(() => {
+        clearQuizCache('essay', noteId)
+    }, [noteId])
 
     // 정답/오답 계산 (70점 이상이면 정답)
     const isCorrect = result ? result.score >= 70 : false
@@ -118,5 +155,6 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
         retry,
         getDuration,
         setPhase,
+        clearCache,
     }
 }
