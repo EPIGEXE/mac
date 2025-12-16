@@ -1,10 +1,10 @@
 /**
  * Firebase 클라이언트 설정
+ * - Firestore 제거 (미사용, ~700KB 절감)
+ * - Functions만 사용
  */
 import { initializeApp } from 'firebase/app'
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
 import { getFunctions, connectFunctionsEmulator } from 'firebase/functions'
-import { getAuth, connectAuthEmulator } from 'firebase/auth'
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
 
 // Firebase 설정 (환경 변수에서 가져옴)
@@ -29,20 +29,12 @@ if (import.meta.env.VITE_RECAPTCHA_SITE_KEY) {
     })
 }
 
-// Firestore 인스턴스
-export const db = getFirestore(app)
-
 // Functions 인스턴스
 export const functions = getFunctions(app, 'asia-northeast3') // 서울 리전
 
-// Auth 인스턴스
-export const auth = getAuth(app)
-
 // 개발 환경에서 에뮬레이터 연결
 if (import.meta.env.DEV && import.meta.env.VITE_USE_FIREBASE_EMULATOR === 'true') {
-    connectFirestoreEmulator(db, 'localhost', 8080)
     connectFunctionsEmulator(functions, 'localhost', 5001)
-    connectAuthEmulator(auth, 'http://localhost:9099')
     console.log('Firebase emulators connected')
 }
 

@@ -8,6 +8,7 @@ export interface SystemNote {
     version: number;         // 패치 버전
     title: string;
     content: string;         // 마크다운
+    firstLine?: string;      // 콘텐츠 첫 줄 (리스트 미리보기용, 로드 시 자동 생성)
     category: Category;      // 타입 안전한 카테고리
     tag: NoteTag;            // 태그 (난이도/중요도/면접빈출도)
     order: number;           // 정렬 순서
@@ -21,6 +22,7 @@ export interface UserNote {
     id: string;              // UUID
     title: string;
     content: string;         // 마크다운
+    firstLine: string;       // 콘텐츠 첫 줄 (리스트 미리보기용)
     category: string;
     tags: string[];
     createdAt: number;
@@ -48,6 +50,7 @@ export interface Note {
     type: 'system' | 'user';
     title: string;
     content: string;
+    firstLine: string;       // 콘텐츠 첫 줄 (리스트 미리보기용)
     category: string;
     tag?: NoteTag;           // system note의 태그
     isCustomized: boolean;   // system이고 override 있으면 true

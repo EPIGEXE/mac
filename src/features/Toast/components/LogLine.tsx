@@ -1,6 +1,6 @@
 import { cva } from "class-variance-authority";
 import { useEffect, useState } from "react";
-import type { LogEntry, LogType } from "../store";
+import type { LogEntry, LogType } from "../toaststore";
 
 // 로그 타입별 설정
 const LOG_CONFIG: Record<LogType, { tag: string; prefix: string }> = {

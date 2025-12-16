@@ -7,7 +7,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { StudyModeType } from '../features/Study/types'
-import { startSession as dbStartSession, endSession as dbEndSession } from '../db/study/studyService'
+import { saveSession, closeSession } from '../db/study/studyService'
 
 // ================================ 타입 정의 ================================
 
@@ -72,7 +72,6 @@ interface StudySessionActions {
 
     // 세션 종료
     completeSession: () => Promise<void>
-    abandonSession: () => Promise<void>  // 중간 이탈 (통계에 저장 안 함)
     resetSession: () => void
 
     // DB 세션 ID getter
@@ -217,14 +216,14 @@ export const useStudySessionStore = create<StudySessionStore>()(
                 if (mode && startedAt) {
                     try {
                         // 1. DB 세션 생성
-                        const dbSession = await dbStartSession({
+                        const dbSession = await saveSession({
                             noteIds: selectedNoteIds,
                             mode,
                             order,
                         })
 
                         // 2. 즉시 종료 (summary 자동 계산)
-                        await dbEndSession(dbSession.id)
+                        await closeSession(dbSession.id)
 
                         console.log('[StudySessionStore] DB session created and ended', { dbSessionId: dbSession.id })
                     } catch (e) {
@@ -238,14 +237,6 @@ export const useStudySessionStore = create<StudySessionStore>()(
                 })
 
                 console.log('[StudySessionStore] completeSession done - isActive set to false')
-            },
-
-            /**
-             * 세션 이탈 (중간에 나가기 - DB 저장 없이 메모리만 초기화)
-             */
-            abandonSession: async () => {
-                console.log('[StudySessionStore] abandonSession called - resetting without DB save')
-                set(initialState)
             },
 
             /**

@@ -100,7 +100,7 @@ export function SidebarNav({ categories, showMainCategories, categoryRefs }: Sid
         )
 
         // 모든 카테고리 요소 관찰
-        categoryRefs.current.forEach((el, category) => {
+        categoryRefs.current.forEach((el) => {
             if (el) {
                 observerRef.current?.observe(el)
             }

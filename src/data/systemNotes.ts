@@ -52,7 +52,7 @@ function removeEmptyLines(text: string): string {
 }
 
 /**
- * SystemNote의 content에서 빈줄 제거
+ * SystemNote 전처리: 빈줄 제거
  */
 function processSystemNotes(notes: SystemNote[]): SystemNote[] {
     return notes.map(note => ({

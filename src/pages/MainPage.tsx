@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useNoteStore } from '../stores/noteStore'
 import { useStudySessionStore } from '../stores/studySessionStore'
@@ -6,8 +6,10 @@ import { categories, mainCategories, type Category } from '../data/categories'
 import { MainHeader } from '../features/Main/MainHeader'
 import { StudyCTABanner } from '../features/Main/StudyCTABanner'
 import { ListView } from '../features/Main/ListView/ListView'
-import { RoadmapView } from '../features/Main/roadmap/RoadmapView'
 import type { ViewMode } from '../features/Main/MainHeader'
+
+// RoadmapView lazy load (reactflow ~200KB)
+const RoadmapView = lazy(() => import('../features/Main/roadmap/RoadmapView').then(m => ({ default: m.RoadmapView })))
 
 // 대주제 필터 타입
 export type TopicFilter = 'all' | (typeof mainCategories)[number]['id']
@@ -20,7 +22,7 @@ export function MainPage() {
     const notes = useNoteStore((state) => state.notes) //노트 목록
     const loadNotes = useNoteStore((state) => state.loadNotes) // 노트 로드
     const createNote = useNoteStore((state) => state.createNote) // 노트 생성
-    const abandonSession = useStudySessionStore((state) => state.abandonSession) // 세션 이탈 (통계에 저장 안 함)
+    const resetSession = useStudySessionStore((state) => state.resetSession) // 세션 이탈
     const isActive = useStudySessionStore((state) => state.isActive) // 세션 활성화 여부
 
     // ==================================== 상태 관리 =====================================
@@ -31,9 +33,9 @@ export function MainPage() {
     // 메인 페이지 진입 시 활성 세션이 있으면 이탈 처리 (통계에 저장 안 함)
     useEffect(() => {
         if (isActive) {
-            abandonSession()
+            resetSession()
         }
-    }, [isActive, abandonSession])
+    }, [isActive, resetSession])
 
     // 노트 로드
     useEffect(() => {
@@ -79,7 +81,9 @@ export function MainPage() {
                     onTopicFilterChange={setTopicFilter}
                 />
                 <div className="flex-1 min-h-0">
-                    <RoadmapView notes={filteredNotes} onNoteClick={handleNoteClick} topicFilter={topicFilter} />
+                    <Suspense fallback={null}>
+                        <RoadmapView notes={filteredNotes} onNoteClick={handleNoteClick} topicFilter={topicFilter} />
+                    </Suspense>
                 </div>
             </div>
         )

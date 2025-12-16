@@ -23,7 +23,7 @@ export function StudyModePage() {
     const selectedNoteIds = useStudySessionStore((state) => state.selectedNoteIds)
     const storeIndex = useStudySessionStore((state) => state.currentIndex)
     const goToNextNote = useStudySessionStore((state) => state.goToNextNote)
-    const abandonSession = useStudySessionStore((state) => state.abandonSession)
+    const resetSession = useStudySessionStore((state) => state.resetSession)
 
     // ================================ 상태 관리 ================================
     const [notes, setNotes] = useState<Note[]>([])
@@ -74,9 +74,9 @@ export function StudyModePage() {
     // ================================ 핸들러 ================================
     const handleExit = useCallback(async () => {
         // 중간 이탈 시 세션을 isCompleted: false로 종료 (통계에 포함 안 됨)
-        await abandonSession()
+        await resetSession()
         navigate('/')
-    }, [abandonSession, navigate])
+    }, [resetSession, navigate])
 
     const handleNext = useCallback(() => {
         // 실시간으로 store에서 값을 가져와야 함 (클로저 캡처 문제 방지)

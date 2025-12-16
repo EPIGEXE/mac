@@ -5,54 +5,37 @@ import { systemNotesData } from '../../data/systemNotes';
 // ============================================================================
 // System Note Service
 // - 제공 문서 관리
-// - 초기화 및 패치 적용
+// - 자동 동기화: 새 노트 추가, 업데이트된 노트 반영
 // ============================================================================
 
 /**
- * 시스템 노트 초기화
+ * 시스템 노트 초기화 및 동기화
  * - 앱 시작 시 호출
- * - systemNotes 테이블이 비어있으면 기본 데이터 로드
+ * - 새로운 시스템 노트 자동 추가
+ * - 버전이 높아진 노트 자동 업데이트
  */
 export async function initializeSystemNotes(): Promise<void> {
-    const count = await db.systemNotes.count();
-
-    if (count === 0) {
-        // 초기 데이터 로드
-        await db.systemNotes.bulkAdd(systemNotesData);
-        console.log(`Initialized ${systemNotesData.length} system notes`);
-    }
-}
-
-/**
- * 시스템 노트 패치 적용
- * - 새로운 버전의 시스템 노트 적용
- * - 기존 노트는 버전이 높은 경우만 업데이트
- */
-export async function applySystemNotesPatch(newNotes: SystemNote[]): Promise<{
-    added: number;
-    updated: number;
-    unchanged: number;
-}> {
     const result = { added: 0, updated: 0, unchanged: 0 };
 
-    for (const newNote of newNotes) {
-        const existing = await db.systemNotes.get(newNote.id);
+    for (const note of systemNotesData) {
+        const existing = await db.systemNotes.get(note.id);
 
         if (!existing) {
             // 새 노트 추가
-            await db.systemNotes.add(newNote);
+            await db.systemNotes.add(note);
             result.added++;
-        } else if (newNote.version > existing.version) {
+        } else if (note.version > existing.version) {
             // 버전이 높으면 업데이트
-            await db.systemNotes.put(newNote);
+            await db.systemNotes.put(note);
             result.updated++;
         } else {
             result.unchanged++;
         }
     }
 
-    console.log(`Patch applied: ${result.added} added, ${result.updated} updated, ${result.unchanged} unchanged`);
-    return result;
+    if (result.added > 0 || result.updated > 0) {
+        console.log(`[SystemNotes] Synced: ${result.added} added, ${result.updated} updated`);
+    }
 }
 
 /**

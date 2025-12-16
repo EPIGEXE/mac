@@ -6,6 +6,19 @@ import { NotFoundError, InvalidInputError, withErrorHandling } from '../core/err
 import { generateId } from '../utils/idGenerator';
 
 // ============================================================================
+// Helper
+// ============================================================================
+
+/**
+ * 콘텐츠에서 첫 줄 추출 (제목 # 제외)
+ */
+function extractFirstLine(content: string): string {
+    if (!content) return ''
+    const firstLine = content.split('\n').find((line) => line.trim() && !line.startsWith('#'))
+    return firstLine?.trim() || ''
+}
+
+// ============================================================================
 // Note Service
 // - 통합 문서 CRUD
 // - SystemNote와 UserNote를 통합하여 관리
@@ -49,12 +62,19 @@ export async function getAllNotes(options: GetAllNotesOptions = {}): Promise<Not
                 }
 
                 const isCustomized = !!(override?.customTitle || override?.customContent);
+                const content = override?.customContent ?? sn.content;
+
+                // firstLine: 커스터마이징 시 재계산, 없으면 생성
+                const firstLine = isCustomized
+                    ? extractFirstLine(content)
+                    : (sn.firstLine ?? extractFirstLine(content));
 
                 return {
                     id: sn.id,
                     type: 'system' as const,
                     title: override?.customTitle ?? sn.title,
-                    content: override?.customContent ?? sn.content,
+                    content,
+                    firstLine,
                     category: sn.category,
                     tag: sn.tag,
                     isCustomized,
@@ -81,6 +101,7 @@ export async function getAllNotes(options: GetAllNotesOptions = {}): Promise<Not
             type: 'user' as const,
             title: un.title,
             content: un.content,
+            firstLine: un.firstLine,
             category: un.category,
             // User Note는 tag 없음 (NoteTag 체계 사용 안 함)
             isCustomized: false,
@@ -110,12 +131,19 @@ export async function getNoteById(id: string, type: 'system' | 'user'): Promise<
 
             const override = await db.userOverrides.get(id);
             const isCustomized = !!(override?.customTitle || override?.customContent);
+            const content = override?.customContent ?? systemNote.content;
+
+            // firstLine: 커스터마이징 시 재계산, 없으면 생성
+            const firstLine = isCustomized
+                ? extractFirstLine(content)
+                : (systemNote.firstLine ?? extractFirstLine(content));
 
             return {
                 id: systemNote.id,
                 type: 'system',
                 title: override?.customTitle ?? systemNote.title,
-                content: override?.customContent ?? systemNote.content,
+                content,
+                firstLine,
                 category: systemNote.category,
                 tag: systemNote.tag,
                 isCustomized,
@@ -134,6 +162,7 @@ export async function getNoteById(id: string, type: 'system' | 'user'): Promise<
                 type: 'user',
                 title: userNote.title,
                 content: userNote.content,
+                firstLine: userNote.firstLine,
                 category: userNote.category,
                 // User Note는 tag 없음
                 isCustomized: false,
@@ -175,11 +204,13 @@ export async function createNote(input: CreateNoteInput): Promise<Note> {
 
     return withErrorHandling('createNote', async () => {
         const now = Date.now();
+        const content = input.content ?? '';
 
         const newNote: UserNote = {
             id: generateId('note'),
             title: input.title ?? '새 노트',
-            content: input.content ?? '',
+            content,
+            firstLine: extractFirstLine(content),
             category: input.category,
             tags: input.tags ?? [],
             createdAt: now,
@@ -193,6 +224,7 @@ export async function createNote(input: CreateNoteInput): Promise<Note> {
             type: 'user',
             title: newNote.title,
             content: newNote.content,
+            firstLine: newNote.firstLine,
             category: newNote.category,
             // User Note는 tag 없음
             isCustomized: false,
@@ -249,8 +281,14 @@ export async function updateNote(
                 throw new NotFoundError('UserNote', id);
             }
 
+            // content가 변경되면 firstLine도 업데이트
+            const firstLine = input.content !== undefined
+                ? extractFirstLine(input.content)
+                : userNote.firstLine;
+
             const updates: Partial<UserNote> = {
                 ...input,
+                firstLine,
                 updatedAt: now,
             };
 

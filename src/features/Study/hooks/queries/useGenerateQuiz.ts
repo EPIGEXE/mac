@@ -29,10 +29,7 @@ export interface UseGenerateQuizOptions {
  *   { enabled: isStarted }
  * )
  */
-export function useGenerateQuiz(
-    params: UseGenerateQuizParams,
-    options?: UseGenerateQuizOptions
-) {
+export function useGenerateQuiz(params: UseGenerateQuizParams, options?: UseGenerateQuizOptions) {
     return useQuery<GenerateQuizResponse, Error>({
         queryKey: studyKeys.quiz(params.noteId, params.mode),
         queryFn: () =>

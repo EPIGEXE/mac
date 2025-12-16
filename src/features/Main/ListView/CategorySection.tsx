@@ -1,13 +1,6 @@
-import { forwardRef, useState } from 'react'
+import { forwardRef } from 'react'
 import type { Note } from '../../../db/schema/note'
 import { NoteTags } from '../../../components/common/NoteTags'
-
-// 노트 콘텐츠 첫 라인 추출
-function getFirstLine(content: string): string {
-    if (!content) return ''
-    const firstLine = content.split('\n').find((line) => line.trim() && !line.startsWith('#'))
-    return firstLine?.trim() || ''
-}
 
 export interface CategorySectionProps {
     category: string // 카테고리 이름
@@ -63,7 +56,7 @@ export const CategorySection = forwardRef<HTMLDivElement, CategorySectionProps>(
                                         {note.title}
                                     </div>
                                     <div className="text-sm text-[var(--text-secondary)] leading-relaxed overflow-hidden text-ellipsis whitespace-nowrap">
-                                        {getFirstLine(note.content) || '내용 없음'}
+                                        {note.firstLine || '내용 없음'}
                                     </div>
                                 </div>
                             </div>

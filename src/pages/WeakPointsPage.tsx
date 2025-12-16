@@ -7,32 +7,21 @@
  * - 해당 노트로 바로 학습 시작 가능
  */
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import type { CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import { List } from 'react-window'
 import {
     IconArrowLeft,
     IconAlertTriangle,
     IconTrophy,
     IconFlame,
-    IconClock,
-    IconChevronDown,
-    IconChevronUp,
-    IconChevronLeft,
-    IconChevronRight,
     IconSearch,
     IconSortAscending,
     IconSortDescending,
 } from '@tabler/icons-react'
-import { WordModeIcon, SentenceModeIcon, EssayModeIcon } from '../components/icons/StudyModeIcons'
 import { getWeakNotes, getAllNoteStats } from '../db/study/statisticsService'
 import { getWeakPointsByNote, resolveWeakPoint } from '../db/study/weakPointService'
 import { findNoteById } from '../db/note/noteService'
-import type { ModeBreakdownStats, NoteStats } from '../db/study/types'
-import type { StudyModeType, WeakPoint } from '../db/schema/study'
-import { SectionTitle } from '../components/common/SectionTitle'
-import { WeakPointItem } from '../features/WeakPoints/WeakPointItem'
+import type { NoteStats } from '../db/study/types'
+import type {  WeakPoint } from '../db/schema/study'
 import { WeakPointNote } from '../features/WeakPoints/WeakPointNote'
 import { Pagenation } from '../features/WeakPoints/Pagenation'
 
@@ -197,25 +186,6 @@ export function WeakPointsPage() {
             setSortKey(key)
             setSortOrder('asc')
         }
-    }
-
-    // ================================ 유틸 ================================
-    const formatDuration = (seconds: number) => {
-        const hours = Math.floor(seconds / 3600)
-        const mins = Math.floor((seconds % 3600) / 60)
-        if (hours > 0) return `${hours}h ${mins}m`
-        return `${mins}m`
-    }
-
-    const formatDate = (timestamp: number) => {
-        const date = new Date(timestamp)
-        const now = new Date()
-        const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
-
-        if (diffDays === 0) return '오늘'
-        if (diffDays === 1) return '어제'
-        if (diffDays < 7) return `${diffDays}일 전`
-        return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })
     }
 
     // ================================ 가상 스크롤 취약점 아이템 ================================

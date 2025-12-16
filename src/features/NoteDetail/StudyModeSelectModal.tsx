@@ -54,7 +54,7 @@ export function StudyModeSelectModal({
                     // mode
                 </div>
                 <div className="flex flex-col border-l-2 border-[var(--border-light)]">
-                    {MODES.map((mode, index) => {
+                    {MODES.map((mode) => {
                         const isSelected = selectedMode === mode.value
 
                         return (

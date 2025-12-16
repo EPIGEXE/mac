@@ -37,7 +37,7 @@ export type { RecordStudyInput } from './types';
 /**
  * 새 학습 세션 시작 (NEW - 모드/순서 포함)
  */
-export async function startSession(input: StartSessionInput): Promise<StudySession> {
+export async function saveSession(input: StartSessionInput): Promise<StudySession> {
     return withErrorHandling('startSession', async () => {
         const now = Date.now();
         const session: StudySession = {
@@ -60,7 +60,7 @@ export async function startSession(input: StartSessionInput): Promise<StudySessi
  * 학습 세션 종료 (요약 포함)
  * summary가 없으면 학습 기록에서 자동 계산
  */
-export async function endSession(sessionId: string, summary?: SessionSummary): Promise<StudySession> {
+export async function closeSession(sessionId: string, summary?: SessionSummary): Promise<StudySession> {
     return withErrorHandling('endSession', async () => {
         const session = await db.studySessions.get(sessionId);
         if (!session) {

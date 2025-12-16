@@ -1,4 +1,4 @@
-import { useTerminalLogStore } from './store';
+import { useTerminalLogStore } from "./toaststore";
 
 // 터미널 스타일 토스트 헬퍼
 export const terminalToast = {

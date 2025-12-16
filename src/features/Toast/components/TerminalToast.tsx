@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
-import { useTerminalLogStore } from '../store'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { LogLine } from './LogLine'
+import { useTerminalLogStore } from '../toaststore'
 
 // 터미널 토스트 컨테이너
 export function TerminalToast() {
@@ -13,6 +13,7 @@ export function TerminalToast() {
 
     // ==================================== 상태 관리 =====================================
     const [newLogIds, setNewLogIds] = useState<Set<string>>(new Set()) // 새 로그 ID 모음
+    const [isHovered, setIsHovered] = useState(false) // hover 상태
 
     // ==================================== 참조 관리 =====================================
     const containerRef = useRef<HTMLDivElement>(null) // 컨테이너 참조, 스크롤 이동을 위해
@@ -49,16 +50,20 @@ export function TerminalToast() {
         }
     }, [logs])
 
-    // 자동 숨김 타이머 (마지막 로그 후 5초)
-    useEffect(() => {
+    // 자동 숨김 타이머 시작 함수
+    const startHideTimer = useCallback(() => {
         if (hideTimeoutRef.current) {
             clearTimeout(hideTimeoutRef.current)
         }
+        hideTimeoutRef.current = window.setTimeout(() => {
+            clearLogs()
+        }, 3000)
+    }, [clearLogs])
 
-        if (logs.length > 0) {
-            hideTimeoutRef.current = window.setTimeout(() => {
-                clearLogs()
-            }, 5000)
+    // 자동 숨김 타이머 (hover 중이 아닐 때만)
+    useEffect(() => {
+        if (logs.length > 0 && !isHovered) {
+            startHideTimer()
         }
 
         return () => {
@@ -66,12 +71,30 @@ export function TerminalToast() {
                 clearTimeout(hideTimeoutRef.current)
             }
         }
-    }, [logs, clearLogs])
+    }, [logs, isHovered, clearLogs])
+
+    // hover 시 타이머 정지
+    const handleMouseEnter = () => {
+        setIsHovered(true)
+        if (hideTimeoutRef.current) {
+            clearTimeout(hideTimeoutRef.current)
+            hideTimeoutRef.current = null
+        }
+    }
+
+    // hover 해제 시 3초 후 닫힘
+    const handleMouseLeave = () => {
+        setIsHovered(false)
+    }
 
     if (!isVisible || logs.length === 0) return null
 
     return (
-        <div className="fixed bottom-5 left-5 z-[9999] bg-[var(--bg-paper)] border border-[var(--border-medium)] rounded-sm shadow-[var(--shadow-elevated)] max-w-[600px] max-h-[200px] overflow-hidden flex flex-col">
+        <div
+            className="fixed bottom-5 left-5 z-[9999] bg-[var(--bg-paper)] border border-[var(--border-medium)] rounded-sm shadow-[var(--shadow-elevated)] max-w-[600px] max-h-[200px] overflow-hidden flex flex-col"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+        >
             {/* 헤더 */}
             <div className="flex items-center justify-between px-2.5 py-1.5 border-b border-[var(--border-light)] bg-[var(--bg-secondary)]">
                 <span className="font-mono text-[11px] text-[var(--text-secondary)] font-semibold">

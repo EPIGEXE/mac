@@ -5,21 +5,11 @@
  */
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import {
     IconArrowLeft,
     IconHistory,
-    IconClock,
-    IconChecks,
-    IconX,
-    IconChevronLeft,
-    IconChevronRight,
     IconCalendar,
-    IconBook,
-    IconChevronDown,
-    IconChevronUp,
 } from '@tabler/icons-react'
-import { WordModeIcon, SentenceModeIcon, EssayModeIcon } from '../components/icons/StudyModeIcons'
 import { getSessionHistory, getStudyRecordsBySession } from '../db/study/studyService'
 import { findNoteById } from '../db/note/noteService'
 import type { StudyModeType, StudyRecord } from '../db/schema/study'

@@ -243,7 +243,7 @@ export async function getWeakPoint(id: string): Promise<WeakPoint | undefined> {
  */
 export async function getWeakPointsByNote(noteId: string, includeResolved: boolean = false): Promise<WeakPoint[]> {
     return withErrorHandling('getWeakPointsByNote', async () => {
-        let collection = db.weakPoints.where('noteId').equals(noteId);
+        const collection = db.weakPoints.where('noteId').equals(noteId);
 
         if (!includeResolved) {
             const all = await collection.filter(wp => !wp.isResolved).toArray();
@@ -260,7 +260,7 @@ export async function getWeakPointsByNote(noteId: string, includeResolved: boole
  */
 export async function getWeakPointsByMode(mode: StudyModeType, includeResolved: boolean = false): Promise<WeakPoint[]> {
     return withErrorHandling('getWeakPointsByMode', async () => {
-        let query = db.weakPoints.where('mode').equals(mode);
+        const query = db.weakPoints.where('mode').equals(mode);
 
         if (!includeResolved) {
             const all = await query.filter(wp => !wp.isResolved).toArray();
