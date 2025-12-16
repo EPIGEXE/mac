@@ -83,6 +83,7 @@ export function WordQuizContainer({ note, onNext }: WordQuizContainerProps) {
     // Store에서 결과 기록 함수와 DB 세션 ID 가져오기
     const recordNoteResult = useStudySessionStore((state) => state.recordNoteResult)
     const getDbSessionId = useStudySessionStore((state) => state.getDbSessionId)
+    const completeSession = useStudySessionStore((state) => state.completeSession)
 
     // 결과 화면 진입 시 학습 기록 저장
     useEffect(() => {
@@ -125,9 +126,12 @@ export function WordQuizContainer({ note, onNext }: WordQuizContainerProps) {
                 score,
                 duration,
             })
-            console.log('[WordQuizContainer] Result recorded', { noteId: note.id })
+
+            // 세션 완료 (DB에 저장)
+            completeSession()
+            console.log('[WordQuizContainer] Result recorded and session completed', { noteId: note.id })
         }
-    }, [phase, note.id, note.title, noteType, totalBlanks, correctCount, wrongCount, blanks, answers, results, getDuration, recordNoteResult, getDbSessionId])
+    }, [phase, note.id, note.title, noteType, totalBlanks, correctCount, wrongCount, blanks, answers, results, getDuration, recordNoteResult, getDbSessionId, completeSession])
 
     // 로딩 화면
     if (phase === 'loading') {

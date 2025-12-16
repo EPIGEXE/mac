@@ -58,8 +58,8 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
     // Query 응답이 오면 검증 및 blindedContent 생성 (캐시 히트 포함)
     useEffect(() => {
         if (!quizResponse?.blanks) return
-        // 이미 처리된 경우 스킵 (같은 데이터로 중복 처리 방지)
-        if (validatedBlanks.length > 0 && phase === 'quiz') return
+        // 이미 처리된 경우 스킵 (quiz 또는 result 상태에서는 재처리하지 않음)
+        if (validatedBlanks.length > 0 && (phase === 'quiz' || phase === 'result')) return
 
         console.log('[useWordQuiz] Quiz generated (raw)', { blanks: quizResponse.blanks.length })
 

@@ -3,6 +3,7 @@
  * - 2단계 파이프라인: Stage 1 (개념 추출) → Stage 2 (퀴즈 생성)
  * - LLM API로 퀴즈 생성 (Groq 또는 Gemini)
  * - 정답은 클라이언트에 직접 반환 (IndexedDB에서 관리)
+ * - Stage 1 개념 추출은 하이브리드 캐싱 (Memory + Firestore)
  */
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import { callLLMJson, getModelPresets, getRequiredSecrets } from '../llm'
@@ -15,15 +16,26 @@ import { buildSentenceQuizPrompt } from '../llm/prompts/sentenceQuiz'
 import { buildEssayQuizPrompt } from '../llm/prompts/essayQuiz'
 import { SYSTEM_PROMPTS } from '../llm/prompts/systemPrompt'
 import { validateAndProcessBlanks } from '../validation/wordQuizValidation'
+import { getCachedConcepts, cacheConcepts } from '../cache'
 
 
 /**
- * Stage 1: 개념 추출
+ * Stage 1: 개념 추출 (캐싱 적용)
+ * - Memory 캐시 → Firestore 캐시 → LLM 호출 순서로 조회
  */
 async function extractConcepts(
     title: string,
     content: string
 ): Promise<ExtractedConcepts> {
+    // 1. 캐시 확인
+    const cached = await getCachedConcepts(title, content)
+    if (cached) {
+        console.log('[Stage 1] Cache hit from:', cached.source)
+        return cached.concepts
+    }
+
+    // 2. 캐시 미스 - LLM 호출
+    console.log('[Stage 1] Cache miss, calling LLM')
     const prompt = buildConceptExtractionPrompt({ title, content })
     const MODELS = getModelPresets()
 
@@ -34,6 +46,9 @@ async function extractConcepts(
     )
 
     console.log('[Stage 1] Extracted concepts:', JSON.stringify(result, null, 2))
+
+    // 3. 결과 캐싱 (비동기)
+    cacheConcepts(title, content, result)
 
     return result
 }

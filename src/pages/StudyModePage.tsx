@@ -23,7 +23,7 @@ export function StudyModePage() {
     const selectedNoteIds = useStudySessionStore((state) => state.selectedNoteIds)
     const storeIndex = useStudySessionStore((state) => state.currentIndex)
     const goToNextNote = useStudySessionStore((state) => state.goToNextNote)
-    const completeSession = useStudySessionStore((state) => state.completeSession)
+    const abandonSession = useStudySessionStore((state) => state.abandonSession)
 
     // ================================ 상태 관리 ================================
     const [notes, setNotes] = useState<Note[]>([])
@@ -72,11 +72,13 @@ export function StudyModePage() {
     }, [selectedNoteIds, noteId, category, order])
 
     // ================================ 핸들러 ================================
-    const handleExit = useCallback(() => {
+    const handleExit = useCallback(async () => {
+        // 중간 이탈 시 세션을 isCompleted: false로 종료 (통계에 포함 안 됨)
+        await abandonSession()
         navigate('/')
-    }, [navigate])
+    }, [abandonSession, navigate])
 
-    const handleNext = useCallback(async () => {
+    const handleNext = useCallback(() => {
         // 실시간으로 store에서 값을 가져와야 함 (클로저 캡처 문제 방지)
         const currentSelectedNoteIds = useStudySessionStore.getState().selectedNoteIds
         const currentIsSingleNote = currentSelectedNoteIds.length === 1
@@ -85,9 +87,7 @@ export function StudyModePage() {
         console.log('[StudyModePage] handleNext', { hasMore, isSingleNote: currentIsSingleNote })
 
         if (!hasMore) {
-            // 마지막 노트 완료 - DB 세션 종료
-            await completeSession()
-
+            // 마지막 노트 - 결과 페이지로 이동 (completeSession은 각 모드 결과 화면에서 호출됨)
             if (currentIsSingleNote) {
                 // 단일 노트면 메인으로
                 navigate('/')
@@ -96,7 +96,7 @@ export function StudyModePage() {
                 navigate('/study/result')
             }
         }
-    }, [goToNextNote, navigate, completeSession])
+    }, [goToNextNote, navigate])
 
     if (!currentNote) {
         return (

@@ -20,17 +20,20 @@ export function MainPage() {
     const notes = useNoteStore((state) => state.notes) //노트 목록
     const loadNotes = useNoteStore((state) => state.loadNotes) // 노트 로드
     const createNote = useNoteStore((state) => state.createNote) // 노트 생성
-    const resetSession = useStudySessionStore((state) => state.resetSession) // 세션 초기화
+    const abandonSession = useStudySessionStore((state) => state.abandonSession) // 세션 이탈 (통계에 저장 안 함)
+    const isActive = useStudySessionStore((state) => state.isActive) // 세션 활성화 여부
 
     // ==================================== 상태 관리 =====================================
     const [viewMode, setViewMode] = useState<ViewMode>('list') // 뷰 모드 (리스트 / 맵)
     const [topicFilter, setTopicFilter] = useState<TopicFilter>('all') // 대주제 필터 (전체 / CS / 프론트엔드 / 백엔드)
 
     // ==================================== useEffect =====================================
-    // 메인 페이지 진입 시 이전 세션 정리
+    // 메인 페이지 진입 시 활성 세션이 있으면 이탈 처리 (통계에 저장 안 함)
     useEffect(() => {
-        resetSession()
-    }, [resetSession])
+        if (isActive) {
+            abandonSession()
+        }
+    }, [isActive, abandonSession])
 
     // 노트 로드
     useEffect(() => {

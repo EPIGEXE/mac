@@ -7,7 +7,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { StudyModeType } from '../features/Study/types'
-import { endSession as dbEndSession, startSession } from '../db/study/studyService'
+import { startSession as dbStartSession, endSession as dbEndSession } from '../db/study/studyService'
 
 // ================================ 타입 정의 ================================
 
@@ -72,6 +72,7 @@ interface StudySessionActions {
 
     // 세션 종료
     completeSession: () => Promise<void>
+    abandonSession: () => Promise<void>  // 중간 이탈 (통계에 저장 안 함)
     resetSession: () => void
 
     // DB 세션 ID getter
@@ -102,13 +103,10 @@ export const useStudySessionStore = create<StudySessionStore>()(
             ...initialState,
 
             /**
-             * 세션 시작
+             * 세션 시작 (메모리에만 저장, DB 저장은 완료 시)
              */
             startSession: async ({ noteIds, mode, order }) => {
                 console.log('[StudySessionStore] startSession', { noteIds, noteIdsLength: noteIds.length, mode, order })
-
-                // DB에 세션 생성
-                const dbSession = await startSession({ noteIds, mode, order })
 
                 set({
                     selectedNoteIds: noteIds,
@@ -119,10 +117,10 @@ export const useStudySessionStore = create<StudySessionStore>()(
                     noteResults: [],
                     startedAt: Date.now(),
                     completedAt: null,
-                    dbSessionId: dbSession.id,
+                    dbSessionId: null, // 완료 시에만 DB 세션 생성
                 })
 
-                console.log('[StudySessionStore] startSession completed', { dbSessionId: dbSession.id })
+                console.log('[StudySessionStore] startSession completed (memory only)')
             },
 
             /**
@@ -205,22 +203,33 @@ export const useStudySessionStore = create<StudySessionStore>()(
             },
 
             /**
-             * 세션 완료
+             * 세션 완료 (이때 DB에 세션 생성 및 종료)
              */
             completeSession: async () => {
-                const { dbSessionId, selectedNoteIds, noteResults } = get()
+                const { selectedNoteIds, noteResults, mode, order, startedAt } = get()
 
                 console.log('[StudySessionStore] completeSession called', {
-                    dbSessionId,
                     selectedNoteIdsLength: selectedNoteIds.length,
                     noteResultsLength: noteResults.length,
                 })
 
-                // DB 세션 종료
-                if (dbSessionId) {
-                    await dbEndSession(dbSessionId).catch((e) =>
-                        console.error('Failed to end DB session:', e)
-                    )
+                // 완료 시에만 DB에 세션 생성
+                if (mode && startedAt) {
+                    try {
+                        // 1. DB 세션 생성
+                        const dbSession = await dbStartSession({
+                            noteIds: selectedNoteIds,
+                            mode,
+                            order,
+                        })
+
+                        // 2. 즉시 종료 (summary 자동 계산)
+                        await dbEndSession(dbSession.id)
+
+                        console.log('[StudySessionStore] DB session created and ended', { dbSessionId: dbSession.id })
+                    } catch (e) {
+                        console.error('Failed to save session to DB:', e)
+                    }
                 }
 
                 set({
@@ -229,6 +238,14 @@ export const useStudySessionStore = create<StudySessionStore>()(
                 })
 
                 console.log('[StudySessionStore] completeSession done - isActive set to false')
+            },
+
+            /**
+             * 세션 이탈 (중간에 나가기 - DB 저장 없이 메모리만 초기화)
+             */
+            abandonSession: async () => {
+                console.log('[StudySessionStore] abandonSession called - resetting without DB save')
+                set(initialState)
             },
 
             /**

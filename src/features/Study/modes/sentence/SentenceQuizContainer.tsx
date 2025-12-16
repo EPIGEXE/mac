@@ -67,6 +67,7 @@ export function SentenceQuizContainer({
     // Store에서 결과 기록 함수와 DB 세션 ID 가져오기
     const recordNoteResult = useStudySessionStore((state) => state.recordNoteResult)
     const getDbSessionId = useStudySessionStore((state) => state.getDbSessionId)
+    const completeSession = useStudySessionStore((state) => state.completeSession)
 
     // 결과 화면 진입 시 학습 기록 저장
     useEffect(() => {
@@ -115,8 +116,11 @@ export function SentenceQuizContainer({
                 score,
                 duration,
             })
+
+            // 세션 완료 (DB에 저장)
+            completeSession()
         }
-    }, [phase, note.id, note.title, noteType, totalQuestions, correctCount, wrongCount, questions, answers, evaluationResults, totalScore, overallFeedback, getDuration, recordNoteResult, getDbSessionId])
+    }, [phase, note.id, note.title, noteType, totalQuestions, correctCount, wrongCount, questions, answers, evaluationResults, totalScore, overallFeedback, getDuration, recordNoteResult, getDbSessionId, completeSession])
 
     // 로딩 화면
     if (phase === 'loading') {
