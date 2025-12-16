@@ -36,13 +36,10 @@ export function NoteDetailHeader({
                 {/* 우측: 컨트롤 */}
                 <div className="flex items-center gap-4">
                     {/* 학습 버튼 */}
-                    <button
-                        onClick={handleStudyStart}
-                        className="flex items-center gap-1.5 px-3 py-1.5 font-mono text-[13px] bg-[var(--accent)] text-white border-none cursor-pointer transition-all duration-150 hover:opacity-90"
-                    >
+                    <TerminalButton onClick={handleStudyStart} variant="filled">
                         <span className="text-[11px] opacity-80">▶</span>
                         study
-                    </button>
+                    </TerminalButton>
 
                     {/* 저장/삭제 버튼 */}
                     <TerminalButton onClick={handleSave} active={canSave} disabled={disabledSave}>

@@ -3,12 +3,15 @@
  * - 빈칸 채우기 퀴즈 상태 관리
  * - 로컬 채점 (LLM 불필요)
  * - 약점 기록
+ * - TanStack Query 기반 캐싱
  */
-import { useState, useCallback, useMemo, useRef } from 'react'
-import type { BlankInfo, GenerateQuizResponse } from '../../../types'
-import { generateQuiz, evaluateBlankAnswer, handleStudyApiError, validateAndCreateBlindedContent } from '../../../services/studyApi'
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import type { BlankInfo } from '../../../types'
+import { evaluateBlankAnswer, validateAndCreateBlindedContent } from '../../../services/studyApi'
 import { useWordWeakPointRecorder } from '../../../hooks/useWeakPointRecorder'
-import { getQuizCache, saveQuizCache, clearQuizCache } from '../../../utils/quizCache'
+import { useGenerateQuiz } from '../../../hooks/queries/useGenerateQuiz'
+import { studyKeys } from '../../../hooks/queries/keys'
 
 type WordQuizPhase = 'loading' | 'quiz' | 'result'
 
@@ -20,22 +23,75 @@ interface UseWordQuizProps {
 }
 
 export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWordQuizProps) {
+    const queryClient = useQueryClient()
+
+    // ================================ 캐시 확인 ================================
+    // 마운트 시 캐시가 있으면 바로 퀴즈 시작
+    const cachedData = queryClient.getQueryData(studyKeys.quiz(noteId, 'word'))
+    const hasCache = !!cachedData
+
     // ================================ 상태 ================================
-    const [phase, setPhase] = useState<WordQuizPhase>('loading') // 퀴즈 단계
-    const [quizData, setQuizData] = useState<GenerateQuizResponse | null>(null) // 퀴즈 데이터
+    const [enabled, setEnabled] = useState(hasCache) // 캐시 있으면 바로 활성화
+    const [phase, setPhase] = useState<WordQuizPhase>(hasCache ? 'loading' : 'loading') // 퀴즈 단계
     const [validatedBlanks, setValidatedBlanks] = useState<BlankInfo[]>([]) // 검증된 빈칸 목록
     const [blindedContent, setBlindedContent] = useState<string>('') // blank 치환된 콘텐츠
     const [currentBlankIndex, setCurrentBlankIndex] = useState(0) // 현재 빈칸 인덱스
     const [answers, setAnswers] = useState<Record<string, string>>({}) // 답변 목록
     const [results, setResults] = useState<Record<string, boolean | null>>({}) // 결과 목록
     const [isEvaluating, setIsEvaluating] = useState(false) // 평가 중인지
-    const [error, setError] = useState<string | null>(null) // 에러
 
     // ================================ Ref ================================
     const startTimeRef = useRef<number>(Date.now()) // 퀴즈 시작 시간, 학습 시간 계산용
 
+    // ================================ TanStack Query ================================
+    const {
+        data: quizResponse,
+        isLoading,
+        error: queryError,
+    } = useGenerateQuiz(
+        { noteId, noteContent, noteTitle, mode: 'word', blankCount: 5 },
+        { enabled }
+    )
+
+    // 에러 메시지 변환
+    const error = queryError?.message ?? null
+
     // ================================ Hooks ================================
     const { recordWordIfWrong } = useWordWeakPointRecorder({ noteId, noteType }) // 약점 기록 훅
+
+    // ================================ 퀴즈 데이터 처리 ================================
+    // Query 응답이 오면 검증 및 blindedContent 생성 (캐시 히트 포함)
+    useEffect(() => {
+        if (!quizResponse?.blanks) return
+        // 이미 처리된 경우 스킵 (같은 데이터로 중복 처리 방지)
+        if (validatedBlanks.length > 0 && phase === 'quiz') return
+
+        console.log('[useWordQuiz] Quiz generated (raw)', { blanks: quizResponse.blanks.length })
+
+        // 검증: 실제 콘텐츠에 존재하는 blank만 필터링
+        const { validBlanks, invalidBlanks, blindedContent: validated } = validateAndCreateBlindedContent(
+            noteContent,
+            quizResponse.blanks
+        )
+
+        console.log('[useWordQuiz] Blanks validated', {
+            total: quizResponse.blanks.length,
+            valid: validBlanks.length,
+            invalid: invalidBlanks.length,
+            invalidList: invalidBlanks.map(b => b.answer),
+        })
+
+        if (validBlanks.length === 0) {
+            console.error('[useWordQuiz] No valid blanks found')
+            return
+        }
+
+        // 검증된 데이터 저장
+        setValidatedBlanks(validBlanks as BlankInfo[])
+        setBlindedContent(validated)
+        setPhase('quiz')
+        console.log('[useWordQuiz] Phase set to quiz with validated blanks')
+    }, [quizResponse, noteContent, validatedBlanks.length, phase])
 
     // ================================ 상수 ================================
     // 검증된 blanks만 사용 (LLM 응답 중 실제 콘텐츠에 존재하는 것만)
@@ -59,79 +115,21 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
 
     // ================================ 액션 ================================
     // 퀴즈 시작
-    const startQuiz = useCallback(async () => {
+    const startQuiz = useCallback(() => {
         console.log('[useWordQuiz] startQuiz called', { noteId, noteTitle })
         setPhase('loading')
-        setError(null)
         startTimeRef.current = Date.now()
 
-        try {
-            // 캐시 확인
-            const cached = getQuizCache('word', noteId)
+        // 상태 초기화
+        setValidatedBlanks([])
+        setBlindedContent('')
+        setCurrentBlankIndex(0)
+        setAnswers({})
+        setResults({})
 
-            if (cached) {
-                console.log('[useWordQuiz] Using cached quiz data')
-                setQuizData(cached.response)
-                setValidatedBlanks(cached.validatedBlanks)
-                setBlindedContent(cached.blindedContent)
-                setCurrentBlankIndex(0)
-                setAnswers({})
-                setResults({})
-                setPhase('quiz')
-                return
-            }
-
-            // 캐시 없으면 LLM 호출
-            console.log('[useWordQuiz] Generating quiz...')
-            const response = await generateQuiz({
-                noteId,
-                noteContent,
-                noteTitle,
-                mode: 'word',
-                blankCount: 5,
-            })
-            console.log('[useWordQuiz] Quiz generated (raw)', { blanks: response.blanks?.length })
-
-            // 검증: 실제 콘텐츠에 존재하는 blank만 필터링
-            const { validBlanks, invalidBlanks, blindedContent: validated } = validateAndCreateBlindedContent(
-                noteContent,
-                response.blanks || []
-            )
-
-            console.log('[useWordQuiz] Blanks validated', {
-                total: response.blanks?.length,
-                valid: validBlanks.length,
-                invalid: invalidBlanks.length,
-                invalidList: invalidBlanks.map(b => b.answer),
-            })
-
-            // 유효한 blank가 없으면 에러
-            if (validBlanks.length === 0) {
-                throw new Error('퀴즈를 생성할 수 없습니다. 유효한 빈칸이 없습니다.')
-            }
-
-            // 캐시에 저장
-            saveQuizCache('word', noteId, {
-                response,
-                validatedBlanks: validBlanks as BlankInfo[],
-                blindedContent: validated,
-            })
-
-            // 검증된 데이터만 저장
-            setQuizData(response) // 원본 응답도 보관 (디버깅용)
-            setValidatedBlanks(validBlanks as BlankInfo[])
-            setBlindedContent(validated)
-            setCurrentBlankIndex(0)
-            setAnswers({})
-            setResults({})
-            setPhase('quiz')
-            console.log('[useWordQuiz] Phase set to quiz with validated blanks')
-        } catch (err) {
-            console.error('[useWordQuiz] Quiz generation failed', err)
-            setError(handleStudyApiError(err))
-            throw err
-        }
-    }, [noteId, noteContent, noteTitle])
+        // Query 활성화 (이미 캐시에 있으면 즉시 반환)
+        setEnabled(true)
+    }, [noteId, noteTitle])
 
     // 답변 제출 (로컬 채점)
     const submitAnswer = useCallback(async (answer: string) => {
@@ -177,12 +175,12 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
 
     // 캐시 삭제 (퀴즈 완료 시 호출)
     const clearCache = useCallback(() => {
-        clearQuizCache('word', noteId)
-    }, [noteId])
+        queryClient.removeQueries({ queryKey: studyKeys.quiz(noteId, 'word') })
+    }, [noteId, queryClient])
 
     return {
         // 상태
-        phase,
+        phase: isLoading ? 'loading' : phase,
         blanks,
         currentBlank,
         currentBlankStringId,

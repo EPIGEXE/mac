@@ -1,15 +1,15 @@
 import type { BlankInfo } from "../../../types"
 
 interface QuizProgressSidebarProps {
-    answeredCount: number
-    totalBlanks: number
-    correctCount: number
-    wrongCount: number
-    blanks: BlankInfo[]
-    results: Record<string, boolean | null>
-    answers: Record<string, string>
-    currentBlankIndex: number
-    goToBlank: (blankId: string) => void
+    answeredCount: number // 답변 개수
+    totalBlanks: number // 총 빈칸 개수
+    correctCount: number // 정답 개수
+    wrongCount: number // 오답 개수
+    blanks: BlankInfo[] // 빈칸 목록
+    results: Record<string, boolean | null> // 채점 결과 목록
+    answers: Record<string, string> // 답변 목록
+    currentBlankIndex: number // 현재 빈칸 인덱스
+    goToBlank: (blankId: string) => void // 빈칸 이동
 }
 
 export function QuizProgressSidebar({

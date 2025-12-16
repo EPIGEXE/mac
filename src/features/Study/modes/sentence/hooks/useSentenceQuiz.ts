@@ -3,12 +3,16 @@
  * - Q&A 형식 퀴즈 상태 관리
  * - LLM 평가
  * - 약점 기록
+ * - TanStack Query 기반 캐싱
  */
-import { useState, useCallback, useMemo, useRef } from 'react'
-import type { SentenceQuestionInfo, GenerateQuizResponse, SentenceEvaluationResult } from '../../../types'
-import { generateQuiz, evaluateSentenceAnswers, handleStudyApiError } from '../../../services/studyApi'
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import type { SentenceQuestionInfo, SentenceEvaluationResult } from '../../../types'
+import { handleStudyApiError } from '../../../services/studyApi'
 import { useSentenceWeakPointRecorder } from '../../../hooks/useWeakPointRecorder'
-import { getQuizCache, saveQuizCache, clearQuizCache } from '../../../utils/quizCache'
+import { useGenerateQuiz } from '../../../hooks/queries/useGenerateQuiz'
+import { useEvaluateSentence } from '../../../hooks/queries/useEvaluateSentence'
+import { studyKeys } from '../../../hooks/queries/keys'
 
 type SentenceQuizPhase = 'loading' | 'quiz' | 'result'
 
@@ -20,12 +24,18 @@ interface UseSentenceQuizProps {
 }
 
 export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: UseSentenceQuizProps) {
+    const queryClient = useQueryClient()
+
+    // ================================ 캐시 확인 ================================
+    // 마운트 시 캐시가 있으면 바로 퀴즈 시작
+    const cachedData = queryClient.getQueryData(studyKeys.quiz(noteId, 'sentence'))
+    const hasCache = !!cachedData
+
     // ================================ 상태 ================================
+    const [enabled, setEnabled] = useState(hasCache) // 캐시 있으면 바로 활성화
     const [phase, setPhase] = useState<SentenceQuizPhase>('loading') // 퀴즈 단계
-    const [quizData, setQuizData] = useState<GenerateQuizResponse | null>(null) // 퀴즈 데이터
     const [answers, setAnswers] = useState<Record<string, string>>({}) // 답변 목록
     const [results, setResults] = useState<Record<string, boolean | null>>({}) // 결과 목록
-    const [isEvaluating, setIsEvaluating] = useState(false) // 평가 중인지
     const [error, setError] = useState<string | null>(null) // 에러
 
     // 문장 모드 전용 상태
@@ -37,11 +47,39 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
     // ================================ Ref ================================
     const startTimeRef = useRef<number>(Date.now()) // 퀴즈 시작 시간, 학습 시간 계산용
 
+    // ================================ TanStack Query ================================
+    const {
+        data: quizResponse,
+        isLoading,
+        error: queryError,
+    } = useGenerateQuiz(
+        { noteId, noteContent, noteTitle, mode: 'sentence', blankCount: 5 },
+        { enabled }
+    )
+
+    const evaluateMutation = useEvaluateSentence()
+
     // ================================ Hooks ================================
     const { recordSentenceIfWrong } = useSentenceWeakPointRecorder({ noteId, noteType })
 
+    // ================================ 퀴즈 데이터 처리 ================================
+    // Query 응답이 오면 phase를 quiz로 변경 (캐시 히트 포함)
+    useEffect(() => {
+        if (quizResponse?.questions && phase === 'loading') {
+            console.log('[useSentenceQuiz] Quiz data loaded, setting phase to quiz')
+            setPhase('quiz')
+        }
+    }, [quizResponse, phase])
+
+    // Query 에러 처리
+    useEffect(() => {
+        if (queryError) {
+            setError(queryError.message)
+        }
+    }, [queryError])
+
     // ================================ 상수 ================================
-    const questions = useMemo(() => (quizData?.questions || []) as SentenceQuestionInfo[], [quizData?.questions])
+    const questions = useMemo(() => (quizResponse?.questions || []) as SentenceQuestionInfo[], [quizResponse?.questions])
 
     // 결과 계산 (정답 개수, 오답 개수, 답변 개수)
     const correctCount = useMemo(() =>
@@ -59,52 +97,22 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
 
     // ================================ 액션 ================================
     // 퀴즈 시작
-    const startQuiz = useCallback(async () => {
+    const startQuiz = useCallback(() => {
+        console.log('[useSentenceQuiz] startQuiz called')
         setPhase('loading')
         setError(null)
         startTimeRef.current = Date.now()
 
-        try {
-            // 캐시 확인
-            const cached = getQuizCache('sentence', noteId)
+        // 상태 초기화
+        setAnswers({})
+        setResults({})
+        setEvaluationResults([])
+        setTotalScore(0)
+        setOverallFeedback('')
 
-            if (cached) {
-                console.log('[useSentenceQuiz] Using cached quiz data')
-                setQuizData(cached.response)
-                setAnswers({})
-                setResults({})
-                setEvaluationResults([])
-                setTotalScore(0)
-                setOverallFeedback('')
-                setPhase('quiz')
-                return
-            }
-
-            // 캐시 없으면 LLM 호출
-            console.log('[useSentenceQuiz] Generating quiz...')
-            const response = await generateQuiz({
-                noteId,
-                noteContent,
-                noteTitle,
-                mode: 'sentence',
-                blankCount: 5,
-            })
-
-            // 캐시에 저장
-            saveQuizCache('sentence', noteId, { response })
-
-            setQuizData(response)
-            setAnswers({})
-            setResults({})
-            setEvaluationResults([])
-            setTotalScore(0)
-            setOverallFeedback('')
-            setPhase('quiz')
-        } catch (err) {
-            setError(handleStudyApiError(err))
-            throw err
-        }
-    }, [noteId, noteContent, noteTitle])
+        // Query 활성화 (이미 캐시에 있으면 즉시 반환)
+        setEnabled(true)
+    }, [])
 
     // 답변 변경
     const updateAnswer = useCallback((questionId: string, value: string) => {
@@ -115,7 +123,6 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
     const submitAllAnswers = useCallback(async () => {
         if (questions.length === 0) return
 
-        setIsEvaluating(true)
         setError(null)
 
         try {
@@ -126,7 +133,7 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
                 userAnswer: answers[q.id] || '',
             }))
 
-            const response = await evaluateSentenceAnswers({ blanks: questionsToEvaluate })
+            const response = await evaluateMutation.mutateAsync({ blanks: questionsToEvaluate })
 
             // 결과 저장
             setEvaluationResults(response.results)
@@ -158,10 +165,8 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
         } catch (err) {
             console.error('[Sentence Mode] Evaluation error:', err)
             setError(handleStudyApiError(err))
-        } finally {
-            setIsEvaluating(false)
         }
-    }, [questions, answers, recordSentenceIfWrong])
+    }, [questions, answers, evaluateMutation, recordSentenceIfWrong])
 
     // 학습 시간 계산
     const getDuration = useCallback(() => {
@@ -170,16 +175,16 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
 
     // 캐시 삭제 (퀴즈 완료 시 호출)
     const clearCache = useCallback(() => {
-        clearQuizCache('sentence', noteId)
-    }, [noteId])
+        queryClient.removeQueries({ queryKey: studyKeys.quiz(noteId, 'sentence') })
+    }, [noteId, queryClient])
 
     return {
         // 상태
-        phase,
+        phase: isLoading ? 'loading' : phase,
         questions,
         answers,
         results,
-        isEvaluating,
+        isEvaluating: evaluateMutation.isPending,
         error,
 
         // 문장 모드 전용

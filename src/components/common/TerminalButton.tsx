@@ -31,6 +31,16 @@ const buttonStyles = cva(
     }
 );
 
+interface TerminalButtonProps {
+    children: React.ReactNode;
+    onClick?: () => void;
+    active?: boolean;
+    variant?: 'default' | 'accent' | 'danger' | 'filled';
+    disabled?: boolean;
+    type?: 'button' | 'submit';
+    className?: string;
+}
+
 // 터미널 스타일 버튼 컴포넌트
 export function TerminalButton({
     children,
@@ -40,15 +50,7 @@ export function TerminalButton({
     disabled = false,
     type = 'button',
     className = '',
-}: {
-    children: React.ReactNode;
-    onClick?: () => void;
-    active?: boolean;
-    variant?: 'default' | 'accent' | 'danger' | 'filled';
-    disabled?: boolean;
-    type?: 'button' | 'submit';
-    className?: string;
-}) {
+}: TerminalButtonProps) {
     return (
         <button
             type={type}

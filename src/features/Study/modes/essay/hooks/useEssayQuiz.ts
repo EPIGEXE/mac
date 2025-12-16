@@ -2,12 +2,16 @@
  * 면접 모드 퀴즈 Hook
  * - 서술형 면접 질문 상태 관리
  * - LLM 평가
+ * - TanStack Query 기반 캐싱
  */
-import { useState, useCallback, useMemo, useRef } from 'react'
-import type { EssayQuestionInfo, GenerateQuizResponse, EvaluateEssayResponse } from '../../../types'
-import { generateQuiz, evaluateEssay, handleStudyApiError } from '../../../services/studyApi'
-import { getQuizCache, saveQuizCache, clearQuizCache } from '../../../utils/quizCache'
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import type { EssayQuestionInfo, EvaluateEssayResponse } from '../../../types'
+import { handleStudyApiError } from '../../../services/studyApi'
 import { useEssayWeakPointRecorder } from '../../../hooks/useWeakPointRecorder'
+import { useEvaluateEssay } from '../../../hooks/queries/useEvaluateEssay'
+import { useGenerateQuiz } from '../../../hooks/queries/useGenerateQuiz'
+import { studyKeys } from '../../../hooks/queries/keys'
 
 type EssayQuizPhase = 'loading' | 'quiz' | 'result'
 
@@ -19,74 +23,81 @@ interface UseEssayQuizProps {
 }
 
 export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEssayQuizProps) {
-    // 상태
+    const queryClient = useQueryClient()
+
+    // ================================ 캐시 확인 ================================
+    // 마운트 시 캐시가 있으면 바로 퀴즈 시작
+    const cachedData = queryClient.getQueryData(studyKeys.quiz(noteId, 'essay'))
+    const hasCache = !!cachedData
+
+    // ================================ 상태 ================================
+    const [enabled, setEnabled] = useState(hasCache) // 캐시 있으면 바로 활성화
     const [phase, setPhase] = useState<EssayQuizPhase>('loading')
-    const [quizData, setQuizData] = useState<GenerateQuizResponse | null>(null)
     const [answer, setAnswer] = useState('')
     const [result, setResult] = useState<EvaluateEssayResponse | null>(null)
-    const [isEvaluating, setIsEvaluating] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    // 시간 추적
+    // ================================ Ref ================================
     const startTimeRef = useRef<number>(Date.now())
 
-    // 약점 기록 훅
+    // ================================ TanStack Query ================================
+    const {
+        data: quizResponse,
+        isLoading,
+        error: queryError,
+    } = useGenerateQuiz(
+        { noteId, noteContent, noteTitle, mode: 'essay', blankCount: 5 },
+        { enabled }
+    )
+
+    const evaluateMutation = useEvaluateEssay()
+
+    // ================================ Hooks ================================
     const { recordEssayIfWrong } = useEssayWeakPointRecorder({ noteId, noteType })
 
-    // 질문
-    const question = useMemo(() => quizData?.essay as EssayQuestionInfo | undefined, [quizData?.essay])
+    // ================================ 퀴즈 데이터 처리 ================================
+    // Query 응답이 오면 phase를 quiz로 변경 (캐시 히트 포함)
+    useEffect(() => {
+        if (quizResponse?.essay && phase === 'loading') {
+            console.log('[useEssayQuiz] Quiz data loaded, setting phase to quiz')
+            setPhase('quiz')
+        }
+    }, [quizResponse, phase])
 
+    // Query 에러 처리
+    useEffect(() => {
+        if (queryError) {
+            setError(queryError.message)
+        }
+    }, [queryError])
+
+    // ================================ 상수 ================================
+    const question = useMemo(() => quizResponse?.essay as EssayQuestionInfo | undefined, [quizResponse?.essay])
+
+    // ================================ 액션 ================================
     // 퀴즈 시작
-    const startQuiz = useCallback(async () => {
+    const startQuiz = useCallback(() => {
+        console.log('[useEssayQuiz] startQuiz called')
         setPhase('loading')
         setError(null)
         startTimeRef.current = Date.now()
 
-        try {
-            // 캐시 확인
-            const cached = getQuizCache('essay', noteId)
+        // 상태 초기화
+        setAnswer('')
+        setResult(null)
 
-            if (cached) {
-                console.log('[useEssayQuiz] Using cached quiz data')
-                setQuizData(cached.response)
-                setAnswer('')
-                setResult(null)
-                setPhase('quiz')
-                return
-            }
-
-            // 캐시 없으면 LLM 호출
-            console.log('[useEssayQuiz] Generating quiz...')
-            const response = await generateQuiz({
-                noteId,
-                noteContent,
-                noteTitle,
-                mode: 'essay',
-                blankCount: 5,
-            })
-
-            // 캐시에 저장
-            saveQuizCache('essay', noteId, { response })
-
-            setQuizData(response)
-            setAnswer('')
-            setResult(null)
-            setPhase('quiz')
-        } catch (err) {
-            setError(handleStudyApiError(err))
-            throw err
-        }
-    }, [noteId, noteContent, noteTitle])
+        // Query 활성화 (이미 캐시에 있으면 즉시 반환)
+        setEnabled(true)
+    }, [])
 
     // 답변 제출 및 LLM 평가
     const submitAnswer = useCallback(async () => {
         if (!question || !answer.trim()) return
 
-        setIsEvaluating(true)
         setError(null)
 
         try {
-            const response = await evaluateEssay({
+            const response = await evaluateMutation.mutateAsync({
                 company: question.company,
                 question: question.question,
                 questionType: question.questionType,
@@ -110,16 +121,14 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
         } catch (err) {
             console.error('[Essay Mode] Evaluation error:', err)
             setError(handleStudyApiError(err))
-        } finally {
-            setIsEvaluating(false)
         }
-    }, [question, answer, recordEssayIfWrong])
+    }, [question, answer, evaluateMutation, recordEssayIfWrong])
 
     // 다시 풀기
     const retry = useCallback(() => {
-        setQuizData(null)
         setAnswer('')
         setResult(null)
+        setPhase('quiz')
     }, [])
 
     // 학습 시간 계산
@@ -129,19 +138,19 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
 
     // 캐시 삭제 (퀴즈 완료 시 호출)
     const clearCache = useCallback(() => {
-        clearQuizCache('essay', noteId)
-    }, [noteId])
+        queryClient.removeQueries({ queryKey: studyKeys.quiz(noteId, 'essay') })
+    }, [noteId, queryClient])
 
     // 정답/오답 계산 (70점 이상이면 정답)
     const isCorrect = result ? result.score >= 70 : false
 
     return {
         // 상태
-        phase,
+        phase: isLoading ? 'loading' : phase,
         question,
         answer,
         result,
-        isEvaluating,
+        isEvaluating: evaluateMutation.isPending,
         error,
 
         // 계산된 값
