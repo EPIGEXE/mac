@@ -148,11 +148,6 @@ export function GenerateingQuizLoading({ error }: { error: string | null }) {
                 <div className="bg-[var(--bg-paper)] border border-[var(--border-light)] p-4 rounded min-w-[360px]">
                     {/* 터미널 헤더 */}
                     <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[var(--border-light)]">
-                        <div className="flex gap-1.5">
-                            <span className="w-2.5 h-2.5 rounded-full bg-[var(--error)]/60" />
-                            <span className="w-2.5 h-2.5 rounded-full bg-[var(--warning)]/60" />
-                            <span className="w-2.5 h-2.5 rounded-full bg-[var(--success)]/60" />
-                        </div>
                         <span className="font-mono text-xs text-[var(--text-tertiary)] ml-2">
                             quiz-generator.ts
                         </span>

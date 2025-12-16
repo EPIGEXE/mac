@@ -25,14 +25,9 @@ interface UseWordQuizProps {
 export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWordQuizProps) {
     const queryClient = useQueryClient()
 
-    // ================================ 캐시 확인 ================================
-    // 마운트 시 캐시가 있으면 바로 퀴즈 시작
-    const cachedData = queryClient.getQueryData(studyKeys.quiz(noteId, 'word'))
-    const hasCache = !!cachedData
-
     // ================================ 상태 ================================
-    const [enabled, setEnabled] = useState(hasCache) // 캐시 있으면 바로 활성화
-    const [phase, setPhase] = useState<WordQuizPhase>(hasCache ? 'loading' : 'loading') // 퀴즈 단계
+    const [enabled, setEnabled] = useState(false)
+    const [phase, setPhase] = useState<WordQuizPhase>('loading') // 퀴즈 단계
     const [validatedBlanks, setValidatedBlanks] = useState<BlankInfo[]>([]) // 검증된 빈칸 목록
     const [blindedContent, setBlindedContent] = useState<string>('') // blank 치환된 콘텐츠
     const [currentBlankIndex, setCurrentBlankIndex] = useState(0) // 현재 빈칸 인덱스
@@ -117,19 +112,47 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
     // 퀴즈 시작
     const startQuiz = useCallback(() => {
         console.log('[useWordQuiz] startQuiz called', { noteId, noteTitle })
-        setPhase('loading')
         startTimeRef.current = Date.now()
 
-        // 상태 초기화
+        // 캐시 확인 - 캐시가 있으면 바로 퀴즈 데이터 처리
+        const cachedData = queryClient.getQueryData(studyKeys.quiz(noteId, 'word')) as { blanks?: BlankInfo[] } | undefined
+
+        if (cachedData?.blanks) {
+            console.log('[useWordQuiz] Cache hit! Using cached quiz data')
+
+            // 검증: 실제 콘텐츠에 존재하는 blank만 필터링
+            const { validBlanks, invalidBlanks, blindedContent: validated } = validateAndCreateBlindedContent(
+                noteContent,
+                cachedData.blanks
+            )
+
+            console.log('[useWordQuiz] Blanks validated from cache', {
+                total: cachedData.blanks.length,
+                valid: validBlanks.length,
+                invalid: invalidBlanks.length,
+            })
+
+            if (validBlanks.length > 0) {
+                setValidatedBlanks(validBlanks as BlankInfo[])
+                setBlindedContent(validated)
+                setCurrentBlankIndex(0)
+                setAnswers({})
+                setResults({})
+                setPhase('quiz')
+                return // 캐시 사용 완료, API 호출 불필요
+            }
+        }
+
+        // 캐시 없음 - API 호출
+        console.log('[useWordQuiz] No cache, fetching from API')
+        setPhase('loading')
         setValidatedBlanks([])
         setBlindedContent('')
         setCurrentBlankIndex(0)
         setAnswers({})
         setResults({})
-
-        // Query 활성화 (이미 캐시에 있으면 즉시 반환)
         setEnabled(true)
-    }, [noteId, noteTitle])
+    }, [noteId, noteTitle, noteContent, queryClient])
 
     // 답변 제출 (로컬 채점)
     const submitAnswer = useCallback(async (answer: string) => {

@@ -155,8 +155,9 @@ export const handlers = [
                 result = MOCK_WORD_QUIZ
         }
 
-        // Firebase httpsCallable 응답 형식
-        return HttpResponse.json({ result: { data: result } })
+        // Firebase httpsCallable 응답 형식: { result: data }
+        // SDK가 result 필드를 읽어서 .data로 반환
+        return HttpResponse.json({ result: result })
     }),
 
     // evaluateAnswer (Essay) - Firebase Cloud Function
@@ -166,7 +167,7 @@ export const handlers = [
         const body = await request.json() as { data: { userAnswer: string } }
         console.log('[MSW] evaluateAnswer intercepted:', body.data?.userAnswer?.slice(0, 50) + '...')
 
-        return HttpResponse.json({ result: { data: MOCK_ESSAY_RESULT } })
+        return HttpResponse.json({ result: MOCK_ESSAY_RESULT })
     }),
 
     // evaluateSentenceAnswers - Firebase Cloud Function
@@ -176,6 +177,6 @@ export const handlers = [
         const body = await request.json() as { data: { blanks: unknown[] } }
         console.log('[MSW] evaluateSentenceAnswers intercepted:', body.data?.blanks?.length, 'answers')
 
-        return HttpResponse.json({ result: { data: MOCK_SENTENCE_RESULT } })
+        return HttpResponse.json({ result: MOCK_SENTENCE_RESULT })
     }),
 ]

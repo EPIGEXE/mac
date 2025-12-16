@@ -25,13 +25,8 @@ interface UseEssayQuizProps {
 export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEssayQuizProps) {
     const queryClient = useQueryClient()
 
-    // ================================ 캐시 확인 ================================
-    // 마운트 시 캐시가 있으면 바로 퀴즈 시작
-    const cachedData = queryClient.getQueryData(studyKeys.quiz(noteId, 'essay'))
-    const hasCache = !!cachedData
-
     // ================================ 상태 ================================
-    const [enabled, setEnabled] = useState(hasCache) // 캐시 있으면 바로 활성화
+    const [enabled, setEnabled] = useState(false)
     const [phase, setPhase] = useState<EssayQuizPhase>('loading')
     const [answer, setAnswer] = useState('')
     const [result, setResult] = useState<EvaluateEssayResponse | null>(null)
@@ -78,17 +73,28 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
     // 퀴즈 시작
     const startQuiz = useCallback(() => {
         console.log('[useEssayQuiz] startQuiz called')
-        setPhase('loading')
-        setError(null)
         startTimeRef.current = Date.now()
 
-        // 상태 초기화
+        // 캐시 확인 - 캐시가 있으면 바로 퀴즈 데이터 사용
+        const cachedData = queryClient.getQueryData(studyKeys.quiz(noteId, 'essay')) as { essay?: EssayQuestionInfo } | undefined
+
+        if (cachedData?.essay) {
+            console.log('[useEssayQuiz] Cache hit! Using cached quiz data')
+            setAnswer('')
+            setResult(null)
+            setError(null)
+            setPhase('quiz')
+            return // 캐시 사용 완료, API 호출 불필요
+        }
+
+        // 캐시 없음 - API 호출
+        console.log('[useEssayQuiz] No cache, fetching from API')
+        setPhase('loading')
+        setError(null)
         setAnswer('')
         setResult(null)
-
-        // Query 활성화 (이미 캐시에 있으면 즉시 반환)
         setEnabled(true)
-    }, [])
+    }, [noteId, queryClient])
 
     // 답변 제출 및 LLM 평가
     const submitAnswer = useCallback(async () => {

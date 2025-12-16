@@ -26,13 +26,8 @@ interface UseSentenceQuizProps {
 export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: UseSentenceQuizProps) {
     const queryClient = useQueryClient()
 
-    // ================================ 캐시 확인 ================================
-    // 마운트 시 캐시가 있으면 바로 퀴즈 시작
-    const cachedData = queryClient.getQueryData(studyKeys.quiz(noteId, 'sentence'))
-    const hasCache = !!cachedData
-
     // ================================ 상태 ================================
-    const [enabled, setEnabled] = useState(hasCache) // 캐시 있으면 바로 활성화
+    const [enabled, setEnabled] = useState(false)
     const [phase, setPhase] = useState<SentenceQuizPhase>('loading') // 퀴즈 단계
     const [answers, setAnswers] = useState<Record<string, string>>({}) // 답변 목록
     const [results, setResults] = useState<Record<string, boolean | null>>({}) // 결과 목록
@@ -99,20 +94,34 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
     // 퀴즈 시작
     const startQuiz = useCallback(() => {
         console.log('[useSentenceQuiz] startQuiz called')
-        setPhase('loading')
-        setError(null)
         startTimeRef.current = Date.now()
 
-        // 상태 초기화
+        // 캐시 확인 - 캐시가 있으면 바로 퀴즈 데이터 사용
+        const cachedData = queryClient.getQueryData(studyKeys.quiz(noteId, 'sentence')) as { questions?: SentenceQuestionInfo[] } | undefined
+
+        if (cachedData?.questions && cachedData.questions.length > 0) {
+            console.log('[useSentenceQuiz] Cache hit! Using cached quiz data')
+            setAnswers({})
+            setResults({})
+            setEvaluationResults([])
+            setTotalScore(0)
+            setOverallFeedback('')
+            setError(null)
+            setPhase('quiz')
+            return // 캐시 사용 완료, API 호출 불필요
+        }
+
+        // 캐시 없음 - API 호출
+        console.log('[useSentenceQuiz] No cache, fetching from API')
+        setPhase('loading')
+        setError(null)
         setAnswers({})
         setResults({})
         setEvaluationResults([])
         setTotalScore(0)
         setOverallFeedback('')
-
-        // Query 활성화 (이미 캐시에 있으면 즉시 반환)
         setEnabled(true)
-    }, [])
+    }, [noteId, queryClient])
 
     // 답변 변경
     const updateAnswer = useCallback((questionId: string, value: string) => {
