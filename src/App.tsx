@@ -15,6 +15,7 @@ const StudyFinalResultPage = lazy(() => import('./pages/StudyFinalResultPage').t
 const StatisticsDashboardPage = lazy(() => import('./pages/StatisticsDashboardPage').then(m => ({ default: m.StatisticsDashboardPage })));
 const WeakPointsPage = lazy(() => import('./pages/WeakPointsPage').then(m => ({ default: m.WeakPointsPage })));
 const SessionHistoryPage = lazy(() => import('./pages/SessionHistoryPage').then(m => ({ default: m.SessionHistoryPage })));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 function App() {
     usePageView() // GA4 페이지 뷰 추적
@@ -33,6 +34,7 @@ function App() {
                         <Route path="/statistics" element={<StatisticsDashboardPage />} />
                         <Route path="/study/weak-points" element={<WeakPointsPage />} />
                         <Route path="/study/sessions" element={<SessionHistoryPage />} />
+                        <Route path="*" element={<NotFoundPage />} />
                     </Route>
                 </Routes>
             </Suspense>
