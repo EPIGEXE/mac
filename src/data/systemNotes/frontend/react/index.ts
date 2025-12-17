@@ -10,6 +10,8 @@ import stateManagementContent from './react-state-management.md?raw'
 import memoCallbackContent from './memo-callback.md?raw'
 import lighthouseContent from './lighthouse.md?raw'
 import viteContent from './vite.md?raw'
+import customHooksContent from './customhooks.md?raw'
+import componentDesignContent from './component-design.md?raw'
 
 export const reactNotes: SystemNote[] = [
     {
@@ -126,7 +128,7 @@ export const reactNotes: SystemNote[] = [
     {
         id: 'sys-react-vite',
         version: 1,
-        title: 'React Router',
+        title: 'Vite',
         content: viteContent,
         category: CATEGORY.React,
         tag: {
@@ -135,6 +137,34 @@ export const reactNotes: SystemNote[] = [
             interview: TAG.INTERVIEW.common,
         },
         order: 9,
+        createdAt: Date.now(),
+    },
+    {
+        id: 'sys-react-customhooks',
+        version: 1,
+        title: 'Custom Hooks 작성',
+        content: customHooksContent,
+        category: CATEGORY.React,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.good,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 10,
+        createdAt: Date.now(),
+    },
+    {
+        id: 'sys-react-component-design',
+        version: 1,
+        title: 'Component 설계 원칙',
+        content: componentDesignContent,
+        category: CATEGORY.React,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.good,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 11,
         createdAt: Date.now(),
     }
 ]
