@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
     plugins: [
         react({
             babel: {
@@ -17,12 +17,10 @@ export default defineConfig({
     },
     build: {
         rollupOptions: {
+            // 프로덕션 빌드에서 MSW 제외
+            external: mode === 'production' ? [/^msw/, /\/mocks\//] : [],
             output: {
                 manualChunks: (id) => {
-                    // MSW 관련 코드는 별도 청크로 분리
-                    if (id.includes('/mocks/') || id.includes('msw')) {
-                        return 'msw-mocks'
-                    }
                     // React 핵심 (공통으로 사용되는 기반)
                     if (id.includes('react-dom') || id.includes('/react/')) {
                         return 'vendor-react'
@@ -69,4 +67,4 @@ export default defineConfig({
             ],
         },
     },
-})
+}))

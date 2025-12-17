@@ -135,6 +135,7 @@ export function SessionCalendar({
                     <button
                         onClick={goToPrevMonth}
                         className="p-2 border border-[var(--border-light)] text-[var(--text-tertiary)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition-colors cursor-pointer"
+                        aria-label="이전 달"
                     >
                         <IconChevronLeft size={16} />
                     </button>
@@ -154,6 +155,7 @@ export function SessionCalendar({
                     <button
                         onClick={goToNextMonth}
                         className="p-2 border border-[var(--border-light)] text-[var(--text-tertiary)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition-colors cursor-pointer"
+                        aria-label="다음 달"
                     >
                         <IconChevronRight size={16} />
                     </button>

@@ -52,8 +52,8 @@ export function ListView({ notes, categories, onNoteClick, onCreateNote, showMai
             {/* 왼쪽 여백 - 사이드바와 동일한 공간 확보 */}
             <div className="w-[228px] shrink-0 hidden min-[1400px]:block" />
 
-            {/* 메인 콘텐츠 */}
-            <main className="w-full max-w-[1000px]">
+            {/* 메인 콘텐츠 - min-height로 CLS 방지 */}
+            <main className="w-full max-w-[1000px] min-h-[80vh]">
                 {showMainCategories && groupedCategories
                     ? groupedCategories.map((mainCat) => {
                           if (mainCat.subCategories.length === 0) return null

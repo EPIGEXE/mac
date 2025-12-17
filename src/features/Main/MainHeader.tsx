@@ -180,7 +180,8 @@ export function MainHeader({ viewMode, onViewModeChange, topicFilter, onTopicFil
                         {/* 테마 토글 */}
                         <button
                             onClick={toggleTheme}
-                            className="border-highlight-button w-8 h-8 "
+                            className="border-highlight-button w-8 h-8"
+                            aria-label={theme === 'light' ? '다크 모드로 전환' : '라이트 모드로 전환'}
                         >
                             {theme === 'light' ? <IconMoon size={16} /> : <IconSun size={16} />}
                         </button>

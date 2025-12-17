@@ -8,6 +8,8 @@ import useStateOptimizationContent from './usestate-optimization.md?raw'
 import propsDrillingContent from './props-drilling.md?raw'
 import stateManagementContent from './react-state-management.md?raw'
 import memoCallbackContent from './memo-callback.md?raw'
+import lighthouseContent from './lighthouse.md?raw'
+import viteContent from './vite.md?raw'
 
 export const reactNotes: SystemNote[] = [
     {
@@ -107,4 +109,32 @@ export const reactNotes: SystemNote[] = [
         order: 7,
         createdAt: Date.now(),
     },
+    {
+        id: 'sys-react-lighthouse',
+        version: 1,
+        title: 'Lighthouse 성능 측정',
+        content: lighthouseContent,
+        category: CATEGORY.React,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.good,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 8,
+        createdAt: Date.now(),
+    },
+    {
+        id: 'sys-react-vite',
+        version: 1,
+        title: 'React Router',
+        content: viteContent,
+        category: CATEGORY.React,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.good,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 9,
+        createdAt: Date.now(),
+    }
 ]

@@ -4,6 +4,7 @@ import { RootLayout } from './components/layouts/RootLayout';
 import { TerminalToast } from './features/Toast/components/TerminalToast';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import { AppCrashFallback } from './components/ErrorBoundary/ErrorFallback';
+import { usePageView } from './hooks/usePageView';
 
 // Lazy loaded pages
 const MainPage = lazy(() => import('./pages/MainPage').then(m => ({ default: m.MainPage })));
@@ -16,6 +17,8 @@ const WeakPointsPage = lazy(() => import('./pages/WeakPointsPage').then(m => ({ 
 const SessionHistoryPage = lazy(() => import('./pages/SessionHistoryPage').then(m => ({ default: m.SessionHistoryPage })));
 
 function App() {
+    usePageView() // GA4 페이지 뷰 추적
+
     return (
         <ErrorBoundary fallback={(error) => <AppCrashFallback error={error} />}>
             <TerminalToast />

@@ -13,6 +13,7 @@ import { useNoteStore } from '../stores/noteStore'
 import { NoteDetailHeader } from '../features/NoteDetail/NoteDetailHeader'
 import { UnsavedChangesModal } from '../features/NoteDetail/UnsavedChangesModal'
 import { DeleteConfirmModal } from '../features/NoteDetail/DeleteConfirmModal'
+import { analytics } from '../lib/analytics'
 
 export function NoteDetailPage() {
     // ==================================== Hooks =====================================
@@ -64,6 +65,13 @@ export function NoteDetailPage() {
     useEffect(() => {
         setTitle(note?.title)
     }, [note?.title])
+
+    // 노트 열람 추적
+    useEffect(() => {
+        if (note) {
+            analytics.noteView(note.id, note.category)
+        }
+    }, [note?.id, note?.category])
 
     // ==================================== 핸들러 =====================================
     // 학습 시작

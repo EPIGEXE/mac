@@ -15,6 +15,7 @@ export function Pagenation({
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 className="p-2 border border-[var(--border-light)] text-[var(--text-secondary)] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                aria-label="이전 페이지"
             >
                 <IconChevronLeft size={16} />
             </button>
@@ -51,6 +52,7 @@ export function Pagenation({
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
                 className="p-2 border border-[var(--border-light)] text-[var(--text-secondary)] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                aria-label="다음 페이지"
             >
                 <IconChevronRight size={16} />
             </button>

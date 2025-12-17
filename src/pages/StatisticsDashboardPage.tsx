@@ -7,9 +7,8 @@
  */
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-    IconArrowLeft,
-} from '@tabler/icons-react'
+import { IconArrowLeft } from '@tabler/icons-react'
+import { useRajdhaniFont } from '../hooks/useRajdhaniFont'
 import {
     getOverallStats,
     getPeriodStats,
@@ -39,6 +38,7 @@ import { CurrentHistorySection } from '../features/StatisticsDashboard/CurrentHi
 
 export function StatisticsDashboardPage() {
     const navigate = useNavigate()
+    useRajdhaniFont() // Rajdhani 폰트 지연 로드
 
     // ================================ 상태 ================================
     const [overallStats, setOverallStats] = useState<OverallStats | null>(null) // 전체 통계

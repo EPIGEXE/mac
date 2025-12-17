@@ -13,6 +13,7 @@ import { getErrorMessage } from '../utils/errorHandler'
 
 interface NoteStore {
     notes: Note[] // 노트 목록
+    isLoaded: boolean // 노트 로드 완료 여부
     selectedNoteId: string | null // 선택된 노트 ID
     selectedNoteType: 'system' | 'user' | null // 선택된 노트 타입
 
@@ -31,9 +32,9 @@ interface NoteStore {
 
 export const useNoteStore = create<NoteStore>((set, get) => ({
     notes: [],
+    isLoaded: false,
     selectedNoteId: null,
     selectedNoteType: null,
-    error: null,
 
     loadNotes: async () => {
         try {
@@ -42,7 +43,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
 
             // 모든 노트 조회 (system + user 통합)
             const notes = await getAllNotes()
-            set({ notes })
+            set({ notes, isLoaded: true })
         } catch (error) {
             const message = getErrorMessage(error)
             terminalToast.error('노트를 불러오는데 실패했습니다. ' + message)

@@ -15,6 +15,7 @@ import { StudyOrderSelector } from '../features/Study/components/StudyOrderSelec
 import type { StudyModeType } from '../features/Study/types'
 import { shuffleArray } from '../utils/funtion'
 import { SectionTitle } from '../components/common/SectionTitle'
+import { analytics } from '../lib/analytics'
 
 export function StudySetupPage() {
     const navigate = useNavigate()
@@ -51,6 +52,9 @@ export function StudySetupPage() {
             mode,
             order,
         })
+
+        // GA 추적
+        analytics.studyStart(selectedNoteIds.length)
 
         // 학습 페이지로 이동
         navigate(`/study?mode=${mode}`)

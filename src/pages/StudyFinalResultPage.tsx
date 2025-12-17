@@ -4,22 +4,25 @@
  * - 노트별 점수 그래프 시각화
  * - 복습 필요 노트 하이라이트
  */
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { IconArrowLeft, IconRefresh, IconAlertTriangle } from '@tabler/icons-react'
 import { BarChart, Bar, XAxis, YAxis, Cell, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { useStudySessionStore } from '../stores/studySessionStore'
+import { useRajdhaniFont } from '../hooks/useRajdhaniFont'
 import { ScoreMessage } from '../features/Study/components/ScoreMessage'
 import { DashboardCard } from '../components/common/DashboardCard'
 import { DashboardGrid } from '../components/common/DashboardGrid'
 import { TerminalButton } from '../components/common/TerminalButton'
 import { SectionTitle } from '../components/common/SectionTitle'
+import { analytics } from '../lib/analytics'
 import type { StudyModeType } from '../features/Study/types'
 
 export function StudyFinalResultPage() {
     // ================================ Hooks ================================
     const navigate = useNavigate() // 네비게이션
+    useRajdhaniFont() // Rajdhani 폰트 지연 로드
 
     const noteResults = useStudySessionStore((state) => state.noteResults) // 노트 학습 결과
     const selectedNoteIds = useStudySessionStore((state) => state.selectedNoteIds) // 선택된 노트 ID들
@@ -33,6 +36,15 @@ export function StudyFinalResultPage() {
     // 통계 계산
     const stats = getTotalStats()
     const isPerfect = stats.averageScore >= 90
+
+    // 학습 완료 추적 (한 번만)
+    const trackedRef = useRef(false)
+    useEffect(() => {
+        if (!trackedRef.current && noteResults.length > 0) {
+            trackedRef.current = true
+            analytics.studyComplete(stats.totalDuration * 1000, stats.averageScore, noteResults.length)
+        }
+    }, [noteResults.length, stats.totalDuration, stats.averageScore])
 
     // 복습 필요 노트 (60% 미만)
     const needsReviewNotes = useMemo(() => {

@@ -24,6 +24,7 @@ vi.mock('../stores/noteStore', () => ({
                 { id: 'note-2', title: 'CSS Grid', category: 'CSS', type: 'user' },
                 { id: 'note-3', title: 'TypeScript Types', category: 'TypeScript', type: 'user' },
             ],
+            isLoaded: true,
             loadNotes: mockLoadNotes,
             createNote: mockCreateNote,
         }
