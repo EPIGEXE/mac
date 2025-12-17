@@ -97,7 +97,7 @@ export const browserNotes: SystemNote[] = [
     },
     {
         id: 'sys-browser-url-input',
-        version: 1,
+        version: 2,
         title: 'URL 입력 후 일어나는 일',
         content: urlInputContent,
         category: CATEGORY.Browser,

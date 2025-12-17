@@ -1,7 +1,6 @@
 import type { SystemNote } from '../../../../db/schema/note'
 import { CATEGORY, TAG } from '../../../categories'
 
-import usestateContent from './usestate.md?raw'
 import virtualdomContent from './virtualdom.md?raw'
 import lifecycleContent from './react-lifecycle.md?raw'
 import useStateOptimizationContent from './useState-optimization.md?raw'
@@ -14,19 +13,6 @@ import customHooksContent from './customhooks.md?raw'
 import componentDesignContent from './component-design.md?raw'
 
 export const reactNotes: SystemNote[] = [
-    {
-        id: 'sys-react-usestate',
-        version: 1,
-        title: 'React Hooks - useState',
-        content: usestateContent,
-        category: CATEGORY.React,
-        tag: {
-            level: TAG.LEVEL.beginner,
-            importance: TAG.IMPORTANCE.core,
-        },
-        order: 1,
-        createdAt: Date.now(),
-    },
     {
         id: 'sys-react-virtualdom',
         version: 1,

@@ -6,6 +6,8 @@ import deadlockContent from './deadlock.md?raw'
 import virtualMemoryContent from './virtual-memory.md?raw'
 import hashTableContent from './hash-table.md?raw'
 import stackQueueContent from './stack-queue.md?raw'
+import treeGraphContent from './tree-graph.md?raw'
+import sortingContent from './sorting.md?raw'
 
 export const csNotes: SystemNote[] = [
 
@@ -78,5 +80,33 @@ export const csNotes: SystemNote[] = [
         },
         order: 7,
         createdAt: Date.now(),
-    }
+    },
+    {
+        id: 'sys-cs-tree-graph',
+        version: 1,
+        title: '트리와 그래프',
+        content: treeGraphContent,
+        category: CATEGORY.CS,
+        tag: {
+            level: TAG.LEVEL.beginner,
+            importance: TAG.IMPORTANCE.core,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 8,
+        createdAt: Date.now(),
+    },
+    {
+        id: 'sys-cs-sorting',
+        version: 1,
+        title: '정렬 알고리즘',
+        content: sortingContent,
+        category: CATEGORY.CS,
+        tag: {
+            level: TAG.LEVEL.beginner,
+            importance: TAG.IMPORTANCE.core,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 9,
+        createdAt: Date.now(),
+    },
 ]
