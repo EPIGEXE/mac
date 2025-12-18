@@ -11,6 +11,7 @@ import lighthouseContent from './lighthouse.md?raw'
 import viteContent from './vite.md?raw'
 import customHooksContent from './customhooks.md?raw'
 import componentDesignContent from './component-design.md?raw'
+import portalContent from './portal.md?raw'
 
 export const reactNotes: SystemNote[] = [
     {
@@ -151,6 +152,20 @@ export const reactNotes: SystemNote[] = [
             interview: TAG.INTERVIEW.common,
         },
         order: 11,
+        createdAt: Date.now(),
+    },
+    {
+        id: 'sys-react-portal',
+        version: 1,
+        title: 'React Portal',
+        content: portalContent,
+        category: CATEGORY.React,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.good,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 12,
         createdAt: Date.now(),
     }
 ]

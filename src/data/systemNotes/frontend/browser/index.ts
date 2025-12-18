@@ -125,7 +125,7 @@ export const browserNotes: SystemNote[] = [
     },
     {
         id: 'sys-browser-event-propagation',
-        version: 1,
+        version: 2,
         title: '이벤트 전파',
         content: eventPropagationContent,
         category: CATEGORY.Browser,
