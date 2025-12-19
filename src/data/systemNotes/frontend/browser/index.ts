@@ -9,6 +9,7 @@ import browserStorageContent from './browserStorage.md?raw'
 import urlInputContent from './urlInput.md?raw'
 import csrAndSsrContent from './csrAndSsr.md?raw'
 import eventPropagationContent from './eventPropagation.md?raw'
+import websocketContent from './websocket.md?raw'
 
 export const browserNotes: SystemNote[] = [
     {
@@ -135,6 +136,20 @@ export const browserNotes: SystemNote[] = [
             interview: TAG.INTERVIEW.common,
         },
         order: 9,
+        createdAt: Date.now(),
+    },
+    {
+        id: 'sys-browser-websocket',
+        version: 1,
+        title: 'WebSocket',
+        content: websocketContent,
+        category: CATEGORY.Browser,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.useful,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 10,
         createdAt: Date.now(),
     }
 ]

@@ -7,9 +7,6 @@ import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import type { Note } from '../../../../db/schema/note'
 import { useSentenceQuiz } from './hooks/useSentenceQuiz'
-import { recordSentenceStudy } from '../../../../db/study/studyService'
-import type { RecordSentenceStudyInput } from '../../../../db/study/types'
-import type { SentenceQuestionDetail } from '../../../../db/schema/study'
 import { useStudySessionStore } from '../../../../stores/studySessionStore'
 import { SentenceQuizResult } from './components/SentenceQuizResult'
 import { SentenceAnswerInput } from './components/SentenceAnswerInput'
@@ -64,22 +61,17 @@ export function SentenceQuizContainer({
         startQuiz()
     }, [])
 
-    // Store에서 결과 기록 함수와 DB 세션 ID 가져오기
+    // Store에서 결과 기록 함수 가져오기
     const recordNoteResult = useStudySessionStore((state) => state.recordNoteResult)
-    const getDbSessionId = useStudySessionStore((state) => state.getDbSessionId)
-    const completeSession = useStudySessionStore((state) => state.completeSession)
 
-    // 결과 화면 진입 시 학습 기록 저장
+    // 결과 화면 진입 시 메모리에 학습 결과 저장 (DB 저장은 세션 완료 시)
     useEffect(() => {
         if (phase === 'result') {
             const duration = getDuration()
             const score = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0
 
-            // DB에 기록 (새로운 모드별 함수 사용)
-            const dbSessionId = getDbSessionId()
-
             // questions와 evaluationResults를 SentenceQuestionDetail[]로 변환
-            const questionDetails: SentenceQuestionDetail[] = questions.map((q) => {
+            const questionDetails = questions.map((q) => {
                 const evalResult = evaluationResults.find((r) => r.blankId === q.id)
                 return {
                     questionId: q.id,
@@ -95,32 +87,25 @@ export function SentenceQuizContainer({
                 }
             })
 
-            const input: RecordSentenceStudyInput = {
-                noteId: note.id,
-                noteType,
-                sessionId: dbSessionId || `session-${Date.now()}`,
-                duration,
-                questions: questionDetails,
-                totalScore,
-                overallFeedback,
-            }
-            recordSentenceStudy(input).catch((e) => console.error('Failed to record study:', e))
-
-            // Store 모드면 세션 결과에도 기록
+            // 메모리에 결과 저장 (DB 저장은 completeSession에서 일괄 처리)
             recordNoteResult({
                 noteId: note.id,
                 noteTitle: note.title,
+                noteType,
+                mode: 'sentence',
                 totalQuestions,
                 correctCount,
                 wrongCount,
                 score,
                 duration,
+                sentenceDetails: {
+                    questions: questionDetails,
+                    totalScore,
+                    overallFeedback,
+                },
             })
-
-            // 세션 완료 (DB에 저장)
-            completeSession()
         }
-    }, [phase, note.id, note.title, noteType, totalQuestions, correctCount, wrongCount, questions, answers, evaluationResults, totalScore, overallFeedback, getDuration, recordNoteResult, getDbSessionId, completeSession])
+    }, [phase, note.id, note.title, noteType, totalQuestions, correctCount, wrongCount, questions, answers, evaluationResults, totalScore, overallFeedback, getDuration, recordNoteResult])
 
     // 로딩 화면
     if (phase === 'loading') {

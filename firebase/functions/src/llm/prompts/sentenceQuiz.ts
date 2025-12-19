@@ -28,32 +28,37 @@ ${content}
    - Questions should be answerable if the user understands the topic
    - Focus on concepts frequently asked in interviews
 
-2. **Question Types (use variety!):**
+2. **Question Types (use variety!) - 중복 금지!**
 
-   **Type A: 정의 질문 (Definition)**
-   - "DOM이란 무엇인가요?"
-   - "Reflow가 무엇인지 설명하세요."
-   - Answer: Complete definition (20-50 chars)
+   **Type A: 비교 질문 (A vs B)**
+   - "defer와 async의 차이점은?"
+   - "Reflow와 Repaint는 어떻게 다른가요?"
+   - Answer: 두 개념의 핵심 차이점
 
-   **Type B: 비교 질문 (Comparison)**
-   - "defer와 async의 차이점은 무엇인가요?"
-   - "Reflow와 Repaint의 차이를 설명하세요."
-   - Answer: Key difference explanation
-
-   **Type C: 원리 질문 (Mechanism)**
-   - "브라우저 렌더링 과정을 순서대로 설명하세요."
-   - "CSSOM이 생성되는 과정은?"
-   - Answer: Process/mechanism explanation
-
-   **Type D: 이유 질문 (Reason/Purpose)**
-   - "왜 CSSOM이 필요한가요?"
-   - "defer를 사용하는 이유는?"
-   - Answer: Purpose/benefit explanation
-
-   **Type E: 상황 질문 (When/What happens)**
+   **Type B: 조건/시점 질문 (When)**
    - "언제 Reflow가 발생하나요?"
-   - "CSS 변경 시 어떤 일이 일어나나요?"
-   - Answer: Condition/result explanation
+   - "CORS preflight 요청이 발생하는 조건은?"
+   - Answer: 특정 조건이나 시점 설명
+
+   **Type C: 목적/이유 질문 (Why)**
+   - "왜 Virtual DOM을 사용하나요?"
+   - "CORS가 필요한 이유는?"
+   - Answer: 목적이나 이점 설명
+
+   **Type D: 해결/방법 질문 (How to)**
+   - "CORS 에러를 해결하는 방법은?"
+   - "Reflow를 최소화하려면 어떻게 해야 하나요?"
+   - Answer: 구체적인 해결책이나 방법
+
+   **Type E: 결과/영향 질문 (What happens)**
+   - "JavaScript가 DOM을 수정하면 어떤 일이 발생하나요?"
+   - "async 스크립트가 먼저 로드되면?"
+   - Answer: 결과나 영향 설명
+
+   ⚠️ IMPORTANT: 같은 개념에 대해 여러 유형의 질문을 만들지 마세요!
+   - ❌ "CORS란?" + "CORS의 원리는?" (중복 - 답변이 비슷함)
+   - ✅ "CORS 에러가 발생하는 조건은?" (Type B - 조건)
+   - ✅ "CORS 에러를 해결하는 방법은?" (Type D - 해결)
 
 3. **Answer Format:**
    - 20-80 characters (complete sentence)
@@ -95,24 +100,29 @@ Return ONLY valid JSON:
 }
 
 ## GOOD Examples:
-✅ Q: "브라우저 렌더링의 첫 번째 단계는?"
-   A: "HTML을 파싱하여 DOM 트리를 생성합니다" (구체적 설명)
+✅ Q: "defer와 async의 차이점은?" (Type A - 비교)
+   A: "defer는 순서를 보장하고, async는 먼저 로드된 순서로 실행됩니다"
 
-✅ Q: "defer 속성을 사용하면 스크립트는 언제 실행되나요?"
-   A: "HTML 파싱이 완료된 후 순서대로 실행됩니다" (동작 설명)
+✅ Q: "언제 Reflow가 발생하나요?" (Type B - 조건)
+   A: "요소의 크기나 위치가 변경될 때 발생합니다"
 
-✅ Q: "CSSOM이 필요한 이유는?"
-   A: "CSS 스타일 정보를 트리 구조로 관리하여 렌더 트리 생성에 사용하기 위해" (목적 설명)
+✅ Q: "Virtual DOM을 사용하는 이유는?" (Type C - 목적)
+   A: "실제 DOM 조작을 최소화하여 성능을 향상시키기 위해"
+
+✅ Q: "CORS 에러를 해결하는 방법은?" (Type D - 해결)
+   A: "서버에서 Access-Control-Allow-Origin 헤더를 설정합니다"
 
 ## BAD Examples:
+❌ Q: "DOM이란?" + "DOM의 원리는?" (중복 - 같은 개념, 비슷한 답변)
+❌ Q: "CORS란?" + "CORS를 설명하세요" (중복 - 표현만 다름)
 ❌ Q: "DOM이 뭔가요?" A: "DOM" (단어만 - 너무 짧음)
 ❌ Q: "다음 빈칸을 채우세요: [___]은 트리 구조이다" (빈칸 채우기 형식 X)
-❌ Q: "HTML 파싱 및 DOM 트리 생성에 대해 설명하세요" (너무 넓은 범위)
 
 CRITICAL:
+- 같은 개념에 대해 1개의 질문만 생성 (중복 금지!)
 - Questions must be answerable without seeing the original document
 - Each answer must be a COMPLETE sentence (20-80 chars)
-- Mix different question types for variety`
+- Use all 5 question types (A, B, C, D, E) for variety`
 }
 
 // ==================================== 문장 모드 답변 일괄 평가 프롬프트 ================================

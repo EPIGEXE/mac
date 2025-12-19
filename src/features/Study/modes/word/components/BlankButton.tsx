@@ -1,7 +1,7 @@
 export interface BlankButtonProps {
-    blankNum: string // Blank의 번호
-    hint: string | null // Blank의 힌트
-    answer: string // Blank의 답변
+    blankNum: string // Blank의 번호 (BLANK_1, BLANK_2, ...)
+    correctAnswer: string // 정답
+    userAnswer: string | undefined // 사용자 답변
     result: boolean | null // Blank의 채점 결과
     currentBlankStringId: string | null // 현재 선택된 Blank의 String ID (BLANK_1, BLANK_2, ...)
     onBlankClick: (blankId: string) => void // Blank 클릭 핸들러
@@ -9,18 +9,21 @@ export interface BlankButtonProps {
 
 export function BlankButton({
     blankNum,
-    hint,
-    answer,
+    correctAnswer,
+    userAnswer,
     result,
     currentBlankStringId,
     onBlankClick,
 }: BlankButtonProps) {
     // ================================ 상수 ================================
-    // blanks의 id는 "1", "2" 형식이므로 blankNum으로 찾음
     const isCurrent = currentBlankStringId === blankNum // Blank가 선택됬는지
-    const isAnswered = answer?.length > 0 // Blank가 답변됬는지
+    const isAnswered = userAnswer !== undefined && userAnswer.length > 0 // Blank가 답변됬는지
     const isCorrect = result === true // Blank가 정답인지
     const isWrong = result === false // Blank가 오답인지
+
+    // blankNum에서 번호 추출 (BLANK_1 -> B01)
+    const blankIndex = blankNum.replace('BLANK_', '')
+    const displayNum = `B${blankIndex.padStart(2, '0')}`
 
     let bgClass = 'bg-[var(--bg-secondary)]'
     let borderClass = 'border-[var(--border-medium)]'
@@ -44,6 +47,12 @@ export function BlankButton({
         bgClass = 'bg-[var(--bg-hover)]'
     }
 
+    // 표시할 텍스트 결정
+    // 채점 완료: 정답 표시
+    // 미채점 + 답변: 사용자 답변 표시
+    // 미답변: 번호 표시
+    const displayText = isAnswered ? correctAnswer : displayNum ;
+
     return (
         <button
             onClick={() => onBlankClick(blankNum)}
@@ -58,11 +67,9 @@ export function BlankButton({
                 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30
             `}
         >
-            {isAnswered ? (
-                <span className="font-medium">{answer}</span>
-            ) : (
-                <span className="opacity-80 text-xs">{hint ? `${hint}...` : '[ ? ]'}</span>
-            )}
+            <span className={result !== null || isAnswered ? 'font-medium' : 'opacity-80 text-xs'}>
+                {displayText}
+            </span>
         </button>
     )
 }

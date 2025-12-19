@@ -39,13 +39,12 @@ export type { RecordStudyInput } from './types';
  */
 export async function saveSession(input: StartSessionInput): Promise<StudySession> {
     return withErrorHandling('startSession', async () => {
-        const now = Date.now();
         const session: StudySession = {
             id: generateId('session'),
             mode: input.mode,
             order: input.order,
             noteIds: input.noteIds,
-            startedAt: now,
+            startedAt: Date.now(),
             endedAt: null,
             totalDuration: 0,
             summary: null,
@@ -68,7 +67,15 @@ export async function closeSession(sessionId: string, summary?: SessionSummary):
         }
 
         const now = Date.now();
-        const totalDuration = Math.floor((now - session.startedAt) / 1000);
+
+        // 학습 기록에서 데이터 조회
+        const records = await db.studyRecords
+            .where('sessionId')
+            .equals(sessionId)
+            .toArray();
+
+        // 학습 기록들의 duration 합계를 totalDuration으로 사용
+        const totalDuration = records.reduce((sum, r) => sum + r.duration, 0);
 
         const updateData: Partial<StudySession> = {
             endedAt: now,
@@ -77,29 +84,22 @@ export async function closeSession(sessionId: string, summary?: SessionSummary):
 
         if (summary) {
             updateData.summary = summary;
-        } else {
+        } else if (records.length > 0) {
             // summary가 없으면 학습 기록에서 자동 계산
-            const records = await db.studyRecords
-                .where('sessionId')
-                .equals(sessionId)
-                .toArray();
+            const totalQuestions = records.reduce((sum, r) => sum + r.totalQuestions, 0);
+            const correctCount = records.reduce((sum, r) => sum + r.correctCount, 0);
+            const wrongCount = records.reduce((sum, r) => sum + r.wrongCount, 0);
+            const totalScore = records.reduce((sum, r) => sum + r.score, 0);
+            const uniqueNoteIds = new Set(records.map(r => r.noteId));
 
-            if (records.length > 0) {
-                const totalQuestions = records.reduce((sum, r) => sum + r.totalQuestions, 0);
-                const correctCount = records.reduce((sum, r) => sum + r.correctCount, 0);
-                const wrongCount = records.reduce((sum, r) => sum + r.wrongCount, 0);
-                const totalScore = records.reduce((sum, r) => sum + r.score, 0);
-                const uniqueNoteIds = new Set(records.map(r => r.noteId));
-
-                updateData.summary = {
-                    totalNotes: session.noteIds.length,
-                    completedNotes: uniqueNoteIds.size,
-                    totalQuestions,
-                    correctCount,
-                    wrongCount,
-                    averageScore: records.length > 0 ? Math.round(totalScore / records.length) : 0,
-                };
-            }
+            updateData.summary = {
+                totalNotes: session.noteIds.length,
+                completedNotes: uniqueNoteIds.size,
+                totalQuestions,
+                correctCount,
+                wrongCount,
+                averageScore: records.length > 0 ? Math.round(totalScore / records.length) : 0,
+            };
         }
 
         await db.studySessions.update(sessionId, updateData);

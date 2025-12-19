@@ -22,7 +22,7 @@ export interface WordQuizLLMResponse {
     blanks: {
         id: string
         answer: string
-        hint: string
+        hint: string // 3지선다 힌트 (쉼표 구분: "option1, option2, option3")
         section?: string
         type?: string
     }[]

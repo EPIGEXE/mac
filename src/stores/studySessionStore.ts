@@ -7,19 +7,36 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { StudyModeType } from '../features/Study/types'
-import { saveSession, closeSession } from '../db/study/studyService'
+import type { WordBlankDetail, SentenceQuestionDetail, EssayStudyRecord } from '../db/schema/study'
+import {
+    saveSession,
+    closeSession,
+    recordWordStudy,
+    recordSentenceStudy,
+    recordEssayStudy,
+} from '../db/study/studyService'
 
 // ================================ 타입 정의 ================================
 
-/** 노트별 결과 */
+/** 노트별 결과 (모드별 상세 정보 포함) */
 export interface NoteResult {
     noteId: string
     noteTitle: string
+    noteType: 'user' | 'system'
+    mode: StudyModeType
     totalQuestions: number
     correctCount: number
     wrongCount: number
     score: number       // 0-100
     duration: number    // 초
+    // 모드별 상세 정보
+    wordDetails?: WordBlankDetail[]
+    sentenceDetails?: {
+        questions: SentenceQuestionDetail[]
+        totalScore: number
+        overallFeedback: string
+    }
+    essayDetails?: EssayStudyRecord['details']
 }
 
 /** 학습 순서 */
@@ -202,7 +219,7 @@ export const useStudySessionStore = create<StudySessionStore>()(
             },
 
             /**
-             * 세션 완료 (이때 DB에 세션 생성 및 종료)
+             * 세션 완료 (DB에 세션 생성 + 학습 기록 일괄 저장 + 세션 종료)
              */
             completeSession: async () => {
                 const { selectedNoteIds, noteResults, mode, order, startedAt } = get()
@@ -210,10 +227,11 @@ export const useStudySessionStore = create<StudySessionStore>()(
                 console.log('[StudySessionStore] completeSession called', {
                     selectedNoteIdsLength: selectedNoteIds.length,
                     noteResultsLength: noteResults.length,
+                    mode,
                 })
 
-                // 완료 시에만 DB에 세션 생성
-                if (mode && startedAt) {
+                // 완료 시에만 DB에 세션 생성 및 학습 기록 저장
+                if (mode && startedAt && noteResults.length > 0) {
                     try {
                         // 1. DB 세션 생성
                         const dbSession = await saveSession({
@@ -222,10 +240,45 @@ export const useStudySessionStore = create<StudySessionStore>()(
                             order,
                         })
 
-                        // 2. 즉시 종료 (summary 자동 계산)
+                        console.log('[StudySessionStore] DB session created', { dbSessionId: dbSession.id })
+
+                        // 2. 학습 기록 일괄 저장 (모드별로 분기)
+                        for (const result of noteResults) {
+                            if (result.mode === 'word' && result.wordDetails) {
+                                await recordWordStudy({
+                                    noteId: result.noteId,
+                                    noteType: result.noteType,
+                                    sessionId: dbSession.id,
+                                    duration: result.duration,
+                                    blanks: result.wordDetails,
+                                })
+                            } else if (result.mode === 'sentence' && result.sentenceDetails) {
+                                await recordSentenceStudy({
+                                    noteId: result.noteId,
+                                    noteType: result.noteType,
+                                    sessionId: dbSession.id,
+                                    duration: result.duration,
+                                    questions: result.sentenceDetails.questions,
+                                    totalScore: result.sentenceDetails.totalScore,
+                                    overallFeedback: result.sentenceDetails.overallFeedback,
+                                })
+                            } else if (result.mode === 'essay' && result.essayDetails) {
+                                await recordEssayStudy({
+                                    noteId: result.noteId,
+                                    noteType: result.noteType,
+                                    sessionId: dbSession.id,
+                                    duration: result.duration,
+                                    ...result.essayDetails,
+                                })
+                            }
+                        }
+
+                        console.log('[StudySessionStore] Study records saved', { count: noteResults.length })
+
+                        // 3. 세션 종료 (summary 자동 계산)
                         await closeSession(dbSession.id)
 
-                        console.log('[StudySessionStore] DB session created and ended', { dbSessionId: dbSession.id })
+                        console.log('[StudySessionStore] DB session closed', { dbSessionId: dbSession.id })
                     } catch (e) {
                         console.error('Failed to save session to DB:', e)
                     }

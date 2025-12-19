@@ -15,6 +15,16 @@ import { systemNotesData } from '../../data/systemNotes';
  * - 버전이 높아진 노트 자동 업데이트
  */
 export async function initializeSystemNotes(): Promise<void> {
+    const isDemo = import.meta.env.VITE_IS_DEMO === 'true';
+
+    // 데모 모드면 시스템 노트 강제 초기화
+    if (isDemo) {
+        await db.systemNotes.clear();
+        await db.systemNotes.bulkAdd(systemNotesData);
+        console.log(`[SystemNotes] Demo mode: force reset ${systemNotesData.length} notes`);
+        return;
+    }
+
     const result = { added: 0, updated: 0, unchanged: 0 };
 
     for (const note of systemNotesData) {

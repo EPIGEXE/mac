@@ -87,11 +87,12 @@ export function BlindedMarkdownContent({
             {/* React Portal로 빈칸 버튼들을 플레이스홀더 위치에 렌더링 */}
             {blankElements.map(({ id, element }) => {
                 const blankKey = `BLANK_${id}`
+                const blankInfo = blanks.find((b) => b.id === id)
                 return createPortal(
                     <BlankButton
                         blankNum={blankKey}
-                        hint={blanks.find((b) => b.id === id)?.hint || null}
-                        answer={answers[blankKey]}
+                        correctAnswer={blankInfo?.answer || ''}
+                        userAnswer={answers[blankKey]}
                         result={results[blankKey]}
                         currentBlankStringId={currentBlankStringId}
                         onBlankClick={onBlankClick}

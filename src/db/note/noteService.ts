@@ -10,12 +10,44 @@ import { generateId } from '../utils/idGenerator';
 // ============================================================================
 
 /**
- * 콘텐츠에서 첫 줄 추출 (제목 # 제외)
+ * 콘텐츠에서 첫 줄 추출 (제목 # 제외, 마크다운 문법 제거)
  */
 function extractFirstLine(content: string): string {
     if (!content) return ''
-    const firstLine = content.split('\n').find((line) => line.trim() && !line.startsWith('#'))
-    return firstLine?.trim() || ''
+
+    // 제목(#)이 아닌 첫 번째 의미있는 줄 찾기
+    const firstLine = content.split('\n').find((line) => {
+        const trimmed = line.trim()
+        // 빈 줄, 제목, 구분선, 코드블록 시작, 테이블 제외
+        return trimmed
+            && !trimmed.startsWith('#')
+            && !trimmed.match(/^(-{3,}|_{3,}|\*{3,})$/)
+            && !trimmed.startsWith('```')
+            && !trimmed.startsWith('|')  // 테이블
+    })
+
+    if (!firstLine) return ''
+
+    // 마크다운 문법 제거
+    const text = firstLine.trim()
+        // 굵게/기울임 제거: **text**, *text*, __text__, _text_
+        .replace(/(\*\*|__)(.*?)\1/g, '$2')
+        .replace(/(\*|_)(.*?)\1/g, '$2')
+        // 인라인 코드 제거: `code`
+        .replace(/`([^`]+)`/g, '$1')
+        // 링크 제거: [text](url) -> text
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+        // 이미지 제거: ![alt](url) -> alt
+        .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
+        // 리스트 마커 제거: -, *, +, 1.
+        .replace(/^[\s]*[-*+]\s+/, '')
+        .replace(/^[\s]*\d+\.\s+/, '')
+        // 인용 제거: >
+        .replace(/^>\s*/, '')
+        // 남은 공백 정리
+        .trim()
+
+    return text
 }
 
 // ============================================================================

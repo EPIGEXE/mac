@@ -37,6 +37,7 @@ export function AnswerInput({
 }: AnswerInputProps) {
     // ================================ 상태 관리 ================================
     const [inputValue, setInputValue] = useState(value) // 정답 입력 값
+    const [showHint, setShowHint] = useState(false) // 힌트 표시 여부
 
     // ================================ Ref ================================
     const inputRef = useRef<HTMLInputElement>(null) // 입력창 참조, 포커스 관리용
@@ -51,6 +52,7 @@ export function AnswerInput({
     // blankId 변경 시 입력값 초기화 및 포커스
     useEffect(() => {
         setInputValue(value)
+        setShowHint(false) // 힌트 상태 초기화
         inputRef.current?.focus()
     }, [blankId, value])
 
@@ -74,8 +76,23 @@ export function AnswerInput({
                         <Badge>
                             B{String(blankIndex).padStart(2, '0')}
                         </Badge>
-                        {hint && (
-                            <span className="font-mono text-sm text-[var(--text-secondary)]">
+                        {hint && !isAnswered && (
+                            showHint ? (
+                                <span className="font-mono text-sm text-[var(--text-secondary)]">
+                                    // {hint}
+                                </span>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => setShowHint(true)}
+                                    className="font-mono text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors cursor-pointer"
+                                >
+                                    [3지 선다 힌트]
+                                </button>
+                            )
+                        )}
+                        {hint && isAnswered && (
+                            <span className="font-mono text-sm text-[var(--text-tertiary)]">
                                 // {hint}
                             </span>
                         )}

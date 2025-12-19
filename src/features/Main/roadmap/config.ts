@@ -1,15 +1,100 @@
 import type { TopicFilter, SectionDef, CategoryNodeDef, EdgeDef } from './types';
+import roadmapTree from './roadmapTree.json';
+
+// ============================================================================
+// 트리 타입 정의
+// ============================================================================
+
+/** 트리 노드 정의 */
+interface TreeNodeDef {
+    label: string;
+    dashed?: boolean;
+    children?: Record<string, TreeNodeDef>;
+}
+
+/** 섹션 트리 정의 */
+interface SectionTreeDef {
+    label: string;
+    children: Record<string, TreeNodeDef>;
+}
+
+// 타입 단언 (JSON import)
+const tree = roadmapTree as Record<string, SectionTreeDef>;
+
+// ============================================================================
+// 트리 → 플랫 구조 변환 (layout.ts에서 사용)
+// ============================================================================
+
+/** 트리에서 섹션 목록 추출 */
+function buildSections(): SectionDef[] {
+    return Object.entries(tree).map(([id, section]) => ({
+        id,
+        label: section.label,
+    }));
+}
+
+/** 트리에서 카테고리 노드 추출 */
+function buildCategoryNodes(): CategoryNodeDef[] {
+    const nodes: CategoryNodeDef[] = [];
+
+    function traverse(sectionId: string, subtree: Record<string, TreeNodeDef>) {
+        Object.entries(subtree).forEach(([id, node]) => {
+            nodes.push({ id, label: node.label, section: sectionId });
+            if (node.children) {
+                traverse(sectionId, node.children);
+            }
+        });
+    }
+
+    Object.entries(tree).forEach(([sectionId, section]) => {
+        traverse(sectionId, section.children);
+    });
+
+    return nodes;
+}
+
+/** 트리에서 엣지 추출 */
+function buildEdges(): EdgeDef[] {
+    const edges: EdgeDef[] = [];
+
+    function traverse(parentId: string | null, subtree: Record<string, TreeNodeDef>) {
+        Object.entries(subtree).forEach(([id, node]) => {
+            if (parentId) {
+                edges.push({ from: parentId, to: id, dashed: node.dashed });
+            }
+            if (node.children) {
+                traverse(id, node.children);
+            }
+        });
+    }
+
+    Object.values(tree).forEach((section) => {
+        traverse(null, section.children);
+    });
+
+    return edges;
+}
+
+// 캐시된 결과 (매번 재계산 방지)
+export const sections = buildSections();
+export const categoryNodes = buildCategoryNodes();
+export const edgeDefinitions = buildEdges();
+
+// ============================================================================
+// 기타 설정
+// ============================================================================
 
 // 카테고리 매핑 (노드 id → 실제 카테고리명)
 export const categoryMapping: Record<string, string> = {
-    'cs': 'CS',
-    'html': 'HTML',
-    'css': 'CSS',
-    'javascript': 'JavaScript',
-    'typescript': 'TypeScript',
-    'react': 'React',
-    'performance': 'Performance',
-    'security': 'Security',
+    cs: 'CS',
+    html: 'HTML',
+    css: 'CSS',
+    javascript: 'JavaScript',
+    typescript: 'TypeScript',
+    react: 'React',
+    performance: 'Performance',
+    security: 'Security',
+    browser: 'Browser',
 };
 
 // TopicFilter → 섹션 ID 매핑
@@ -20,76 +105,16 @@ export const filterToSections: Record<TopicFilter, string[]> = {
     backend: ['be'],
 };
 
-// 섹션 정의
-export const sections: SectionDef[] = [
-    { id: 'cs', label: 'CS 기초' },
-    { id: 'fe', label: '프론트엔드' },
-    { id: 'be', label: '백엔드 / 공통' },
-];
-
-// 카테고리 노드 정의
-export const categoryNodes: CategoryNodeDef[] = [
-    // CS 기초
-    { id: 'cs', label: 'CS 기초', section: 'cs' },
-    { id: 'network', label: '네트워크', section: 'cs' },
-    { id: 'os', label: '운영체제', section: 'cs' },
-    { id: 'database', label: '데이터베이스', section: 'cs' },
-    // 프론트엔드
-    { id: 'internet', label: '인터넷', section: 'fe' },
-    { id: 'html', label: 'HTML', section: 'fe' },
-    { id: 'css', label: 'CSS', section: 'fe' },
-    { id: 'sass', label: 'Sass', section: 'fe' },
-    { id: 'tailwind', label: 'Tailwind', section: 'fe' },
-    { id: 'javascript', label: 'JavaScript', section: 'fe' },
-    { id: 'typescript', label: 'TypeScript', section: 'fe' },
-    { id: 'npm', label: 'npm/yarn', section: 'fe' },
-    { id: 'bundler', label: '번들러', section: 'fe' },
-    { id: 'vite', label: 'Vite', section: 'fe' },
-    { id: 'react', label: 'React', section: 'fe' },
-    { id: 'nextjs', label: 'Next.js', section: 'fe' },
-    { id: 'state', label: '상태관리', section: 'fe' },
-    { id: 'testing', label: '테스팅', section: 'fe' },
-    // 백엔드 / 공통
-    { id: 'performance', label: 'Performance', section: 'be' },
-    { id: 'security', label: 'Security', section: 'be' },
-    { id: 'deploy', label: '배포', section: 'be' },
-];
-
-// 엣지 정의
-export const edgeDefinitions: EdgeDef[] = [
-    // CS
-    { from: 'cs', to: 'network', dashed: true },
-    { from: 'cs', to: 'os', dashed: true },
-    { from: 'cs', to: 'database', dashed: true },
-    // 프론트엔드
-    { from: 'internet', to: 'html' },
-    { from: 'html', to: 'css' },
-    { from: 'css', to: 'sass', dashed: true },
-    { from: 'css', to: 'tailwind', dashed: true },
-    { from: 'css', to: 'javascript' },
-    { from: 'javascript', to: 'typescript', dashed: true },
-    { from: 'javascript', to: 'npm', dashed: true },
-    { from: 'javascript', to: 'bundler' },
-    { from: 'bundler', to: 'vite', dashed: true },
-    { from: 'bundler', to: 'react' },
-    { from: 'react', to: 'nextjs', dashed: true },
-    { from: 'react', to: 'state', dashed: true },
-    { from: 'react', to: 'testing', dashed: true },
-    // 백엔드
-    { from: 'performance', to: 'security', dashed: true },
-    { from: 'security', to: 'deploy', dashed: true },
-];
-
 // 레이아웃 상수
 export const LAYOUT = {
-    nodeWidth: 180,
+    nodeWidth: 200,
     sectionHeaderWidth: 180,
-    sectionSpacing: 120,
+    sectionSpacing: 180,
     dagre: {
         rankdir: 'TB' as const,
-        ranksep: 40,
-        nodesep: 20,
-        marginx: 16,
-        marginy: 16,
+        ranksep: 60,   // 레벨 간 간격 (위아래)
+        nodesep: 50,   // 같은 레벨 노드 간 간격 (좌우)
+        marginx: 20,
+        marginy: 20,
     },
 };

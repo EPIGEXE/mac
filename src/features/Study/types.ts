@@ -15,7 +15,7 @@ export type DifficultyLevel = 'easy' | 'medium' | 'hard'
 export interface BlankInfo {
     id: string           // 1, 2, 3, ... (숫자 문자열)
     answer: string       // 정답 키워드 (원본에서 이 단어를 모두 blind 처리)
-    hint?: string        // 힌트 (설명)
+    hint?: string        // 3지선다 힌트 (쉼표 구분: "option1, option2, option3")
 }
 
 /**

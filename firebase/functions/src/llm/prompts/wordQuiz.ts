@@ -143,12 +143,16 @@ ${content}
 ## Output Format
 - Select individual technical keywords (1-3 words each)
 - Return ONLY the keywords to be blanked (client will apply them to original content)
-- Hint: Create a short, descriptive hint (max 10 characters in Korean or short English phrase) for the answer keyword.
+- Hint: Provide 3 multiple choice options as a comma-separated string (including the correct answer)
+  - One option MUST be the correct answer
+  - Two options should be plausible but incorrect distractors (related concepts from the same domain)
+  - Shuffle the order randomly (correct answer should NOT always be first)
+  - Format: "option1, option2, option3"
 
 Return ONLY valid JSON:
 {
   "blanks": [
-    { "id": "1", "answer": "keyword (1-3 words)", "hint": "hint text", "section": "section name", "type": "process|definition|comparison|code|effect" }
+    { "id": "1", "answer": "keyword", "hint": "option1, option2, option3", "section": "section name", "type": "process|definition|comparison|code|effect" }
   ]
 }
 

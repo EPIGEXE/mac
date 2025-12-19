@@ -144,9 +144,10 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
 
             const response = await evaluateMutation.mutateAsync({ blanks: questionsToEvaluate })
 
-            // 결과 저장
+            // 결과 저장 (90점 이상은 100점으로 보정 - LLM이 100점을 잘 안 줌)
             setEvaluationResults(response.results)
-            setTotalScore(response.totalScore)
+            const adjustedScore = response.totalScore >= 90 ? 100 : response.totalScore
+            setTotalScore(adjustedScore)
             setOverallFeedback(response.overallFeedback)
 
             // results 맵도 업데이트 (학습 기록용)

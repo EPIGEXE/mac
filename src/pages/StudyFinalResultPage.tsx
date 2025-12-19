@@ -32,19 +32,23 @@ export function StudyFinalResultPage() {
     const getTotalStats = useStudySessionStore((state) => state.getTotalStats) // 전체 통계 계산
     const resetSession = useStudySessionStore((state) => state.resetSession) // 세션 초기화
     const startSession = useStudySessionStore((state) => state.startSession) // 세션 시작
+    const completeSession = useStudySessionStore((state) => state.completeSession) // 세션 완료 (DB 저장)
 
     // 통계 계산
     const stats = getTotalStats()
     const isPerfect = stats.averageScore >= 90
 
-    // 학습 완료 추적 (한 번만)
+    // 세션 완료 및 학습 완료 추적 (한 번만)
     const trackedRef = useRef(false)
     useEffect(() => {
         if (!trackedRef.current && noteResults.length > 0) {
             trackedRef.current = true
+            // DB에 세션 저장
+            completeSession()
+            // 분석 추적
             analytics.studyComplete(stats.totalDuration * 1000, stats.averageScore, noteResults.length)
         }
-    }, [noteResults.length, stats.totalDuration, stats.averageScore])
+    }, [noteResults.length, stats.totalDuration, stats.averageScore, completeSession])
 
     // 복습 필요 노트 (60% 미만)
     const needsReviewNotes = useMemo(() => {

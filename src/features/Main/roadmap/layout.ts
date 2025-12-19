@@ -145,50 +145,52 @@ function createNodes(
     return nodes;
 }
 
+// 엣지 스타일 생성 헬퍼
+function createEdgeStyle(dashed?: boolean) {
+    const color = dashed ? 'var(--text-tertiary)' : 'var(--accent)';
+    return {
+        style: {
+            stroke: color,
+            strokeWidth: dashed ? 1.5 : 2,
+            strokeDasharray: dashed ? '6,4' : undefined,
+        },
+        markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color,
+            width: 14,
+            height: 14,
+        },
+    };
+}
+
 // ReactFlow 엣지 생성
 function createEdges(layoutDataList: LayoutData[]): Edge[] {
     const edges: Edge[] = [];
 
     layoutDataList.forEach((data) => {
         const { section, cats } = data;
+        const catIds = new Set(cats.map((c) => c.id));
 
         // 섹션 → 첫 카테고리 엣지
+        const sectionEdgeStyle = createEdgeStyle(false);
         edges.push({
             id: `edge-section-${section.id}-${cats[0].id}`,
             source: `section-${section.id}`,
             target: cats[0].id,
             type: 'smoothstep',
-            style: { stroke: 'var(--accent)', strokeWidth: 1.5 },
-            markerEnd: {
-                type: MarkerType.ArrowClosed,
-                color: 'var(--accent)',
-                width: 16,
-                height: 16,
-            },
+            ...sectionEdgeStyle,
         });
 
         // 카테고리 간 엣지
-        const catIds = new Set(cats.map((c) => c.id));
         edgeDefinitions.forEach((edge) => {
             if (catIds.has(edge.from) && catIds.has(edge.to)) {
+                const edgeStyle = createEdgeStyle(edge.dashed);
                 edges.push({
                     id: `edge-${edge.from}-${edge.to}`,
                     source: edge.from,
                     target: edge.to,
                     type: 'smoothstep',
-                    style: {
-                        stroke: edge.dashed ? 'var(--border-medium)' : 'var(--accent)',
-                        strokeWidth: edge.dashed ? 1 : 1.5,
-                        strokeDasharray: edge.dashed ? '4,4' : undefined,
-                    },
-                    markerEnd: edge.dashed
-                        ? undefined
-                        : {
-                              type: MarkerType.ArrowClosed,
-                              color: 'var(--accent)',
-                              width: 16,
-                              height: 16,
-                          },
+                    ...edgeStyle,
                 });
             }
         });

@@ -14,6 +14,7 @@ import { getErrorMessage } from '../utils/errorHandler'
 interface NoteStore {
     notes: Note[] // 노트 목록
     isLoaded: boolean // 노트 로드 완료 여부
+    isInitialized: boolean // 노트 서비스 초기화 완료 여부 (1회만 수행)
     selectedNoteId: string | null // 선택된 노트 ID
     selectedNoteType: 'system' | 'user' | null // 선택된 노트 타입
 
@@ -33,13 +34,17 @@ interface NoteStore {
 export const useNoteStore = create<NoteStore>((set, get) => ({
     notes: [],
     isLoaded: false,
+    isInitialized: false,
     selectedNoteId: null,
     selectedNoteType: null,
 
     loadNotes: async () => {
         try {
-            // 노트 서비스 초기화 (systemNotes 로드)
-            await initializeNoteService()
+            // 노트 서비스 초기화 (1회만 수행)
+            if (!get().isInitialized) {
+                await initializeNoteService()
+                set({ isInitialized: true })
+            }
 
             // 모든 노트 조회 (system + user 통합)
             const notes = await getAllNotes()

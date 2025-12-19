@@ -5,6 +5,9 @@ import { useStudySessionStore } from './studySessionStore'
 vi.mock('../db/study/studyService', () => ({
     saveSession: vi.fn().mockResolvedValue({ id: 'mock-session-id' }),
     closeSession: vi.fn().mockResolvedValue({}),
+    recordWordStudy: vi.fn().mockResolvedValue({}),
+    recordSentenceStudy: vi.fn().mockResolvedValue({}),
+    recordEssayStudy: vi.fn().mockResolvedValue({}),
 }))
 
 // ================================ 테스트 ================================
@@ -162,6 +165,8 @@ describe('studySessionStore', () => {
             recordNoteResult({
                 noteId: 'note-1',
                 noteTitle: 'Test Note',
+                noteType: 'user',
+                mode: 'word',
                 totalQuestions: 10,
                 correctCount: 8,
                 wrongCount: 2,
@@ -189,6 +194,8 @@ describe('studySessionStore', () => {
             recordNoteResult({
                 noteId: 'note-1',
                 noteTitle: 'Note 1',
+                noteType: 'user',
+                mode: 'word',
                 totalQuestions: 10,
                 correctCount: 8,
                 wrongCount: 2,
@@ -199,6 +206,8 @@ describe('studySessionStore', () => {
             recordNoteResult({
                 noteId: 'note-2',
                 noteTitle: 'Note 2',
+                noteType: 'user',
+                mode: 'word',
                 totalQuestions: 5,
                 correctCount: 5,
                 wrongCount: 0,
@@ -209,6 +218,8 @@ describe('studySessionStore', () => {
             recordNoteResult({
                 noteId: 'note-3',
                 noteTitle: 'Note 3',
+                noteType: 'user',
+                mode: 'word',
                 totalQuestions: 5,
                 correctCount: 3,
                 wrongCount: 2,
@@ -268,6 +279,8 @@ describe('studySessionStore', () => {
             recordNoteResult({
                 noteId: 'note-1',
                 noteTitle: 'Test',
+                noteType: 'user',
+                mode: 'word',
                 totalQuestions: 5,
                 correctCount: 3,
                 wrongCount: 2,

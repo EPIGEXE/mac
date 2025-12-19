@@ -7,9 +7,6 @@ import { useEffect } from 'react'
 import type { Note } from '../../../../db/schema/note'
 import { useWordQuiz } from './hooks/useWordQuiz'
 import { useQuizNavigation } from '../../hooks/useQuizNavigation'
-import { recordWordStudy } from '../../../../db/study/studyService'
-import type { RecordWordStudyInput } from '../../../../db/study/types'
-import type { WordBlankDetail } from '../../../../db/schema/study'
 import { useStudySessionStore } from '../../../../stores/studySessionStore'
 import { NoteHeader } from '../../../../components/common/NoteHeader'
 import { BlindedMarkdownContent } from './components/BlindedMarkdownContent'
@@ -80,24 +77,19 @@ export function WordQuizContainer({ note, onNext }: WordQuizContainerProps) {
         startQuiz()
     }, [note.id])
 
-    // Store에서 결과 기록 함수와 DB 세션 ID 가져오기
+    // Store에서 결과 기록 함수 가져오기
     const recordNoteResult = useStudySessionStore((state) => state.recordNoteResult)
-    const getDbSessionId = useStudySessionStore((state) => state.getDbSessionId)
-    const completeSession = useStudySessionStore((state) => state.completeSession)
 
-    // 결과 화면 진입 시 학습 기록 저장
+    // 결과 화면 진입 시 메모리에 학습 결과 저장 (DB 저장은 세션 완료 시)
     useEffect(() => {
         console.log('[WordQuizContainer] phase changed', { phase, noteId: note.id, totalBlanks, correctCount, wrongCount })
         if (phase === 'result') {
-            console.log('[WordQuizContainer] Recording result...', { noteId: note.id })
+            console.log('[WordQuizContainer] Recording result to memory...', { noteId: note.id })
             const duration = getDuration()
             const score = totalBlanks > 0 ? Math.round((correctCount / totalBlanks) * 100) : 0
 
-            // DB에 기록 (새로운 모드별 함수 사용)
-            const dbSessionId = getDbSessionId()
-
             // blanks와 answers, results를 WordBlankDetail[]로 변환
-            const blankDetails: WordBlankDetail[] = blanks.map((blank) => {
+            const wordDetails = blanks.map((blank) => {
                 const blankKey = `BLANK_${blank.id}`
                 return {
                     blankId: blank.id,
@@ -108,30 +100,23 @@ export function WordQuizContainer({ note, onNext }: WordQuizContainerProps) {
                 }
             })
 
-            const input: RecordWordStudyInput = {
-                noteId: note.id,
-                noteType,
-                sessionId: dbSessionId || `session-${Date.now()}`,
-                duration,
-                blanks: blankDetails,
-            }
-            recordWordStudy(input).catch((e) => console.error('Failed to record study:', e))
-
+            // 메모리에 결과 저장 (DB 저장은 completeSession에서 일괄 처리)
             recordNoteResult({
                 noteId: note.id,
                 noteTitle: note.title,
+                noteType,
+                mode: 'word',
                 totalQuestions: totalBlanks,
                 correctCount,
                 wrongCount,
                 score,
                 duration,
+                wordDetails,
             })
 
-            // 세션 완료 (DB에 저장)
-            completeSession()
-            console.log('[WordQuizContainer] Result recorded and session completed', { noteId: note.id })
+            console.log('[WordQuizContainer] Result recorded to memory', { noteId: note.id })
         }
-    }, [phase, note.id, note.title, noteType, totalBlanks, correctCount, wrongCount, blanks, answers, results, getDuration, recordNoteResult, getDbSessionId, completeSession])
+    }, [phase, note.id, note.title, noteType, totalBlanks, correctCount, wrongCount, blanks, answers, results, getDuration, recordNoteResult])
 
     // 로딩 화면
     if (phase === 'loading') {

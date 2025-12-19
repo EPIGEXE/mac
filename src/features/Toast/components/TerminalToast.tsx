@@ -57,7 +57,7 @@ export function TerminalToast() {
         }
         hideTimeoutRef.current = window.setTimeout(() => {
             clearLogs()
-        }, 3000)
+        }, 5000)
     }, [clearLogs])
 
     // 자동 숨김 타이머 (hover 중이 아닐 때만)

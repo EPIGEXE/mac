@@ -12,6 +12,8 @@ import viteContent from './vite.md?raw'
 import customHooksContent from './customhooks.md?raw'
 import componentDesignContent from './component-design.md?raw'
 import portalContent from './portal.md?raw'
+import tanstackQueryContent from './tanstack-query.md?raw'
+import suspenseContent from './suspense.md?raw'
 
 export const reactNotes: SystemNote[] = [
     {
@@ -166,6 +168,34 @@ export const reactNotes: SystemNote[] = [
             interview: TAG.INTERVIEW.common,
         },
         order: 12,
+        createdAt: Date.now(),
+    },
+    {
+        id: 'sys-react-tanstack-query',
+        version: 1,
+        title: 'TanStack Query',
+        content: tanstackQueryContent,
+        category: CATEGORY.React,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.good,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 13,
+        createdAt: Date.now(),
+    },
+    {
+        id: 'sys-react-suspense',
+        version: 1,
+        title: 'React Suspense',
+        content: suspenseContent,
+        category: CATEGORY.React,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.good,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 14,
         createdAt: Date.now(),
     }
 ]

@@ -16,7 +16,7 @@ export type SessionStatus = 'in_progress' | 'completed' | 'abandoned'
 export interface BlankInfo {
     id: string           // BLANK_1, BLANK_2, ...
     answer: string       // 정답
-    hint?: string        // 힌트 (첫 글자 등)
+    hint?: string        // 3지선다 힌트 (쉼표 구분)
     position: number     // 원본 텍스트에서의 위치 (순서)
 }
 
