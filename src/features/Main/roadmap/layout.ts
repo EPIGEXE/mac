@@ -7,6 +7,7 @@ import {
     sections,
     categoryNodes,
     edgeDefinitions,
+    sectionRootNodes,
     LAYOUT,
 } from './config';
 
@@ -57,24 +58,27 @@ function calculateSectionLayout(
 
     dagre.layout(g);
 
-    // 섹션 너비 계산
+    // 섹션 너비/높이 계산 (전체 그래프 기준)
     let minX = Infinity,
-        maxX = -Infinity;
+        maxX = -Infinity,
+        minY = Infinity;
     cats.forEach((cat) => {
         const pos = g.node(cat.id);
         minX = Math.min(minX, pos.x - pos.width / 2);
         maxX = Math.max(maxX, pos.x + pos.width / 2);
+        minY = Math.min(minY, pos.y - pos.height / 2);
     });
 
-    const rootPos = g.node(cats[0].id);
+    // 그래프 전체의 중심 X와 최상단 Y 계산
+    const graphCenterX = (minX + maxX) / 2;
 
     return {
         section,
         cats,
         graph: g,
         width: maxX - minX,
-        rootCenterX: rootPos.x,
-        rootTopY: rootPos.y - rootPos.height / 2,
+        rootCenterX: graphCenterX,
+        rootTopY: minY,
     };
 }
 
@@ -171,14 +175,19 @@ function createEdges(layoutDataList: LayoutData[]): Edge[] {
         const { section, cats } = data;
         const catIds = new Set(cats.map((c) => c.id));
 
-        // 섹션 → 첫 카테고리 엣지
+        // 섹션 → 모든 루트 카테고리 엣지 (섹션의 직계 자식들)
         const sectionEdgeStyle = createEdgeStyle(false);
-        edges.push({
-            id: `edge-section-${section.id}-${cats[0].id}`,
-            source: `section-${section.id}`,
-            target: cats[0].id,
-            type: 'smoothstep',
-            ...sectionEdgeStyle,
+        const rootNodeIds = sectionRootNodes[section.id] || [];
+        rootNodeIds.forEach((rootId) => {
+            if (catIds.has(rootId)) {
+                edges.push({
+                    id: `edge-section-${section.id}-${rootId}`,
+                    source: `section-${section.id}`,
+                    target: rootId,
+                    type: 'smoothstep',
+                    ...sectionEdgeStyle,
+                });
+            }
         });
 
         // 카테고리 간 엣지

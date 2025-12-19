@@ -14,6 +14,7 @@ import componentDesignContent from './component-design.md?raw'
 import portalContent from './portal.md?raw'
 import tanstackQueryContent from './tanstack-query.md?raw'
 import suspenseContent from './suspense.md?raw'
+import react19Content from './react19.md?raw'
 
 export const reactNotes: SystemNote[] = [
     {
@@ -196,6 +197,20 @@ export const reactNotes: SystemNote[] = [
             interview: TAG.INTERVIEW.common,
         },
         order: 14,
+        createdAt: Date.now(),
+    },
+    {
+        id: 'sys-react-react19',
+        version: 1,
+        title: 'React 19 주요 변경 사항',
+        content: react19Content,
+        category: CATEGORY.React,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.good,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 15,
         createdAt: Date.now(),
     }
 ]

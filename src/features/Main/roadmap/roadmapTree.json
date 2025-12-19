@@ -2,8 +2,11 @@
     "cs": {
         "label": "CS 기초",
         "children": {
-            "cs": {
-                "label": "CS 기초"
+            "hardwareSystem": {
+                "label": "하드웨어 & 시스템"
+            },
+            "algorithms": {
+                "label": "알고리즘"
             }
         }
     },
@@ -19,20 +22,8 @@
                         "label": "JavaScript",
                         "children": {
                             "typescript": { "label": "TypeScript", "dashed": true },
-                            "npm": { "label": "npm/yarn", "dashed": true },
-                            "bundler": {
-                                "label": "번들러",
-                                "children": {
-                                    "vite": { "label": "Vite", "dashed": true },
-                                    "react": {
-                                        "label": "React",
-                                        "children": {
-                                            "nextjs": { "label": "Next.js", "dashed": true },
-                                            "state": { "label": "상태관리", "dashed": true },
-                                            "testing": { "label": "테스팅", "dashed": true }
-                                        }
-                                    }
-                                }
+                            "react": {
+                                "label": "React"
                             }
                         }
                     }
@@ -43,12 +34,8 @@
     "be": {
         "label": "백엔드 / 공통",
         "children": {
-            "performance": {
-                "label": "Performance",
-                "children": {
-                    "security": { "label": "Security", "dashed": true },
-                    "deploy": { "label": "배포", "dashed": true }
-                }
+            "security": {
+                "label": "security"
             }
         }
     }

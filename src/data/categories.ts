@@ -6,17 +6,17 @@
 
 // 상위 카테고리 구조 (단일 소스)
 export const mainCategories = [
-    { id: 'cs', label: 'CS', categories: ['CS'] as const },
+    { id: 'cs', label: 'CS', categories: ['HardwareSystem', 'Algorithms'] as const },
     { id: 'frontend', label: '프론트엔드', categories: ['Browser', 'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React'] as const },
-    { id: 'backend', label: '백엔드', categories: ['Performance', 'Security'] as const },
+    { id: 'backend', label: '백엔드', categories: ['Security'] as const },
 ] as const
 
 // 카테고리 타입
-// (CS | HTML | CSS | JavaScript | TypeScript | React | Performance | Security ...)
+// (CS | HTML | CSS | JavaScript | TypeScript | React | Security ...)
 export type Category = (typeof mainCategories)[number]['categories'][number]
 
 // 전체 카테고리 flat 배열
-// ('CS', 'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Performance', 'Security' ...)
+// ('CS', 'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Security' ...)
 export const categories: Category[] = mainCategories.flatMap((m) => [...m.categories])
 
 // 카테고리 상수 객체 (CATEGORY.HTML 형태로 사용)

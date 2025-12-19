@@ -1,11 +1,13 @@
-import { useState, useEffect, lazy, Suspense } from 'react'
+import { useState, useEffect, lazy, Suspense, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useNoteStore } from '../stores/noteStore'
 import { useStudySessionStore } from '../stores/studySessionStore'
 import { categories, mainCategories, type Category } from '../data/categories'
 import { MainHeader } from '../features/Main/MainHeader'
 import { StudyCTABanner } from '../features/Main/StudyCTABanner'
+import { NoteSearch, type TagFilter } from '../features/Main/NoteSearch'
 import { ListView } from '../features/Main/ListView/ListView'
+import { LoadingSpinner } from '../components/common/LoadingSpinner'
 import { analytics } from '../lib/analytics'
 import type { ViewMode } from '../features/Main/MainHeader'
 
@@ -30,6 +32,8 @@ export function MainPage() {
     // ==================================== 상태 관리 =====================================
     const [viewMode, setViewMode] = useState<ViewMode>('list') // 뷰 모드 (리스트 / 맵)
     const [topicFilter, setTopicFilter] = useState<TopicFilter>('all') // 대주제 필터 (전체 / CS / 프론트엔드 / 백엔드)
+    const [searchQuery, setSearchQuery] = useState('') // 검색어
+    const [tagFilter, setTagFilter] = useState<TagFilter>({}) // 태그 필터
 
     // 뷰 모드 변경 핸들러 (GA 추적 포함)
     const handleViewModeChange = (mode: ViewMode) => {
@@ -57,17 +61,52 @@ export function MainPage() {
     }, [loadNotes])
 
     // ==================================== 상수 =====================================
-    const topicCategories: Record<TopicFilter, readonly Category[]> = {
-        all: categories,
-        cs: mainCategories[0].categories,
-        frontend: mainCategories[1].categories,
-        backend: mainCategories[2].categories,
-    }
+    // 필터링된 카테고리 (메모이제이션)
+    const filteredCategories = useMemo(() => {
+        const topicCategories: Record<TopicFilter, readonly Category[]> = {
+            all: categories,
+            cs: mainCategories[0].categories,
+            frontend: mainCategories[1].categories,
+            backend: mainCategories[2].categories,
+        }
+        return [...topicCategories[topicFilter]]
+    }, [topicFilter])
 
-    const filteredCategories = [...topicCategories[topicFilter]] // 필터링된 카테고리
-    const filteredNotes = notes.filter((n) =>
-        filteredCategories.includes(n.category as (typeof filteredCategories)[number])
-    ) // 필터링된 노트
+    // 검색어와 태그로 필터링된 노트
+    const filteredNotes = useMemo(() => {
+        let result = notes.filter((n) =>
+            filteredCategories.includes(n.category as (typeof filteredCategories)[number])
+        )
+
+        // 태그 필터 적용 (system note의 tag만 해당)
+        if (tagFilter.level) {
+            result = result.filter((n) => n.tag?.level === tagFilter.level)
+        }
+        if (tagFilter.importance) {
+            result = result.filter((n) => n.tag?.importance === tagFilter.importance)
+        }
+        if (tagFilter.interview) {
+            result = result.filter((n) => n.tag?.interview === tagFilter.interview)
+        }
+
+        // 검색어가 있으면 제목으로 필터링
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase()
+            result = result.filter((n) => n.title.toLowerCase().includes(query))
+        }
+
+        return result
+    }, [notes, filteredCategories, tagFilter, searchQuery])
+
+    // 검색 핸들러
+    const handleSearch = useCallback((query: string) => {
+        setSearchQuery(query)
+    }, [])
+
+    // 태그 필터 핸들러
+    const handleTagFilter = useCallback((filter: TagFilter) => {
+        setTagFilter(filter)
+    }, [])
 
     // ==================================== 핸들러 =====================================
     // 노트 생성
@@ -96,7 +135,7 @@ export function MainPage() {
                     onTopicFilterChange={handleTopicFilterChange}
                 />
                 <div className="flex-1 min-h-0">
-                    <Suspense fallback={null}>
+                    <Suspense fallback={<LoadingSpinner message="Loading roadmap..." size="lg" fullScreen />}>
                         <RoadmapView notes={filteredNotes} onNoteClick={handleNoteClick} topicFilter={topicFilter} />
                     </Suspense>
                 </div>
@@ -115,6 +154,15 @@ export function MainPage() {
             />
 
             <div className="py-8 px-6">
+                <div className="main-container mb-6">
+                    <NoteSearch
+                        onSearch={handleSearch}
+                        onTagFilter={handleTagFilter}
+                        tagFilter={tagFilter}
+                        placeholder="노트 제목 검색..."
+                    />
+                </div>
+
                 <div className="main-container mb-8">
                     <StudyCTABanner />
                 </div>

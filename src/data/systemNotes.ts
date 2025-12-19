@@ -5,9 +5,9 @@
 // ============================================================================
 
 import type { SystemNote } from "../db/schema/note";
-import { performanceNotes } from "./systemNotes/backend/performance";
 import { securityNotes } from "./systemNotes/backend/security";
-import { csNotes } from "./systemNotes/cs/cs";
+import { algorithmsNotes } from "./systemNotes/cs/algorithms";
+import { systemsAndArchitectureNotes } from "./systemNotes/cs/systemsAndArchitecture";
 import { browserNotes } from "./systemNotes/frontend/browser";
 import { cssNotes } from "./systemNotes/frontend/css";
 import { htmlNotes } from "./systemNotes/frontend/html";
@@ -68,7 +68,7 @@ export const systemNotesData: SystemNote[] = processSystemNotes([
     ...javascriptNotes,
     ...reactNotes,
     ...typescriptNotes,
-    ...csNotes,
-    ...performanceNotes,
     ...securityNotes,
+    ...systemsAndArchitectureNotes,
+    ...algorithmsNotes,
 ])

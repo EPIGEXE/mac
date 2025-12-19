@@ -75,10 +75,22 @@ function buildEdges(): EdgeDef[] {
     return edges;
 }
 
+/** 섹션별 루트 노드 ID 추출 (섹션의 직계 자식들) */
+function buildSectionRootNodes(): Record<string, string[]> {
+    const rootNodes: Record<string, string[]> = {};
+
+    Object.entries(tree).forEach(([sectionId, section]) => {
+        rootNodes[sectionId] = Object.keys(section.children);
+    });
+
+    return rootNodes;
+}
+
 // 캐시된 결과 (매번 재계산 방지)
 export const sections = buildSections();
 export const categoryNodes = buildCategoryNodes();
 export const edgeDefinitions = buildEdges();
+export const sectionRootNodes = buildSectionRootNodes();
 
 // ============================================================================
 // 기타 설정
@@ -95,6 +107,8 @@ export const categoryMapping: Record<string, string> = {
     performance: 'Performance',
     security: 'Security',
     browser: 'Browser',
+    hardwareSystem: 'HardwareSystem',
+    algorithms: 'Algorithms',
 };
 
 // TopicFilter → 섹션 ID 매핑
