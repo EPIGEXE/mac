@@ -10,6 +10,7 @@ import urlInputContent from './urlInput.md?raw'
 import csrAndSsrContent from './csrAndSsr.md?raw'
 import eventPropagationContent from './eventPropagation.md?raw'
 import websocketContent from './websocket.md?raw'
+import httpContent from './http.md?raw'
 
 export const browserNotes: SystemNote[] = [
     {
@@ -150,6 +151,20 @@ export const browserNotes: SystemNote[] = [
             interview: TAG.INTERVIEW.common,
         },
         order: 10,
+        createdAt: Date.now(),
+    },
+    {
+        id: 'sys-browser-http',
+        version: 1,
+        title: 'HTTP와 REST API',
+        content: httpContent,
+        category: CATEGORY.Browser,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.useful,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 11,
         createdAt: Date.now(),
     }
 ]

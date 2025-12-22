@@ -15,6 +15,8 @@ import portalContent from './portal.md?raw'
 import tanstackQueryContent from './tanstack-query.md?raw'
 import suspenseContent from './suspense.md?raw'
 import react19Content from './react19.md?raw'
+import reduxContent from './redux.md?raw'
+import canvasContent from './canvas.md?raw'
 
 export const reactNotes: SystemNote[] = [
     {
@@ -212,5 +214,33 @@ export const reactNotes: SystemNote[] = [
         },
         order: 15,
         createdAt: Date.now(),
-    }
+    },
+    {
+        id: 'sys-react-redux',
+        version: 1,
+        title: 'Redux와 Redux Toolkit',
+        content: reduxContent,
+        category: CATEGORY.React,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.good,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 16,
+        createdAt: Date.now(),
+    },
+    {
+        id: 'sys-react-canvas',
+        version: 1,
+        title: 'Canvas와 React에서 다루기',
+        content: canvasContent,
+        category: CATEGORY.React,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.good,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 17,
+        createdAt: Date.now(),
+    },
 ]

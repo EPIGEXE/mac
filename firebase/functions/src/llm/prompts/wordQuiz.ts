@@ -129,6 +129,21 @@ USE AT LEAST 3 DIFFERENT STRATEGIES in your quiz!
 - NO duplicate answers
 - If a term appears multiple times, blank it only ONCE
 
+### 5.5 HINT FORMAT (CRITICAL - READ CAREFULLY)
+⚠️ **THE HINT MUST ALWAYS CONTAIN THE CORRECT ANSWER** ⚠️
+- Format: "option1, option2, option3" (exactly 3 options, comma-separated)
+- **MANDATORY**: One of the three options MUST be the exact correct answer
+- The other two options should be plausible distractors from the same domain
+- Shuffle the order randomly (correct answer should NOT always be in the same position)
+
+❌ WRONG Example:
+  answer: "defer"
+  hint: "async, preload, prefetch"  ← WRONG! "defer" is missing!
+
+✅ CORRECT Example:
+  answer: "defer"
+  hint: "async, defer, preload"  ← CORRECT! "defer" is included!
+
 ### 6. Blank Distribution
 Total blanks: 10
 - Focus on critical/high importance concepts with specificity: concept/implementation
@@ -143,10 +158,8 @@ ${content}
 ## Output Format
 - Select individual technical keywords (1-3 words each)
 - Return ONLY the keywords to be blanked (client will apply them to original content)
-- Hint: Provide 3 multiple choice options as a comma-separated string (including the correct answer)
-  - One option MUST be the correct answer
-  - Two options should be plausible but incorrect distractors (related concepts from the same domain)
-  - Shuffle the order randomly (correct answer should NOT always be first)
+- Hint: 3 multiple choice options as comma-separated string
+  - ⚠️ CRITICAL: The hint MUST include the exact answer! (e.g., answer="defer" → hint="async, defer, preload")
   - Format: "option1, option2, option3"
 
 Return ONLY valid JSON:
@@ -167,5 +180,6 @@ NOTE: Do NOT include blindedContent. The client will find and replace these keyw
 □ All answers are specific technical terms (specificity: concept/implementation)
 □ No answer longer than 3 words
 □ No duplicate answers
-□ Total blanks = 10`
+□ Total blanks = 10
+□ ⚠️ EVERY hint contains its corresponding answer (e.g., answer="X" → hint must include "X")`
 }

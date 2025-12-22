@@ -10,8 +10,10 @@ import { algorithmsNotes } from "./systemNotes/cs/algorithms";
 import { systemsAndArchitectureNotes } from "./systemNotes/cs/systemsAndArchitecture";
 import { browserNotes } from "./systemNotes/frontend/browser";
 import { cssNotes } from "./systemNotes/frontend/css";
+import { electronNotes } from "./systemNotes/frontend/electron";
 import { htmlNotes } from "./systemNotes/frontend/html";
 import { javascriptNotes } from "./systemNotes/frontend/javascript";
+import { nextNotes } from "./systemNotes/frontend/nextjs";
 import { reactNotes } from "./systemNotes/frontend/react";
 import { typescriptNotes } from "./systemNotes/frontend/typescript";
 
@@ -71,4 +73,6 @@ export const systemNotesData: SystemNote[] = processSystemNotes([
     ...securityNotes,
     ...systemsAndArchitectureNotes,
     ...algorithmsNotes,
+    ...electronNotes,
+    ...nextNotes
 ])

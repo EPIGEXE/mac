@@ -7,7 +7,7 @@
 // 상위 카테고리 구조 (단일 소스)
 export const mainCategories = [
     { id: 'cs', label: 'CS', categories: ['HardwareSystem', 'Algorithms'] as const },
-    { id: 'frontend', label: '프론트엔드', categories: ['Browser', 'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React'] as const },
+    { id: 'frontend', label: '프론트엔드', categories: ['Browser', 'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Electron', 'NextJS'] as const },
     { id: 'backend', label: '백엔드', categories: ['Security'] as const },
 ] as const
 

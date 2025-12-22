@@ -242,45 +242,6 @@ function Button() {
 }
 ```
 
-### React에서 이벤트 위임이 필요한 경우
-
-React를 써도 직접 이벤트 위임이 필요한 경우가 있습니다.
-
-```jsx
-// 대량의 리스트 아이템
-function List({ items }) {
-  // ❌ 각 항목마다 핸들러 생성
-  return (
-    <ul>
-      {items.map(item => (
-        <li key={item.id} onClick={() => handleClick(item.id)}>
-          {item.name}
-        </li>
-      ))}
-    </ul>
-  );
-  
-  // ✅ 이벤트 위임으로 최적화
-  const handleClick = (e) => {
-    const li = e.target.closest('li');
-    if (li) {
-      const id = li.dataset.id;
-      // 처리
-    }
-  };
-  
-  return (
-    <ul onClick={handleClick}>
-      {items.map(item => (
-        <li key={item.id} data-id={item.id}>
-          {item.name}
-        </li>
-      ))}
-    </ul>
-  );
-}
-```
-
 ## 요약
 
 | 개념 | 설명 |

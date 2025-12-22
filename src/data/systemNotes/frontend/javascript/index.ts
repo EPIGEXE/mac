@@ -10,6 +10,7 @@ import scopeContent from './scope-execution-context.md?raw'
 import thisContent from './this-binding.md?raw'
 import prototypeContent from './prototype.md?raw'
 import memoryManagementContent from './memory-management.md?raw'
+import dataStructureContent from './data-structure.md?raw'
 
 export const javascriptNotes: SystemNote[] = [
     {
@@ -137,5 +138,19 @@ export const javascriptNotes: SystemNote[] = [
         },
         order: 9,
         createdAt: Date.now(),
-    }
+    },
+    {
+        id: 'sys-js-data-structure',
+        version: 1,
+        title: 'JavaScript 자료구조 선택',
+        content: dataStructureContent,
+        category: CATEGORY.JavaScript,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.core,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 10,
+        createdAt: Date.now(),
+    },
 ]

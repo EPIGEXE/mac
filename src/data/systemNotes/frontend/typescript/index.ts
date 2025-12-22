@@ -2,6 +2,7 @@ import type { SystemNote } from '../../../../db/schema/note'
 import { CATEGORY, TAG } from '../../../categories'
 
 import basicsContent from './basics.md?raw'
+import advancedContent from './advanced.md?raw'
 
 export const typescriptNotes: SystemNote[] = [
     {
@@ -17,4 +18,17 @@ export const typescriptNotes: SystemNote[] = [
         order: 1,
         createdAt: Date.now(),
     },
+    {
+        id: 'sys-ts-advanced',
+        version: 1,
+        title: 'TypeScript 심화',
+        content: advancedContent,
+        category: CATEGORY.TypeScript,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.good,
+        },
+        order: 2,
+        createdAt: Date.now(),
+    },  
 ]

@@ -14,6 +14,7 @@ import { NoteDetailHeader } from '../features/NoteDetail/NoteDetailHeader'
 import { UnsavedChangesModal } from '../features/NoteDetail/UnsavedChangesModal'
 import { DeleteConfirmModal } from '../features/NoteDetail/DeleteConfirmModal'
 import { analytics } from '../lib/analytics'
+import { terminalToast } from '../features/Toast/toast'
 
 export function NoteDetailPage() {
     // ==================================== Hooks =====================================
@@ -100,7 +101,12 @@ export function NoteDetailPage() {
             updates.content = pendingContent
         }
         if (noteId && note) {
-            await updateNote(noteId, note.type, updates)
+            try{
+                await updateNote(noteId, note.type, updates)
+                terminalToast.success('노트가 저장되었습니다.')
+            } catch (error) {
+                terminalToast.error(`노트 저장에 실패했습니다. ${(error)}`)
+            }
         }
         setPendingContent(null)
     }, [title, pendingContent, noteId, note, updateNote])

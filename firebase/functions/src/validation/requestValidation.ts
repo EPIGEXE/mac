@@ -33,7 +33,7 @@ export function validateGenerateQuizRequest(data: unknown): GenerateQuizRequest 
     }
 
     if (req.noteContent.length > 15000) {
-        throw new HttpsError('invalid-argument', 'noteContent must be less than 10000 characters')
+        throw new HttpsError('invalid-argument', 'noteContent must be less than 15000 characters')
     }
 
     // noteTitle 검증
