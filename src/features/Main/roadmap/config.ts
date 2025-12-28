@@ -1,5 +1,5 @@
 import type { TopicFilter, SectionDef, CategoryNodeDef, EdgeDef } from './types';
-import roadmapTree from './roadmapTree.json';
+import { roadmapTree as generatedRoadmapTree, categoryMapping as generatedCategoryMapping } from '../../../data/roadmapGenerator';
 
 // ============================================================================
 // 트리 타입 정의
@@ -18,8 +18,8 @@ interface SectionTreeDef {
     children: Record<string, TreeNodeDef>;
 }
 
-// 타입 단언 (JSON import)
-const tree = roadmapTree as Record<string, SectionTreeDef>;
+// categories.ts에서 자동 생성된 트리 사용
+const tree = generatedRoadmapTree as Record<string, SectionTreeDef>;
 
 // ============================================================================
 // 트리 → 플랫 구조 변환 (layout.ts에서 사용)
@@ -97,19 +97,8 @@ export const sectionRootNodes = buildSectionRootNodes();
 // ============================================================================
 
 // 카테고리 매핑 (노드 id → 실제 카테고리명)
-export const categoryMapping: Record<string, string> = {
-    cs: 'CS',
-    html: 'HTML',
-    css: 'CSS',
-    javascript: 'JavaScript',
-    typescript: 'TypeScript',
-    react: 'React',
-    performance: 'Performance',
-    security: 'Security',
-    browser: 'Browser',
-    hardwareSystem: 'HardwareSystem',
-    algorithms: 'Algorithms',
-};
+// categories.ts에서 자동 생성됨
+export const categoryMapping = generatedCategoryMapping;
 
 // TopicFilter → 섹션 ID 매핑
 export const filterToSections: Record<TopicFilter, string[]> = {

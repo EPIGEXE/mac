@@ -1,14 +1,66 @@
 // ============================================================================
 // 카테고리 단일 소스 (Single Source of Truth)
 // - mainCategories에서 상위-하위 구조 정의
+// - 로드맵 트리 구조도 함께 정의
 // - 나머지는 모두 파생
 // ============================================================================
 
+// 로드맵 노드 타입
+export interface RoadmapNode {
+    label: string
+    dashed?: boolean
+    children?: Record<string, RoadmapNode>
+}
+
 // 상위 카테고리 구조 (단일 소스)
 export const mainCategories = [
-    { id: 'cs', label: 'CS', categories: ['HardwareSystem', 'Algorithms'] as const },
-    { id: 'frontend', label: '프론트엔드', categories: ['Browser', 'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Electron', 'NextJS'] as const },
-    { id: 'backend', label: '백엔드', categories: ['Security'] as const },
+    {
+        id: 'cs',
+        label: 'CS',
+        roadmapLabel: 'CS 기초',
+        categories: ['HardwareSystem', 'Algorithms'] as const,
+        roadmap: {
+            hardwareSystem: {
+                label: '하드웨어 & 시스템'
+            },
+            algorithms: {
+                label: '알고리즘'
+            }
+        } as Record<string, RoadmapNode>
+    },
+    {
+        id: 'frontend',
+        label: '프론트엔드',
+        roadmapLabel: '프론트엔드',
+        categories: ['Browser', 'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Electron', 'NextJS'] as const,
+        roadmap: {
+            browser: {
+                label: '브라우저',
+                children: {
+                    html: { label: 'HTML' },
+                    css: { label: 'CSS' },
+                    javascript: {
+                        label: 'JavaScript',
+                        children: {
+                            typescript: { label: 'TypeScript', dashed: true },
+                            react: { label: 'React' }
+                        }
+                    }
+                }
+            }
+        } as Record<string, RoadmapNode>
+    },
+    {
+        id: 'backend',
+        label: '백엔드',
+        roadmapLabel: '백엔드 / 공통',
+        categories: ['Security'] as const,
+        roadmap: {
+            security: {
+                label: 'security'
+            }
+        } as Record<string, RoadmapNode>
+    },
 ] as const
 
 // 카테고리 타입
