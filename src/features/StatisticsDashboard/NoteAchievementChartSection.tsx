@@ -34,9 +34,9 @@ export function NoteAchievementChartSection({
                 <span className="font-mono text-sm text-[var(--text-tertiary)]">[{noteStats.length}]</span>
             </div>
 
-            {/* 정답률 차트 */}
+            {/* 정답률 차트 - 모바일에서 숨김 */}
             {noteChartData.length > 0 && (
-                <div className="p-4 border border-[var(--border-light)] bg-[var(--bg-paper)] mb-4">
+                <div className="hidden sm:block p-3 md:p-4 border border-[var(--border-light)] bg-[var(--bg-paper)] mb-4">
                     <div className="font-mono text-xs text-[var(--text-tertiary)] mb-3">
                         // 노트별 정답률 (상위 10개)
                     </div>
@@ -88,44 +88,46 @@ export function NoteAchievementChartSection({
                 </div>
             )}
 
-            {/* 노트 리스트 */}
-            <div className="border border-[var(--border-light)]">
-                {/* 헤더 */}
-                <div className="grid grid-cols-12 gap-2 px-4 py-2 bg-[var(--bg-secondary)] font-mono text-xs text-[var(--text-tertiary)] border-b border-[var(--border-light)]">
-                    <div className="col-span-5">노트</div>
-                    <div className="col-span-2 text-center">학습 횟수</div>
-                    <div className="col-span-2 text-center">정답률</div>
-                    <div className="col-span-3 text-right">마지막 학습</div>
-                </div>
+            {/* 노트 리스트 - 가로 스크롤 */}
+            <div className="border border-[var(--border-light)] overflow-x-auto">
+                <div className="min-w-[500px]">
+                    {/* 헤더 */}
+                    <div className="grid grid-cols-12 gap-2 px-3 md:px-4 py-2 bg-[var(--bg-secondary)] font-mono text-xs text-[var(--text-tertiary)] border-b border-[var(--border-light)]">
+                        <div className="col-span-5">노트</div>
+                        <div className="col-span-2 text-center">학습 횟수</div>
+                        <div className="col-span-2 text-center">정답률</div>
+                        <div className="col-span-3 text-right">마지막 학습</div>
+                    </div>
 
-                {/* 리스트 */}
-                {noteStats.slice(0, 20).map((stat, idx) => {
-                    const isGood = stat.accuracy >= 80
-                    const isWarning = stat.accuracy >= 60 && stat.accuracy < 80
-                    const isBad = stat.accuracy < 60
+                    {/* 리스트 */}
+                    {noteStats.slice(0, 10).map((stat, idx) => {
+                        const isGood = stat.accuracy >= 80
+                        const isWarning = stat.accuracy >= 60 && stat.accuracy < 80
+                        const isBad = stat.accuracy < 60
 
-                    return (
-                        <div
-                            key={stat.noteId}
-                            className={`grid grid-cols-12 gap-2 px-4 py-2.5 ${idx < Math.min(noteStats.length, 20) - 1 ? 'border-b border-dashed border-[var(--border-light)]' : ''}`}
-                        >
-                            <div className="col-span-5 font-mono text-sm text-[var(--text-primary)] truncate">
-                                {noteTitles[stat.noteId] || stat.noteId}
-                            </div>
-                            <div className="col-span-2 text-center font-mono text-sm text-[var(--text-secondary)]">
-                                {stat.studyCount}
-                            </div>
+                        return (
                             <div
-                                className={`col-span-2 text-center font-mono text-sm font-medium ${isGood ? 'text-[var(--success)]' : isWarning ? 'text-[var(--warning)]' : isBad ? 'text-[var(--error)]' : 'text-[var(--text-primary)]'}`}
+                                key={stat.noteId}
+                                className={`grid grid-cols-12 gap-2 px-3 md:px-4 py-2.5 ${idx < Math.min(noteStats.length, 20) - 1 ? 'border-b border-dashed border-[var(--border-light)]' : ''}`}
                             >
-                                {stat.accuracy}%
+                                <div className="col-span-5 font-mono text-sm text-[var(--text-primary)] truncate">
+                                    {noteTitles[stat.noteId] || stat.noteId}
+                                </div>
+                                <div className="col-span-2 text-center font-mono text-sm text-[var(--text-secondary)]">
+                                    {stat.studyCount}
+                                </div>
+                                <div
+                                    className={`col-span-2 text-center font-mono text-sm font-medium ${isGood ? 'text-[var(--success)]' : isWarning ? 'text-[var(--warning)]' : isBad ? 'text-[var(--error)]' : 'text-[var(--text-primary)]'}`}
+                                >
+                                    {stat.accuracy}%
+                                </div>
+                                <div className="col-span-3 text-right font-mono text-xs text-[var(--text-tertiary)]">
+                                    {stat.lastStudiedAt ? formatDate(stat.lastStudiedAt) : '-'}
+                                </div>
                             </div>
-                            <div className="col-span-3 text-right font-mono text-xs text-[var(--text-tertiary)]">
-                                {stat.lastStudiedAt ? formatDate(stat.lastStudiedAt) : '-'}
-                            </div>
-                        </div>
-                    )
-                })}
+                        )
+                    })}
+                </div>
             </div>
 
             {noteStats.length > 20 && (

@@ -19,7 +19,7 @@ const MODES: { value: StudyModeType; label: string; mono: string; description: s
 
 export function StudyModeInlineSelector({ value, onChange }: StudyModeInlineSelectorProps) {
     return (
-        <div className="flex gap-3">
+        <div className="flex gap-2 md:gap-3">
             {MODES.map(mode => {
                 const isSelected = value === mode.value
 
@@ -28,7 +28,7 @@ export function StudyModeInlineSelector({ value, onChange }: StudyModeInlineSele
                         key={mode.value}
                         onClick={() => onChange(mode.value)}
                         className={`
-                            flex-1 py-3 px-4 border transition-all cursor-pointer
+                            flex-1 py-2.5 md:py-3 px-2 md:px-4 border transition-all cursor-pointer
                             ${isSelected
                                 ? 'border-[var(--accent)] bg-[var(--accent)]/10'
                                 : 'border-[var(--border-light)] hover:border-[var(--text-tertiary)]'
@@ -49,7 +49,7 @@ export function StudyModeInlineSelector({ value, onChange }: StudyModeInlineSele
                         `}>
                             {mode.label}
                         </div>
-                        <div className="font-mono text-xs text-[var(--text-tertiary)] text-center">
+                        <div className="font-mono text-xs text-[var(--text-tertiary)] text-center hidden sm:block">
                             {mode.description}
                         </div>
                     </button>

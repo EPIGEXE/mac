@@ -94,13 +94,13 @@ export function SessionCalendar({
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
             {/* 필터 */}
-            <div className="border border-[var(--border-light)] bg-[var(--bg-paper)] p-4">
-                <div className="flex items-center gap-2">
+            <div className="border border-[var(--border-light)] bg-[var(--bg-paper)] p-3 md:p-4">
+                <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
                     <button
                         onClick={() => setSelectedMode('all')}
-                        className={`px-3 py-1.5 font-mono text-xs border cursor-pointer transition-colors ${
+                        className={`px-2 md:px-3 py-1.5 font-mono text-xs border cursor-pointer transition-colors ${
                             selectedMode === 'all'
                                 ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--accent)]/10'
                                 : 'border-[var(--border-light)] text-[var(--text-tertiary)] hover:border-[var(--text-tertiary)]'
@@ -114,7 +114,7 @@ export function SessionCalendar({
                             <button
                                 key={mode}
                                 onClick={() => setSelectedMode(mode)}
-                                className={`px-3 py-1.5 font-mono text-xs border cursor-pointer transition-colors flex items-center gap-1.5 ${
+                                className={`px-2 md:px-3 py-1.5 font-mono text-xs border cursor-pointer transition-colors flex items-center gap-1 md:gap-1.5 ${
                                     selectedMode === mode
                                         ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--accent)]/10'
                                         : 'border-[var(--border-light)] text-[var(--text-tertiary)] hover:border-[var(--text-tertiary)]'
@@ -129,9 +129,9 @@ export function SessionCalendar({
             </div>
 
             {/* 캘린더 */}
-            <div className="border border-[var(--border-light)] bg-[var(--bg-paper)] p-5 lg:sticky lg:top-24">
+            <div className="border border-[var(--border-light)] bg-[var(--bg-paper)] p-3 md:p-5 lg:sticky lg:top-24">
                 {/* 캘린더 헤더 */}
-                <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center justify-between mb-4 md:mb-5">
                     <button
                         onClick={goToPrevMonth}
                         className="p-2 border border-[var(--border-light)] text-[var(--text-tertiary)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition-colors cursor-pointer"
@@ -189,7 +189,7 @@ export function SessionCalendar({
                                 key={idx}
                                 onClick={() => setSelectedDate(dateStr)}
                                 className={`
-                                                relative p-2 min-h-[52px] border cursor-pointer transition-all text-left rounded-sm
+                                                relative p-1.5 md:p-2 min-h-[44px] md:min-h-[52px] border cursor-pointer transition-all text-left rounded-sm
                                                 ${isCurrentMonth ? 'bg-[var(--bg-paper)]' : 'bg-[var(--bg-primary)]/50'}
                                                 ${isSelected ? 'border-[var(--accent)] ring-2 ring-[var(--accent)]/30 shadow-sm' : 'border-transparent hover:border-[var(--border-light)]'}
                                                 ${isToday ? 'bg-[var(--accent)]/5 ring-1 ring-[var(--accent)]/20' : ''}

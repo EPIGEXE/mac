@@ -102,11 +102,11 @@ export function StudyModePage() {
 
     if (!currentNote) {
         return (
-            <div className="h-screen flex flex-col items-center justify-center gap-4 bg-[var(--bg-secondary)] p-8 rounded">
+            <div className="h-screen flex flex-col items-center justify-center gap-4 bg-[var(--bg-secondary)] p-4 md:p-8 rounded">
                 <span className="font-mono text-[var(--text-tertiary)]">// 공부할 노트가 없습니다.</span>
                 <button
                     onClick={handleExit}
-                    className="flex items-center gap-2 px-4 py-2 font-mono text-sm border border-[var(--border-light)] text-[var(--text-secondary)] cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+                    className="flex items-center gap-2 px-3 md:px-4 py-2 font-mono text-sm border border-[var(--border-light)] text-[var(--text-secondary)] cursor-pointer hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
                 >
                     back
                 </button>

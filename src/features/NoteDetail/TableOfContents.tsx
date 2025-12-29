@@ -126,38 +126,38 @@ export function TableOfContents({ content, onHeadingClick }: TableOfContentsProp
 
     return (
         <div
-            className="fixed right-4 top-1/2 -translate-y-1/2 z-40"
+            className="fixed right-2 md:right-4 top-1/2 -translate-y-1/2 z-40"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
             {/* 미니맵 인디케이터 (기본 상태) - 터미널 스타일 */}
             <div
                 className={`flex flex-col items-end transition-opacity duration-200 ${
-                    isHovered ? 'opacity-0 pointer-events-none' : 'opacity-100'
+                    isHovered ? 'md:opacity-0 md:pointer-events-none' : 'opacity-100'
                 }`}
             >
-                {/* // toc 라벨 */}
-                <div className="font-mono text-sm text-[var(--text-primary)] mb-2 writing-mode-vertical">
+                {/* // toc 라벨 - 데스크톱에서만 */}
+                <div className="hidden md:block font-mono text-sm text-[var(--text-primary)] mb-2 writing-mode-vertical">
                     <span>//</span> toc
                 </div>
 
                 {/* 미니맵 바 */}
                 <div
-                    className="flex flex-col gap-3 p-2 border-r-2 border-[var(--border-light)]"
-                    style={{ maxHeight: '70vh' }}
+                    className="flex flex-col gap-2 md:gap-3 p-1.5 md:p-2 border-r-2 border-[var(--border-light)]"
+                    style={{ maxHeight: '50vh' }}
                 >
                     {headings.map((heading, index) => (
                         <button
                             key={heading.id}
                             onClick={() => handleClick(heading.id, index)}
-                            className={`h-1.5 rounded-sm transition-all duration-150 cursor-pointer border-none p-0 ${
+                            className={`h-1 md:h-1.5 rounded-sm transition-all duration-150 cursor-pointer border-none p-0 ${
                                 index === activeIndex
                                     ? 'bg-[var(--accent)]'
                                     : 'bg-[var(--text-tertiary)] opacity-50 hover:opacity-80'
                             }`}
                             style={{
-                                width: heading.level === 1 ? '40px' : heading.level === 2 ? '30px' : '20px',
-                                marginLeft: `${(heading.level - 1) * 10}px`,
+                                width: heading.level === 1 ? '24px' : heading.level === 2 ? '18px' : '12px',
+                                marginLeft: `${(heading.level - 1) * 6}px`,
                             }}
                             title={heading.text}
                         />
@@ -165,9 +165,9 @@ export function TableOfContents({ content, onHeadingClick }: TableOfContentsProp
                 </div>
             </div>
 
-            {/* 전체 목차 (hover 상태) - 터미널 스타일 */}
+            {/* 전체 목차 (hover 상태) - 데스크톱에서만 */}
             <div
-                className={`absolute right-0 top-1/2 -translate-y-1/2 bg-[var(--bg-paper)] border border-[var(--border-light)] p-3 min-w-[220px] max-w-[300px] transition-all duration-200 ${
+                className={`hidden md:block absolute right-0 top-1/2 -translate-y-1/2 bg-[var(--bg-paper)] border border-[var(--border-light)] p-3 min-w-[220px] max-w-[300px] transition-all duration-200 ${
                     isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 pointer-events-none'
                 }`}
                 style={{ maxHeight: '70vh' }}

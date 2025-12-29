@@ -55,21 +55,21 @@ export function WeakPointNote({
         const config = modeConfig[mode]
 
         return (
-            <div className="flex items-center justify-between py-2 border-b border-dashed border-[var(--border-light)] last:border-b-0">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-2 gap-1 sm:gap-0 border-b border-dashed border-[var(--border-light)] last:border-b-0">
                 <div className="flex items-center gap-2">
                     <span className={config.color}>{config.icon}</span>
                     <span className="font-mono text-sm text-[var(--text-secondary)]">{config.label}</span>
                     <span className="font-mono text-sm text-[var(--text-secondary)]">({stats.count}회)</span>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 ml-6 sm:ml-0">
                     <div className="flex items-center gap-1">
-                        <span className="font-mono text-sm text-[var(--text-secondary)]">정답률</span>
+                        <span className="font-mono text-xs sm:text-sm text-[var(--text-secondary)]">정답률</span>
                         <span className={`font-mono text-sm font-bold ${getAccuracyColor(stats.accuracy)}`}>
                             {stats.accuracy}%
                         </span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <span className="font-mono text-sm text-[var(--text-secondary)]">평균</span>
+                        <span className="font-mono text-xs sm:text-sm text-[var(--text-secondary)]">평균</span>
                         <span className={`font-mono text-sm ${getAccuracyColor(stats.avgScore)}`}>
                             {stats.avgScore}점
                         </span>
@@ -108,25 +108,25 @@ export function WeakPointNote({
         >
             {/* 노트 헤더 */}
             <div
-                className="flex items-center gap-4 px-4 py-3 cursor-pointer hover:bg-[var(--bg-primary)]/50"
+                className="flex items-center gap-2 md:gap-4 px-3 md:px-4 py-2.5 md:py-3 cursor-pointer hover:bg-[var(--bg-primary)]/50"
                 onClick={() => handleToggleExpand(note.noteId)}
             >
                 {/* 정답률 게이지 */}
-                <div className="w-12 h-12 relative flex-shrink-0">
-                    <svg className="w-12 h-12 -rotate-90">
+                <div className="w-10 h-10 md:w-12 md:h-12 relative flex-shrink-0">
+                    <svg className="w-10 h-10 md:w-12 md:h-12 -rotate-90">
                         <circle
-                            cx="24"
-                            cy="24"
-                            r="20"
+                            cx="50%"
+                            cy="50%"
+                            r="40%"
                             stroke="currentColor"
                             strokeWidth="4"
                             fill="none"
                             className="text-[var(--border-light)]"
                         />
                         <circle
-                            cx="24"
-                            cy="24"
-                            r="20"
+                            cx="50%"
+                            cy="50%"
+                            r="40%"
                             stroke="currentColor"
                             strokeWidth="4"
                             fill="none"
@@ -135,7 +135,7 @@ export function WeakPointNote({
                         />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <span className={`font-mono text-sm font-bold ${getAccuracyColor(note.accuracy)}`}>
+                        <span className={`font-mono text-xs md:text-sm font-bold ${getAccuracyColor(note.accuracy)}`}>
                             {note.accuracy}%
                         </span>
                     </div>
@@ -146,25 +146,25 @@ export function WeakPointNote({
                     <div className="font-mono text-sm text-[var(--text-primary)] truncate">
                         {noteTitles[note.noteId] || note.noteId}
                     </div>
-                    <div className="flex items-center gap-3 mt-1 flex-wrap">
-                        <span className="font-mono text-sm text-[var(--text-secondary)] flex items-center gap-1">
+                    <div className="flex items-center gap-2 md:gap-3 mt-1 flex-wrap">
+                        <span className="font-mono text-xs md:text-sm text-[var(--text-secondary)] flex items-center gap-1">
                             <IconClock size={10} />
                             {formatDuration(note.totalTime)}
                         </span>
-                        <span className="font-mono text-sm text-[var(--text-secondary)]">{note.studyCount}회</span>
+                        <span className="font-mono text-xs md:text-sm text-[var(--text-secondary)]">{note.studyCount}회</span>
                         {note.lastStudiedAt && (
-                            <span className="font-mono text-sm text-[var(--text-secondary)]">
+                            <span className="font-mono text-xs md:text-sm text-[var(--text-secondary)] hidden sm:inline">
                                 {formatDate(note.lastStudiedAt)}
                             </span>
                         )}
                         {note.weakPointCount > 0 && (
-                            <span className="font-mono text-sm text-[var(--error)]">취약점 {note.weakPointCount}</span>
+                            <span className="font-mono text-xs md:text-sm text-[var(--error)]">취약점 {note.weakPointCount}</span>
                         )}
                     </div>
                 </div>
 
                 {/* 모드 표시 */}
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 shrink-0">
                     {note.modeBreakdown?.word && <span className={modeConfig.word.color}>{modeConfig.word.icon}</span>}
                     {note.modeBreakdown?.sentence && (
                         <span className={modeConfig.sentence.color}>{modeConfig.sentence.icon}</span>
@@ -175,9 +175,9 @@ export function WeakPointNote({
                 </div>
 
                 {isExpanded ? (
-                    <IconChevronUp size={16} className="text-[var(--text-secondary)]" />
+                    <IconChevronUp size={16} className="text-[var(--text-secondary)] shrink-0" />
                 ) : (
-                    <IconChevronDown size={16} className="text-[var(--text-secondary)]" />
+                    <IconChevronDown size={16} className="text-[var(--text-secondary)] shrink-0" />
                 )}
             </div>
 
@@ -191,7 +191,7 @@ export function WeakPointNote({
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                     >
-                        <div className="px-4 pb-4 border-t border-dashed border-[var(--border-light)]">
+                        <div className="px-3 md:px-4 pb-3 md:pb-4 border-t border-dashed border-[var(--border-light)]">
                             <div className="pt-3">
                                 <SectionTitle size="base" className="mb-2">
                                     모드별 성적
@@ -229,16 +229,16 @@ export function WeakPointNote({
 
                                 {/* 취약점 목록 - 가상 스크롤 */}
                                 {wps.length > 0 && (
-                                    <div className="mt-4 pt-4 border-t border-dashed border-[var(--border-light)]">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <div className="font-mono text-sm text-[var(--error)] flex items-center gap-1">
+                                    <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-dashed border-[var(--border-light)]">
+                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                                            <div className="font-mono text-sm text-[var(--error)] flex items-center gap-1 flex-wrap">
                                                 <IconAlertTriangle size={12} />
                                                 취약점 목록
                                                 <span className="text-[var(--text-secondary)]">
                                                     [미해결 {unresolvedWps.length} / 전체 {wps.length}]
                                                 </span>
                                             </div>
-                                            <label className="flex items-center gap-1.5 font-mono text-sm text-[var(--text-secondary)] cursor-pointer">
+                                            <label className="flex items-center gap-1.5 font-mono text-xs sm:text-sm text-[var(--text-secondary)] cursor-pointer">
                                                 <input
                                                     type="checkbox"
                                                     checked={showResolved}

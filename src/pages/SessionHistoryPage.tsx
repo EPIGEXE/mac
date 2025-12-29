@@ -111,33 +111,33 @@ export function SessionHistoryPage() {
         <div className="min-h-screen bg-[var(--bg-primary)]">
             {/* Header */}
             <header className="sticky top-0 z-10 border-b border-[var(--border-light)] bg-[var(--bg-paper)]">
-                <div className="main-container px-6 py-4 flex items-center justify-between">
+                <div className="main-container px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
                     <button
                         onClick={() => navigate('/statistics')}
-                        className="bg-transparent border-none px-4 py-2.5 font-mono text-sm text-[var(--text-tertiary)] cursor-pointer flex items-center gap-2 transition-colors duration-150 hover:text-[var(--accent)]"
+                        className="bg-transparent border-none px-2 md:px-4 py-2 md:py-2.5 font-mono text-sm text-[var(--text-tertiary)] cursor-pointer flex items-center gap-1.5 md:gap-2 transition-colors duration-150 hover:text-[var(--accent)]"
                     >
                         <IconArrowLeft size={18} />
                         {'<'} back
                     </button>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 md:gap-3">
                         <IconHistory size={20} className="text-[var(--text-tertiary)]" />
-                        <span className="font-display text-lg text-[var(--text-primary)]">학습 기록</span>
-                        <span className="font-mono text-sm text-[var(--text-tertiary)]">[{sessions.length}]</span>
+                        <span className="font-display text-base md:text-lg text-[var(--text-primary)]">학습 기록</span>
+                        <span className="font-mono text-xs md:text-sm text-[var(--text-tertiary)]">[{sessions.length}]</span>
                     </div>
 
-                    <div className="w-24" />
+                    <div className="w-12 md:w-24" />
                 </div>
             </header>
 
             {/* Content */}
-            <main className="max-w-[1500px] mx-auto px-8 py-8">
+            <main className="max-w-[1500px] mx-auto px-4 md:px-8 py-6 md:py-8">
                 {loading ? (
                     <div className="flex items-center justify-center py-16">
                         <span className="font-mono text-sm text-[var(--text-tertiary)]">loading...</span>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] xl:grid-cols-[360px_1fr] gap-6 md:gap-8">
                         {/* 좌측: 필터 + 캘린더 */}
                         <SessionCalendar
                             sessionsByDate={sessionsByDate}

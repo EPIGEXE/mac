@@ -194,39 +194,40 @@ export function WeakPointsPage() {
         <div className="min-h-screen bg-[var(--bg-primary)]">
             {/* Header */}
             <header className="sticky top-0 z-10 border-b border-[var(--border-light)] bg-[var(--bg-paper)]">
-                <div className="max-w-[900px] mx-auto px-6 py-4 flex items-center justify-between">
+                <div className="max-w-[900px] mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
                     <button
                         onClick={() => navigate('/statistics')}
-                        className="bg-transparent border-none px-4 py-2.5 font-mono text-sm text-[var(--text-secondary)] cursor-pointer flex items-center gap-2 transition-colors duration-150 hover:text-[var(--accent)]"
+                        className="bg-transparent border-none px-2 md:px-4 py-2 md:py-2.5 font-mono text-sm text-[var(--text-secondary)] cursor-pointer flex items-center gap-1.5 md:gap-2 transition-colors duration-150 hover:text-[var(--accent)]"
                     >
                         <IconArrowLeft size={18} />
                         {'<'} back
                     </button>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 md:gap-3">
                         <IconAlertTriangle size={20} className="text-[var(--error)]" />
-                        <span className="font-display text-lg text-[var(--text-primary)]">취약 노트</span>
+                        <span className="font-display text-base md:text-lg text-[var(--text-primary)]">취약 노트</span>
                         <span className="font-mono text-sm text-[var(--error)]">[{weakNotes.length}]</span>
                     </div>
 
-                    <label className="flex items-center gap-2 font-mono text-sm text-[var(--text-secondary)] cursor-pointer">
+                    <label className="flex items-center gap-2 font-mono text-xs md:text-sm text-[var(--text-secondary)] cursor-pointer">
                         <input
                             type="checkbox"
                             checked={showAll}
                             onChange={(e) => setShowAll(e.target.checked)}
                             className="accent-[var(--accent)]"
                         />
-                        전체 노트 보기
+                        <span className="hidden sm:inline">전체 노트 보기</span>
+                        <span className="sm:hidden">전체</span>
                     </label>
                 </div>
             </header>
 
             {/* Content */}
-            <main className="max-w-[900px] mx-auto px-6 py-8">
+            <main className="max-w-[900px] mx-auto px-4 md:px-6 py-6 md:py-8">
                 {/* 안내 */}
-                <div className="mb-6 p-4 border border-dashed border-[var(--border-light)] bg-[var(--bg-paper)]">
-                    <div className="flex items-start gap-3">
-                        <IconFlame size={18} className="text-[var(--error)] mt-0.5" />
+                <div className="mb-4 md:mb-6 p-3 md:p-4 border border-dashed border-[var(--border-light)] bg-[var(--bg-paper)]">
+                    <div className="flex items-start gap-2 md:gap-3">
+                        <IconFlame size={18} className="text-[var(--error)] mt-0.5 shrink-0" />
                         <div>
                             <div className="font-mono text-sm text-[var(--text-primary)] mb-1">취약 노트 기준</div>
                             <div className="font-mono text-xs text-[var(--text-secondary)] space-y-1">
@@ -234,14 +235,14 @@ export function WeakPointsPage() {
                                     • 2회 이상 학습한 노트 중{' '}
                                     <span className="text-[var(--error)]">정답률 70% 미만</span>
                                 </div>
-                                <div>• 모드별(단어/문장/서술형) 성적을 확인하고 취약한 부분을 집중 학습하세요</div>
+                                <div className="hidden sm:block">• 모드별(단어/문장/서술형) 성적을 확인하고 취약한 부분을 집중 학습하세요</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* 검색 & 정렬 */}
-                <div className="mb-4 flex flex-col sm:flex-row gap-3">
+                <div className="mb-3 md:mb-4 flex flex-col sm:flex-row gap-2 md:gap-3">
                     {/* 검색 */}
                     <div className="flex-1 relative">
                         <IconSearch
@@ -253,17 +254,17 @@ export function WeakPointsPage() {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="노트 제목 검색..."
-                            className="w-full pl-9 pr-4 py-2 border border-[var(--border-light)] bg-[var(--bg-paper)] font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:outline-none focus:border-[var(--accent)]"
+                            className="w-full pl-9 pr-3 md:pr-4 py-2 border border-[var(--border-light)] bg-[var(--bg-paper)] font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:outline-none focus:border-[var(--accent)]"
                         />
                     </div>
 
                     {/* 정렬 */}
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 overflow-x-auto">
                         {sortOptions.map((opt) => (
                             <button
                                 key={opt.key}
                                 onClick={() => handleSortChange(opt.key)}
-                                className={`px-2 py-1.5 font-mono text-sm border cursor-pointer transition-colors flex items-center gap-1 ${
+                                className={`px-2 py-1.5 font-mono text-xs md:text-sm border cursor-pointer transition-colors flex items-center gap-1 whitespace-nowrap shrink-0 ${
                                     sortKey === opt.key
                                         ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--accent)]/10'
                                         : 'border-[var(--border-light)] text-[var(--text-secondary)] hover:border-[var(--text-secondary)]'
@@ -282,26 +283,26 @@ export function WeakPointsPage() {
                 </div>
 
                 {/* 결과 카운트 */}
-                <div className="mb-4 font-mono text-sm text-[var(--text-secondary)]">
+                <div className="mb-3 md:mb-4 font-mono text-sm text-[var(--text-secondary)]">
                     {filteredAndSortedNotes.length}개 노트
                     {searchQuery && ` (검색: "${searchQuery}")`}
                 </div>
 
                 {loading ? (
-                    <div className="flex items-center justify-center py-16">
+                    <div className="flex items-center justify-center py-12 md:py-16">
                         <span className="font-mono text-sm text-[var(--text-secondary)]">loading...</span>
                     </div>
                 ) : filteredAndSortedNotes.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-16 border border-[var(--border-light)] bg-[var(--bg-paper)]">
-                        <IconTrophy size={48} className="text-[var(--success)] mb-4" />
-                        <span className="font-mono text-lg text-[var(--text-primary)] mb-2">
+                    <div className="flex flex-col items-center justify-center py-12 md:py-16 px-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
+                        <IconTrophy size={40} className="text-[var(--success)] mb-3 md:mb-4" />
+                        <span className="font-mono text-base md:text-lg text-[var(--text-primary)] mb-2 text-center">
                             {searchQuery
                                 ? '검색 결과가 없습니다'
                                 : showAll
                                   ? '학습 기록이 없습니다'
                                   : '취약 노트가 없습니다!'}
                         </span>
-                        <span className="font-mono text-sm text-[var(--text-secondary)]">
+                        <span className="font-mono text-sm text-[var(--text-secondary)] text-center">
                             {searchQuery
                                 ? '다른 검색어를 시도해보세요'
                                 : showAll
@@ -312,7 +313,7 @@ export function WeakPointsPage() {
                 ) : (
                     <>
                         {/* 노트 목록 */}
-                        <div className="space-y-3">
+                        <div className="space-y-2 md:space-y-3">
                             {paginatedNotes.map((note) => {
                                 return (
                                     <WeakPointNote

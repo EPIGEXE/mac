@@ -65,7 +65,7 @@ export function StudyRecordSection({
     return (
         <>
             {/* 날짜 헤더 */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
                 <IconCalendar size={18} className="text-[var(--text-tertiary)]" />
                 <span className="font-mono text-base text-[var(--text-primary)]">
                     {formatSelectedDate(selectedDate)}
@@ -78,7 +78,7 @@ export function StudyRecordSection({
             </div>
 
             {selectedDateSessions.length === 0 ? (
-                <div className="border border-[var(--border-light)] bg-[var(--bg-paper)] p-12 text-center">
+                <div className="border border-[var(--border-light)] bg-[var(--bg-paper)] p-8 md:p-12 text-center">
                     <span className="font-mono text-3xl text-[var(--text-tertiary)] block mb-2">∅</span>
                     <span className="font-mono text-sm text-[var(--text-tertiary)]">
                         이 날짜에는 학습 기록이 없습니다
@@ -106,9 +106,61 @@ export function StudyRecordSection({
                             {/* 세션 헤더 */}
                             <button
                                 onClick={() => toggleSession(session.id)}
-                                className="w-full px-5 py-4 border-b border-[var(--border-light)] bg-[var(--bg-secondary)] cursor-pointer hover:bg-[var(--bg-primary)]/30 transition-colors text-left"
+                                className="w-full px-3 md:px-5 py-3 md:py-4 border-b border-[var(--border-light)] bg-[var(--bg-secondary)] cursor-pointer hover:bg-[var(--bg-primary)]/30 transition-colors text-left"
                             >
-                                <div className="flex items-center gap-4 flex-wrap">
+                                {/* 모바일: 2줄 레이아웃 */}
+                                <div className="flex flex-col gap-2 md:hidden">
+                                    {/* 첫째 줄: 펼침 아이콘, 모드, 순서, 시간 */}
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <div className="text-[var(--text-tertiary)]">
+                                            {isExpanded ? <IconChevronUp size={18} /> : <IconChevronDown size={18} />}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className={config.color}>{config.icon}</span>
+                                            <span className="font-mono text-sm font-medium text-[var(--text-primary)]">
+                                                {config.label} 모드
+                                            </span>
+                                        </div>
+                                        <span className="font-mono text-xs text-[var(--text-tertiary)] px-2 py-0.5 border border-[var(--border-light)]">
+                                            {session.order === 'sequential' ? '순차' : '랜덤'}
+                                        </span>
+                                        <span className="font-mono text-sm text-[var(--text-secondary)] ml-auto">
+                                            {formatTime(session.startedAt)}
+                                        </span>
+                                    </div>
+                                    {/* 둘째 줄: 통계 */}
+                                    <div className="flex items-center gap-3">
+                                        <span className="font-mono text-sm text-[var(--text-secondary)] flex items-center gap-1">
+                                            <IconClock size={14} />
+                                            {formatDuration(session.totalDuration)}
+                                        </span>
+                                        <span className="font-mono text-sm text-[var(--text-secondary)]">
+                                            {session.noteCount}개 노트
+                                        </span>
+                                        <span className="font-mono text-sm text-[var(--success)] flex items-center gap-1">
+                                            <IconChecks size={14} />
+                                            {session.correctCount}
+                                        </span>
+                                        <span className="font-mono text-sm text-[var(--error)] flex items-center gap-1">
+                                            <IconX size={14} />
+                                            {session.wrongCount}
+                                        </span>
+                                        <span
+                                            className={`font-mono text-lg font-bold ml-auto ${
+                                                accuracy >= 80
+                                                    ? 'text-[var(--success)]'
+                                                    : accuracy >= 60
+                                                      ? 'text-[var(--warning)]'
+                                                      : 'text-[var(--error)]'
+                                            }`}
+                                        >
+                                            {accuracy}%
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* 데스크톱: 한 줄 레이아웃 */}
+                                <div className="hidden md:flex items-center gap-4 flex-wrap">
                                     {/* 펼침/접힘 아이콘 */}
                                     <div className="text-[var(--text-tertiary)]">
                                         {isExpanded ? <IconChevronUp size={18} /> : <IconChevronDown size={18} />}
@@ -166,10 +218,10 @@ export function StudyRecordSection({
                                 </div>
                             </button>
 
-                            {/* 학습 기록 테이블 */}
+                            {/* 학습 기록 테이블 - 모바일에서 가로 스크롤 */}
                             {isExpanded && records.length > 0 ? (
                                 <div className="overflow-x-auto">
-                                    <table className="w-full">
+                                    <table className="w-full min-w-[700px]">
                                         <thead>
                                             <tr className="border-b border-[var(--border-light)] bg-[var(--bg-primary)]/50">
                                                 <th className="px-4 py-2 text-left font-mono text-xs text-[var(--text-tertiary)] font-normal">

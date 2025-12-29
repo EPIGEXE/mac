@@ -189,7 +189,7 @@ export function NoteSelector({ notes, selectedIds, onSelectionChange }: NoteSele
     return (
         <div className="border border-[var(--border-light)] bg-[var(--bg-paper)]">
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-light)]">
+            <div className="flex items-center justify-between px-3 md:px-4 py-2.5 md:py-3 border-b border-[var(--border-light)]">
                 <div className="font-mono text-sm text-[var(--text-secondary)]">
                     선택됨: <span className="text-[var(--accent)]">{selectedIds.length}</span>
                     <span className="text-[var(--text-secondary)]">/{MAX_SELECTION}</span>
@@ -197,7 +197,7 @@ export function NoteSelector({ notes, selectedIds, onSelectionChange }: NoteSele
                 <div className="flex gap-2">
                     <button
                         onClick={handleDeselectAll}
-                        className="px-3 py-1 font-mono text-xs border border-[var(--border-light)] text-[var(--text-secondary)] hover:border-[var(--text-secondary)] transition-colors cursor-pointer"
+                        className="px-2 md:px-3 py-1 font-mono text-xs border border-[var(--border-light)] text-[var(--text-secondary)] hover:border-[var(--text-secondary)] transition-colors cursor-pointer"
                     >
                         전체 해제
                     </button>
@@ -206,7 +206,7 @@ export function NoteSelector({ notes, selectedIds, onSelectionChange }: NoteSele
 
             {/* 최대 선택 경고 */}
             {isMaxReached && (
-                <div className="px-4 py-2 bg-[var(--warning-light)] border-b border-[var(--warning)]/30">
+                <div className="px-3 md:px-4 py-2 bg-[var(--warning-light)] border-b border-[var(--warning)]/30">
                     <span className="font-mono text-xs text-[var(--warning)]">
                         // 최대 {MAX_SELECTION}개까지 선택 가능합니다
                     </span>
@@ -224,7 +224,7 @@ export function NoteSelector({ notes, selectedIds, onSelectionChange }: NoteSele
                     return (
                         <div key={mainId} className="border-b border-[var(--border-light)] last:border-b-0">
                             {/* 대주제 헤더 */}
-                            <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--bg-secondary)]">
+                            <div className="flex items-center gap-2 px-3 md:px-4 py-2 md:py-2.5 bg-[var(--bg-secondary)]">
                                 <button
                                     onClick={() => handleToggleExpandMain(mainId)}
                                     className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] cursor-pointer"
@@ -257,7 +257,7 @@ export function NoteSelector({ notes, selectedIds, onSelectionChange }: NoteSele
                                         return (
                                             <div key={subKey}>
                                                 {/* 소주제 헤더 */}
-                                                <div className="flex items-center gap-2 px-4 py-2 pl-8 bg-[var(--bg-paper)] border-t border-[var(--border-light)]">
+                                                <div className="flex items-center gap-2 px-3 md:px-4 py-2 pl-6 md:pl-8 bg-[var(--bg-paper)] border-t border-[var(--border-light)]">
                                                     <button
                                                         onClick={() => handleToggleExpandSub(subKey)}
                                                         className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] cursor-pointer"
@@ -291,7 +291,7 @@ export function NoteSelector({ notes, selectedIds, onSelectionChange }: NoteSele
                                                                     onClick={() => !isDisabled && handleToggleNote(note.id)}
                                                                     disabled={isDisabled}
                                                                     className={`
-                                                                        w-full flex items-center gap-3 px-4 py-2 pl-14 transition-colors text-left
+                                                                        w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 pl-10 md:pl-14 transition-colors text-left
                                                                         ${isDisabled
                                                                             ? 'opacity-50 cursor-not-allowed'
                                                                             : 'hover:bg-[var(--bg-secondary)] cursor-pointer'
@@ -331,7 +331,7 @@ export function NoteSelector({ notes, selectedIds, onSelectionChange }: NoteSele
 
             {/* Empty State */}
             {notes.length === 0 && (
-                <div className="px-4 py-8 text-center">
+                <div className="px-3 md:px-4 py-6 md:py-8 text-center">
                     <span className="font-mono text-sm text-[var(--text-primary)]">
                         // 노트가 없습니다
                     </span>

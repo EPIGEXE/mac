@@ -41,35 +41,41 @@ export function CurrentHistorySection({ recentSessions }: { recentSessions: Sess
                     return (
                         <div
                             key={session.id}
-                            className={`flex items-center gap-4 px-4 py-3 ${idx < recentSessions.length - 1 ? 'border-b border-dashed border-[var(--border-light)]' : ''}`}
+                            className={`flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-4 px-3 md:px-4 py-2.5 md:py-3 ${idx < recentSessions.length - 1 ? 'border-b border-dashed border-[var(--border-light)]' : ''}`}
                         >
-                            {/* 모드 아이콘 */}
-                            <span className={config.color}>{config.icon}</span>
+                            {/* 상단: 모드, 노트수, 정답률 */}
+                            <div className="flex items-center gap-3 sm:gap-4">
+                                {/* 모드 아이콘 */}
+                                <span className={config.color}>{config.icon}</span>
 
-                            {/* 모드 라벨 */}
-                            <span className="font-mono text-xs text-[var(--text-tertiary)] w-12">{config.label}</span>
+                                {/* 모드 라벨 */}
+                                <span className="font-mono text-xs text-[var(--text-tertiary)] w-12">{config.label}</span>
 
-                            {/* 노트 수 */}
-                            <span className="font-mono text-sm text-[var(--text-secondary)]">
-                                {session.noteCount}개 노트
-                            </span>
+                                {/* 노트 수 */}
+                                <span className="font-mono text-sm text-[var(--text-secondary)]">
+                                    {session.noteCount}개 노트
+                                </span>
 
-                            {/* 정답률 */}
-                            <span
-                                className={`font-mono text-sm ${accuracy >= 80 ? 'text-[var(--success)]' : accuracy >= 60 ? 'text-[var(--warning)]' : 'text-[var(--error)]'}`}
-                            >
-                                {accuracy}%
-                            </span>
+                                {/* 정답률 */}
+                                <span
+                                    className={`font-mono text-sm ${accuracy >= 80 ? 'text-[var(--success)]' : accuracy >= 60 ? 'text-[var(--warning)]' : 'text-[var(--error)]'}`}
+                                >
+                                    {accuracy}%
+                                </span>
+                            </div>
 
-                            {/* 시간 */}
-                            <span className="ml-auto font-mono text-xs text-[var(--text-tertiary)]">
-                                {formatDate(session.startedAt)}
-                            </span>
+                            {/* 하단(모바일) / 우측(데스크톱): 시간 정보 */}
+                            <div className="flex items-center gap-3 ml-7 sm:ml-auto">
+                                {/* 시간 */}
+                                <span className="font-mono text-xs text-[var(--text-tertiary)]">
+                                    {formatDate(session.startedAt)}
+                                </span>
 
-                            {/* 소요 시간 */}
-                            <span className="font-mono text-xs text-[var(--text-tertiary)]">
-                                {formatDuration(session.totalDuration)}
-                            </span>
+                                {/* 소요 시간 */}
+                                <span className="font-mono text-xs text-[var(--text-tertiary)]">
+                                    {formatDuration(session.totalDuration)}
+                                </span>
+                            </div>
                         </div>
                     )
                 })}

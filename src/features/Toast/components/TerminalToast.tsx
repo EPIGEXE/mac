@@ -108,7 +108,7 @@ export function TerminalToast() {
                 </button>
             </div>
             {/* 로그 영역 */}
-            <div ref={containerRef} className="px-3 py-2 overflow-y-auto overflow-x-hidden">
+            <div ref={containerRef} className="px-3 py-2 overflow-y-auto overflow-x-hidden break-words whitespace-pre-wrap">
                 {logs.map((entry) => (
                     <LogLine key={entry.id} entry={entry} isNew={newLogIds.has(entry.id)} />
                 ))}

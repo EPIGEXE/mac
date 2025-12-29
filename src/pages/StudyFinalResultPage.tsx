@@ -109,10 +109,10 @@ export function StudyFinalResultPage() {
         <div className="h-screen flex flex-col bg-[var(--bg-primary)]">
             {/* Header */}
             <header className="border-b border-[var(--border-light)] bg-[var(--bg-paper)]">
-                <div className="max-w-[900px] mx-auto px-6 py-4 flex items-center justify-between">
+                <div className="max-w-[900px] mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
                     <button
                         onClick={handleExit}
-                        className="bg-transparent border-none px-4 py-2.5 font-mono text-sm text-[var(--text-tertiary)] cursor-pointer flex items-center gap-2 transition-colors duration-150 hover:text-[var(--accent)]"
+                        className="bg-transparent border-none px-2 md:px-4 py-2 md:py-2.5 font-mono text-sm text-[var(--text-tertiary)] cursor-pointer flex items-center gap-1.5 md:gap-2 transition-colors duration-150 hover:text-[var(--accent)]"
                     >
                         <IconArrowLeft size={18} />
                         {'<'} exit
@@ -126,7 +126,7 @@ export function StudyFinalResultPage() {
 
             {/* Content */}
             <main className="flex-1 overflow-y-auto">
-                <div className="max-w-[900px] mx-auto px-6 py-8">
+                <div className="max-w-[900px] mx-auto px-4 md:px-6 py-6 md:py-8">
                     {/* ======================== 대시보드 섹션 ======================== */}
                     <motion.section
                         className="mb-10"
@@ -196,9 +196,9 @@ export function StudyFinalResultPage() {
                         </div>
 
                         {/* 바 차트 */}
-                        <div className="p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
-                            <ResponsiveContainer width="100%" height={200}>
-                                <BarChart data={chartData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                        <div className="p-3 md:p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
+                            <ResponsiveContainer width="100%" height={180}>
+                                <BarChart data={chartData} margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
                                     <XAxis
                                         dataKey="name"
                                         tick={{ fill: 'var(--text-tertiary)', fontSize: 11, fontFamily: 'D2Coding' }}
@@ -236,7 +236,7 @@ export function StudyFinalResultPage() {
                             </ResponsiveContainer>
 
                             {/* 범례 */}
-                            <div className="flex items-center justify-center gap-6 mt-2 font-mono text-xs text-[var(--text-tertiary)]">
+                            <div className="flex items-center justify-center gap-3 md:gap-6 mt-2 font-mono text-xs text-[var(--text-tertiary)] flex-wrap">
                                 <span className="flex items-center gap-1">
                                     <span className="w-3 h-3 bg-[var(--success)]" />
                                     80%+
@@ -251,7 +251,7 @@ export function StudyFinalResultPage() {
                                 </span>
                                 <span className="flex items-center gap-1">
                                     <span className="w-6 border-t border-dashed border-[var(--error)]" />
-                                    review line
+                                    review
                                 </span>
                             </div>
                         </div>
@@ -279,7 +279,7 @@ export function StudyFinalResultPage() {
                                 {needsReviewNotes.map((result, idx) => (
                                     <div
                                         key={result.noteId}
-                                        className={`flex items-center gap-4 px-4 py-3 ${idx < needsReviewNotes.length - 1 ? 'border-b border-[var(--error)]/20' : ''}`}
+                                        className={`flex items-center gap-2 md:gap-4 px-3 md:px-4 py-2.5 md:py-3 ${idx < needsReviewNotes.length - 1 ? 'border-b border-[var(--error)]/20' : ''}`}
                                     >
                                         <span className="font-mono text-sm text-[var(--error)]">!</span>
                                         <span className="flex-1 font-mono text-sm text-[var(--text-primary)] truncate">
@@ -295,7 +295,7 @@ export function StudyFinalResultPage() {
                             {/* 복습 버튼 */}
                             <button
                                 onClick={handleRetryWeak}
-                                className="mt-4 w-full py-3 px-4 font-mono text-sm border border-[var(--error)] text-[var(--error)] bg-transparent cursor-pointer transition-colors hover:bg-[var(--error)]/10 flex items-center justify-center gap-2"
+                                className="mt-3 md:mt-4 w-full py-2.5 md:py-3 px-3 md:px-4 font-mono text-sm border border-[var(--error)] text-[var(--error)] bg-transparent cursor-pointer transition-colors hover:bg-[var(--error)]/10 flex items-center justify-center gap-2"
                             >
                                 <IconRefresh size={16} />
                                 retry weak notes [{needsReviewNotes.length}]
@@ -328,12 +328,43 @@ export function StudyFinalResultPage() {
                                 return (
                                     <motion.div
                                         key={result.noteId}
-                                        className={`py-3 ${idx < noteResults.length - 1 ? 'border-b border-dashed border-[var(--border-light)]' : ''}`}
+                                        className={`py-2.5 md:py-3 ${idx < noteResults.length - 1 ? 'border-b border-dashed border-[var(--border-light)]' : ''}`}
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ duration: 0.15, delay: 0.3 + idx * 0.02 }}
                                     >
-                                        <div className="flex items-center gap-3">
+                                        {/* 모바일: 2줄 레이아웃 */}
+                                        <div className="flex flex-col gap-1.5 md:hidden">
+                                            {/* 첫째 줄: 번호, 상태, 제목 */}
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-mono text-sm text-[var(--text-tertiary)]">
+                                                    {String(idx + 1).padStart(2, '0')}
+                                                </span>
+                                                <span
+                                                    className={`font-mono text-sm ${isGood ? 'text-[var(--success)]' : isWarning ? 'text-[var(--warning)]' : 'text-[var(--error)]'}`}
+                                                >
+                                                    {isGood ? '✓' : isWarning ? '△' : '✗'}
+                                                </span>
+                                                <span
+                                                    className={`flex-1 font-mono text-sm truncate ${isBad ? 'text-[var(--error)]' : 'text-[var(--text-primary)]'}`}
+                                                >
+                                                    {result.noteTitle}
+                                                </span>
+                                            </div>
+                                            {/* 둘째 줄: 정답/오답, 점수 */}
+                                            <div className="flex items-center gap-3 ml-6">
+                                                <span className="font-mono text-sm text-[var(--success)]">+{result.correctCount}</span>
+                                                <span className="font-mono text-sm text-[var(--error)]">-{result.wrongCount}</span>
+                                                <span
+                                                    className={`ml-auto font-mono text-sm font-medium ${isGood ? 'text-[var(--success)]' : isWarning ? 'text-[var(--warning)]' : 'text-[var(--error)]'}`}
+                                                >
+                                                    {result.score}%
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* 데스크톱: 한 줄 레이아웃 */}
+                                        <div className="hidden md:flex items-center gap-3">
                                             {/* 번호 + 상태 */}
                                             <div className="flex items-center gap-2 shrink-0 w-12">
                                                 <span className="font-mono text-sm text-[var(--text-tertiary)]">
@@ -374,12 +405,12 @@ export function StudyFinalResultPage() {
 
                     {/* ======================== 액션 버튼 ======================== */}
                     <motion.section
-                        className="pt-6 border-t border-[var(--border-light)]"
+                        className="pt-4 md:pt-6 border-t border-[var(--border-light)]"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.2, delay: 0.35 }}
                     >
-                        <div className="flex gap-3">
+                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                             <TerminalButton onClick={handleExit} className="flex-1 justify-center">
                                 :q exit
                             </TerminalButton>

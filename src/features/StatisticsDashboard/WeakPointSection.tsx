@@ -23,8 +23,8 @@ export function WeakPointSection({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.25 }}
         >
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                     <IconAlertTriangle size={16} className="text-[var(--error)]" />
                     <span className="text-[var(--text-primary)]">취약점</span>
                     <span className="font-mono text-sm text-[var(--text-tertiary)]">
@@ -41,7 +41,7 @@ export function WeakPointSection({
 
                 <button
                     onClick={() => navigate('/study/weak-points')}
-                    className="px-3 py-1.5 font-mono text-xs border border-[var(--border-light)] text-[var(--text-secondary)] cursor-pointer transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)] flex items-center gap-1"
+                    className="px-2 md:px-3 py-1.5 font-mono text-xs border border-[var(--border-light)] text-[var(--text-secondary)] cursor-pointer transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)] flex items-center gap-1"
                 >
                     전체 보기
                     <IconChevronRight size={14} />
@@ -49,7 +49,7 @@ export function WeakPointSection({
             </div>
 
             {/* 모드별 취약점 요약 */}
-            <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3 mb-4">
                 {(['word', 'sentence', 'essay'] as const).map((mode) => {
                     const config = modeConfig[mode]
                     const count = weakPointSummary.byMode[mode]
@@ -57,7 +57,7 @@ export function WeakPointSection({
                     return (
                         <div
                             key={mode}
-                            className="p-3 border border-[var(--border-light)] bg-[var(--bg-paper)] flex items-center gap-3"
+                            className="p-2.5 md:p-3 border border-[var(--border-light)] bg-[var(--bg-paper)] flex items-center gap-2 md:gap-3"
                         >
                             <span className={config.color}>{config.icon}</span>
                             <span className="font-mono text-sm text-[var(--text-secondary)]">{config.label}</span>
@@ -87,10 +87,10 @@ export function WeakPointSection({
                         return (
                             <div
                                 key={wp.id}
-                                className={`flex items-center gap-3 px-4 py-2.5 ${idx < topWeakPoints.length - 1 ? 'border-b border-[var(--error)]/20' : ''}`}
+                                className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-2.5 ${idx < topWeakPoints.length - 1 ? 'border-b border-[var(--error)]/20' : ''}`}
                             >
-                                <span className={config.color}>{config.icon}</span>
-                                <div className="flex-1 min-w-0 gap-1 flex flex-col">
+                                <span className={`${config.color} shrink-0`}>{config.icon}</span>
+                                <div className="flex-1 min-w-0 gap-0.5 md:gap-1 flex flex-col">
                                     {noteTitle && (
                                         <span className="font-mono text-xs text-[var(--text-secondary)] truncate block">
                                             @ {noteTitle}
@@ -100,7 +100,7 @@ export function WeakPointSection({
                                         {displayContent || '(내용 없음)'}
                                     </span>
                                 </div>
-                                <span className="font-mono text-xs text-[var(--error)] whitespace-nowrap">
+                                <span className="font-mono text-xs text-[var(--error)] whitespace-nowrap shrink-0">
                                     {wp.wrongCount}회 오답
                                 </span>
                             </div>

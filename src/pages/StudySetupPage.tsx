@@ -66,11 +66,11 @@ export function StudySetupPage() {
         <div className="h-screen flex flex-col bg-[var(--bg-primary)]">
             {/* Header */}
             <header className="border-b border-[var(--border-light)] bg-[var(--bg-paper)]">
-                <div className="max-w-[800px] mx-auto px-6 py-4 flex items-center justify-between">
+                <div className="max-w-[800px] mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
                     {/* Left: Back */}
                     <button
                         onClick={handleBack}
-                        className="bg-transparent border-none px-4 py-2.5 font-mono text-sm text-[var(--text-tertiary)] cursor-pointer flex items-center gap-2 transition-colors duration-150 hover:text-[var(--accent)]"
+                        className="bg-transparent border-none px-2 md:px-4 py-2 md:py-2.5 font-mono text-sm text-[var(--text-tertiary)] cursor-pointer flex items-center gap-1.5 md:gap-2 transition-colors duration-150 hover:text-[var(--accent)]"
                     >
                         <IconArrowLeft size={18} />
                         {'<'} back
@@ -81,7 +81,7 @@ export function StudySetupPage() {
                         onClick={handleStart}
                         disabled={!canStart}
                         className={`
-                            flex items-center gap-2 px-6 py-2.5 font-mono text-sm transition-all
+                            flex items-center gap-2 px-4 md:px-6 py-2 md:py-2.5 font-mono text-sm transition-all
                             ${
                                 canStart
                                     ? 'bg-[var(--accent)] text-white cursor-pointer hover:opacity-90'
@@ -97,31 +97,31 @@ export function StudySetupPage() {
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto">
-                <div className="max-w-[800px] mx-auto px-6 py-8">
+                <div className="max-w-[800px] mx-auto px-4 md:px-6 py-6 md:py-8">
                     {/* 페이지 제목 */}
-                    <div className="mb-8">
-                        <h1 className="font-display text-2xl text-[var(--text-primary)] mb-2">학습 준비</h1>
+                    <div className="mb-6 md:mb-8">
+                        <h1 className="font-display text-xl md:text-2xl text-[var(--text-primary)] mb-2">학습 준비</h1>
                         <p className="font-mono text-sm text-[var(--text-secondary)]">
                             // 학습할 노트와 모드를 선택하세요
                         </p>
                     </div>
 
                     {/* 학습 모드 선택 */}
-                    <section className="mb-8">
-                        <SectionTitle className="mb-6">학습 모드</SectionTitle>
+                    <section className="mb-6 md:mb-8">
+                        <SectionTitle className="mb-4 md:mb-6">학습 모드</SectionTitle>
                         <StudyModeInlineSelector value={mode} onChange={setMode} />
                     </section>
 
                     {/* 학습 순서 선택 */}
-                    <section className="mb-8">
-                        <SectionTitle className="mb-6">학습 순서</SectionTitle>
+                    <section className="mb-6 md:mb-8">
+                        <SectionTitle className="mb-4 md:mb-6">학습 순서</SectionTitle>
                         <StudyOrderSelector value={order} onChange={setOrder} />
                     </section>
 
                     {/* 노트 선택 */}
-                    <section className="mb-8">
-                        <SectionTitle className="mb-6">
-                            <span className="flex items-center gap-2">
+                    <section className="mb-6 md:mb-8">
+                        <SectionTitle className="mb-4 md:mb-6">
+                            <span className="flex items-center gap-2 flex-wrap">
                                 <span>노트 선택</span>
                                 {selectedNoteIds.length > 0 && (
                                     <span className="font-mono text-sm text-[var(--text-secondary)]">
@@ -140,7 +140,7 @@ export function StudySetupPage() {
 
                     {/* 선택 요약 */}
                     {selectedNoteIds.length > 0 && (
-                        <section className="p-4 bg-[var(--bg-secondary)] border border-[var(--border-light)]">
+                        <section className="p-3 md:p-4 bg-[var(--bg-secondary)] border border-[var(--border-light)]">
                             <div className="font-mono text-sm text-[var(--text-secondary)]">
                                 <span className="text-[var(--accent)]">{selectedNoteIds.length}</span>개 노트를{' '}
                                 <span className="text-[var(--accent)]">

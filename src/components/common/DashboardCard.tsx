@@ -26,7 +26,7 @@ export function DashboardCard({
 
     return (
         <div
-            className={`p-4 border border-[var(--border-light)] bg-[var(--bg-paper)] ${spanClasses} ${className}`}
+            className={`p-3 md:p-4 border border-[var(--border-light)] bg-[var(--bg-paper)] ${spanClasses} ${className}`}
         >
             <div className="font-mono text-sm text-[var(--text-secondary)] mb-2">
                 // {label}

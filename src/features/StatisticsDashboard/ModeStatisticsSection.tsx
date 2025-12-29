@@ -13,21 +13,33 @@ export function ModeStatisticsSection({ modeStats }: { modeStats: ModeStats[] })
         >
             <SectionTitle className="mb-4">모드별 통계</SectionTitle>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                 {modeStats.map((stat) => {
                     const config = modeConfig[stat.mode]
                     const hasData = stat.totalSessions > 0
 
                     return (
-                        <div key={stat.mode} className="p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
-                            <div className="flex items-center gap-2 mb-3">
+                        <div key={stat.mode} className="p-3 md:p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
+                            <div className="flex items-center gap-2 mb-2 md:mb-3">
                                 <span className={config.color}>{config.icon}</span>
                                 <span className="font-mono text-sm text-[var(--text-primary)]">{config.label}</span>
+                                {/* 모바일에서 가로 배치 */}
+                                {hasData && (
+                                    <div className="flex items-baseline gap-1 sm:hidden ml-auto">
+                                        <span
+                                            className={`font-score text-2xl ${stat.accuracy >= 80 ? 'text-[var(--success)]' : stat.accuracy >= 60 ? 'text-[var(--warning)]' : 'text-[var(--error)]'}`}
+                                        >
+                                            {stat.accuracy}
+                                        </span>
+                                        <span className="font-mono text-sm text-[var(--text-tertiary)]">%</span>
+                                    </div>
+                                )}
                             </div>
 
                             {hasData ? (
                                 <>
-                                    <div className="flex items-baseline gap-1 mb-2">
+                                    {/* 데스크톱에서만 보이는 정답률 */}
+                                    <div className="hidden sm:flex items-baseline gap-1 mb-2">
                                         <span
                                             className={`font-score text-3xl ${stat.accuracy >= 80 ? 'text-[var(--success)]' : stat.accuracy >= 60 ? 'text-[var(--warning)]' : 'text-[var(--error)]'}`}
                                         >

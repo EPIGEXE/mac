@@ -49,7 +49,7 @@ export function ListView({ notes, categories, onNoteClick, onCreateNote, showMai
     // 양쪽에 동일한 여백을 줘서 메인 콘텐츠가 중앙 정렬되도록 함
     return (
         <div className="flex justify-center">
-            {/* 왼쪽 여백 - 사이드바와 동일한 공간 확보 */}
+            {/* 왼쪽 여백 - 사이드바와 동일한 공간 확보 (사이드바 표시될 때만) */}
             <div className="w-[228px] shrink-0 hidden min-[1400px]:block" />
 
             {/* 메인 콘텐츠 - min-height로 CLS 방지 */}
@@ -58,12 +58,12 @@ export function ListView({ notes, categories, onNoteClick, onCreateNote, showMai
                     ? groupedCategories.map((mainCat) => {
                           if (mainCat.subCategories.length === 0) return null
                           return (
-                              <div key={mainCat.id} className="mb-16">
-                                  <div className="flex items-center gap-4 mb-8 pb-4 border-b-2 border-[var(--accent)]">
+                              <div key={mainCat.id} className="mb-10 md:mb-16">
+                                  <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8 pb-3 md:pb-4 border-b-2 border-[var(--accent)]">
                                       <Badge variant="outline" size="sm">
                                           {mainCat.id.toUpperCase()}
                                       </Badge>
-                                      <h2 className="font-display text-2xl font-normal text-[var(--text-primary)] tracking-wide">
+                                      <h2 className="font-display text-2xl font-normal text-[var(--text-primary)] tracking-wide truncate">
                                           {mainCat.label}
                                       </h2>
                                   </div>
@@ -93,8 +93,8 @@ export function ListView({ notes, categories, onNoteClick, onCreateNote, showMai
                       ))}
             </main>
 
-            {/* 사이드바 네비게이션 */}
-            <div className="ml-12 shrink-0">
+            {/* 사이드바 네비게이션 - 1400px 이상에서만 표시 (왼쪽 여백과 동일) */}
+            <div className="ml-12 shrink-0 hidden min-[1400px]:block">
                 <SidebarNav
                     categories={categories}
                     showMainCategories={showMainCategories}

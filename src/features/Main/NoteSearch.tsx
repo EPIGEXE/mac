@@ -106,11 +106,11 @@ export function NoteSearch({
     const activeFilterCount = Object.values(tagFilter).filter(Boolean).length
 
     return (
-        <div className={`flex items-center gap-3 ${className}`}>
+        <div className={`flex flex-col gap-2 md:flex-row md:items-center md:gap-3 ${className}`}>
             {/* 검색창 */}
             <div
                 className={`
-                    relative flex-1 flex items-center gap-2 px-4 h-12
+                    relative flex items-center gap-2 px-3 md:px-4 h-11 md:h-12 md:flex-1
                     bg-[var(--bg-paper)] border
                     transition-all duration-200
                     ${isFocused
@@ -165,7 +165,7 @@ export function NoteSearch({
 
             {/* 태그 필터 드롭다운들 (Radix Select) */}
             {onTagFilter && (
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 shrink-0 overflow-x-auto">
                     {(Object.keys(FILTER_OPTIONS) as FilterKey[]).map((key) => {
                         const config = FILTER_OPTIONS[key]
                         const currentValue = tagFilter[key]
@@ -181,8 +181,8 @@ export function NoteSearch({
                             >
                                 <Select.Trigger
                                     className={`
-                                        flex items-center gap-1.5 h-12 px-3
-                                        bg-[var(--bg-paper)] border font-mono text-sm cursor-pointer
+                                        flex items-center gap-1.5 h-10 md:h-12 px-2 md:px-3
+                                        bg-[var(--bg-paper)] border font-mono text-xs md:text-sm cursor-pointer whitespace-nowrap
                                         transition-all duration-200 outline-none
                                         data-[state=open]:border-[var(--accent)]
                                         ${currentValue
@@ -272,7 +272,7 @@ export function NoteSearch({
                         onClick={() => onTagFilter?.({})}
                         disabled={activeFilterCount === 0}
                         className={`
-                            h-12 px-3
+                            h-10 md:h-12 px-2 md:px-3 shrink-0
                             bg-[var(--bg-paper)] border font-mono text-xs cursor-pointer
                             transition-all duration-200
                             ${activeFilterCount > 0

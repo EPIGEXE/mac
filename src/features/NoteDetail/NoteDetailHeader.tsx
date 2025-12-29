@@ -23,18 +23,18 @@ export function NoteDetailHeader({
 
     return (
         <header className="border-b border-[var(--border-light)] bg-[var(--bg-paper)]">
-            <div className="main-container px-6 py-4 flex items-center justify-between">
+            <div className="main-container px-3 md:px-6 py-3 md:py-4 flex items-center justify-between">
                 {/* 좌측: 뒤로가기 */}
                 <button
                     onClick={handleBack}
-                    className="bg-transparent border-none px-4 py-2.5 font-mono text-sm text-[var(--text-tertiary)] cursor-pointer flex items-center gap-2 transition-colors duration-150 hover:text-[var(--accent)]"
+                    className="bg-transparent border-none px-2 md:px-4 py-2 md:py-2.5 font-mono text-sm text-[var(--text-tertiary)] cursor-pointer flex items-center gap-1.5 md:gap-2 transition-colors duration-150 hover:text-[var(--accent)]"
                 >
                     <IconArrowLeft size={18} />
                     {'<'} back
                 </button>
 
                 {/* 우측: 컨트롤 */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 md:gap-4">
                     {/* 학습 버튼 */}
                     <TerminalButton onClick={handleStudyStart} variant="filled">
                         <span className="text-[11px] opacity-80">▶</span>

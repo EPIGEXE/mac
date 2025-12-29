@@ -18,7 +18,7 @@ const OPTIONS: { value: StudyOrder; label: string; mono: string; icon: typeof Ic
 
 export function StudyOrderSelector({ value, onChange }: StudyOrderSelectorProps) {
     return (
-        <div className="flex gap-3">
+        <div className="flex gap-2 md:gap-3">
             {OPTIONS.map(option => {
                 const isSelected = value === option.value
                 const Icon = option.icon
@@ -28,7 +28,7 @@ export function StudyOrderSelector({ value, onChange }: StudyOrderSelectorProps)
                         key={option.value}
                         onClick={() => onChange(option.value)}
                         className={`
-                            flex-1 py-3 px-4 border transition-all cursor-pointer
+                            flex-1 py-2.5 md:py-3 px-2 md:px-4 border transition-all cursor-pointer
                             ${isSelected
                                 ? 'border-[var(--accent)] bg-[var(--accent)]/10'
                                 : 'border-[var(--border-light)] hover:border-[var(--text-tertiary)]'

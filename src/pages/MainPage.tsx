@@ -153,7 +153,7 @@ export function MainPage() {
                 onTopicFilterChange={handleTopicFilterChange}
             />
 
-            <div className="py-8 px-6">
+            <div className="py-6 px-4 md:py-8 md:px-6">
                 <div className="main-container mb-6">
                     <NoteSearch
                         onSearch={handleSearch}

@@ -53,45 +53,50 @@ export function RecommandReviewSection({
                 {recommendedNotes.map((rec, idx) => (
                     <div
                         key={rec.noteId}
-                        className={`flex items-center gap-4 px-4 py-3 ${idx < recommendedNotes.length - 1 ? 'border-b border-[var(--warning)]/20' : ''}`}
+                        className={`flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-3 md:px-4 py-2.5 md:py-3 ${idx < recommendedNotes.length - 1 ? 'border-b border-[var(--warning)]/20' : ''}`}
                     >
-                        {/* 우선순위 */}
-                        <span className="font-mono text-xs text-[var(--text-tertiary)] w-6">
-                            {String(idx + 1).padStart(2, '0')}
-                        </span>
-
-                        {/* 이유 태그 */}
-                        <span
-                            className={`font-mono text-[10px] px-1.5 py-0.5 border border-current ${reasonColors[rec.reason]}`}
-                        >
-                            {reasonLabels[rec.reason]}
-                        </span>
-
-                        {/* 노트 제목 */}
-                        <span className="flex-1 font-mono text-sm text-[var(--text-primary)] truncate">
-                            {noteTitles[rec.noteId] || rec.noteId}
-                        </span>
-
-                        {/* 추가 정보 */}
-                        {rec.accuracy !== undefined && (
-                            <span className="font-mono text-xs text-[var(--error)]">{rec.accuracy}%</span>
-                        )}
-                        {rec.weakPointCount !== undefined && (
-                            <span className="font-mono text-xs text-[var(--error)]">{rec.weakPointCount} weak</span>
-                        )}
-                        {rec.lastStudiedAt && (
-                            <span className="font-mono text-xs text-[var(--text-tertiary)]">
-                                {formatDate(rec.lastStudiedAt)}
+                        {/* 상단 행: 우선순위, 이유 태그, 노트 제목 */}
+                        <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+                            {/* 우선순위 */}
+                            <span className="font-mono text-xs text-[var(--text-tertiary)] w-6 shrink-0">
+                                {String(idx + 1).padStart(2, '0')}
                             </span>
-                        )}
 
-                        {/* 노트 보기 버튼 */}
-                        <button
-                            onClick={() => handleViewRecommended(rec.noteId)}
-                            className="px-2 py-1 font-mono text-xs border border-[var(--border-light)] text-[var(--text-secondary)] cursor-pointer transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
-                        >
-                            보기 →
-                        </button>
+                            {/* 이유 태그 */}
+                            <span
+                                className={`font-mono text-[10px] px-1.5 py-0.5 border border-current shrink-0 ${reasonColors[rec.reason]}`}
+                            >
+                                {reasonLabels[rec.reason]}
+                            </span>
+
+                            {/* 노트 제목 */}
+                            <span className="flex-1 font-mono text-sm text-[var(--text-primary)] truncate min-w-0">
+                                {noteTitles[rec.noteId] || rec.noteId}
+                            </span>
+                        </div>
+
+                        {/* 하단 행 (모바일) / 우측 (데스크톱): 추가 정보 + 버튼 */}
+                        <div className="flex items-center gap-2 sm:gap-3 ml-8 sm:ml-0 shrink-0">
+                            {rec.accuracy !== undefined && (
+                                <span className="font-mono text-xs text-[var(--error)]">{rec.accuracy}%</span>
+                            )}
+                            {rec.weakPointCount !== undefined && (
+                                <span className="font-mono text-xs text-[var(--error)]">{rec.weakPointCount} weak</span>
+                            )}
+                            {rec.lastStudiedAt && (
+                                <span className="font-mono text-xs text-[var(--text-tertiary)] hidden sm:inline">
+                                    {formatDate(rec.lastStudiedAt)}
+                                </span>
+                            )}
+
+                            {/* 노트 보기 버튼 */}
+                            <button
+                                onClick={() => handleViewRecommended(rec.noteId)}
+                                className="px-2 py-1 font-mono text-xs border border-[var(--border-light)] text-[var(--text-secondary)] cursor-pointer transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)] ml-auto sm:ml-0"
+                            >
+                                보기 →
+                            </button>
+                        </div>
                     </div>
                 ))}
             </div>

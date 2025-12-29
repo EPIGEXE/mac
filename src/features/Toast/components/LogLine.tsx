@@ -64,7 +64,7 @@ export function LogLine({ entry, isNew }: LogLineProps) {
     return (
         <div className="font-mono text-xs py-0.5">
             {lines.map((line, lineIndex) => (
-                <div key={lineIndex} className="flex items-center gap-1.5 whitespace-nowrap">
+                <div key={lineIndex} className="flex items-start gap-1.5">
                     {/* 타임스탬프 */}
                     <span className={`shrink-0 ${lineIndex === 0 ? 'text-[var(--text-tertiary)]' : 'text-transparent'}`}>
                         [{entry.timestamp}]
@@ -78,7 +78,7 @@ export function LogLine({ entry, isNew }: LogLineProps) {
                         {config.prefix}
                     </span>
                     {/* 메시지 */}
-                    <span className="text-[var(--text-primary)]">
+                    <span className="text-[var(--text-primary)] break-words min-w-0">
                         {line}
                         {lineIndex === lines.length - 1 && showCursor && (
                             <span

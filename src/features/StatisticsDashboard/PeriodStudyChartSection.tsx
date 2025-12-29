@@ -42,12 +42,12 @@ export function PeriodStudyChartSection({ periodDays, setPeriodDays, chartData }
                 </div>
             </div>
 
-            <div className="p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
+            <div className="p-3 md:p-4 border border-[var(--border-light)] bg-[var(--bg-paper)]">
                 {/* 정답률 추이 */}
-                <div className="mb-6">
+                <div className="mb-4 md:mb-6">
                     <div className="font-mono text-xs text-[var(--text-tertiary)] mb-3">// 정답률 추이</div>
                     <ResponsiveContainer width="100%" height={150}>
-                        <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 10, left: 20 }}>
+                        <LineChart data={chartData} margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
                             <XAxis
                                 dataKey="dateLabel"
                                 tick={{
@@ -93,7 +93,7 @@ export function PeriodStudyChartSection({ periodDays, setPeriodDays, chartData }
                 <div>
                     <div className="font-mono text-xs text-[var(--text-tertiary)] mb-3">// 일별 문제 풀이</div>
                     <ResponsiveContainer width="100%" height={100}>
-                        <BarChart data={chartData} margin={{ top: 10, right: 20, bottom: 10, left: 20 }}>
+                        <BarChart data={chartData} margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
                             <XAxis
                                 dataKey="dateLabel"
                                 tick={{

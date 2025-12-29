@@ -127,25 +127,25 @@ export function StatisticsDashboardPage() {
         <div className="min-h-screen bg-[var(--bg-primary)]">
             {/* Header */}
             <header className="sticky top-0 z-10 border-b border-[var(--border-light)] bg-[var(--bg-paper)]">
-                <div className="main-container px-6 py-4 flex items-center justify-between">
+                <div className="main-container px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
                     <button
                         onClick={handleBack}
-                        className="bg-transparent border-none px-4 py-2.5 font-mono text-sm text-[var(--text-tertiary)] cursor-pointer flex items-center gap-2 transition-colors duration-150 hover:text-[var(--accent)]"
+                        className="bg-transparent border-none px-2 md:px-4 py-2 md:py-2.5 font-mono text-sm text-[var(--text-tertiary)] cursor-pointer flex items-center gap-1.5 md:gap-2 transition-colors duration-150 hover:text-[var(--accent)]"
                     >
                         <IconArrowLeft size={18} />
                         {'<'} back
                     </button>
 
                     <div className="flex items-center gap-3">
-                        <span className="font-display text-lg text-[var(--text-primary)]">학습 통계</span>
+                        <span className="font-display text-base md:text-lg text-[var(--text-primary)]">학습 통계</span>
                     </div>
 
-                    <div className="w-24" />
+                    <div className="w-12 md:w-24" />
                 </div>
             </header>
 
             {/* Content */}
-            <main className="main-container px-6 py-8">
+            <main className="main-container px-4 md:px-6 py-6 md:py-8">
                 {!hasData ? (
                     // 데이터 없음 상태
                     <div className="flex flex-col items-center justify-center py-20">

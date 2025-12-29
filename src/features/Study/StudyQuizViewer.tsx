@@ -44,11 +44,11 @@ export function StudyQuizViewer({
         <div className="h-screen flex flex-col bg-[var(--bg-primary)]">
             {/* Header */}
             <header className="border-b border-[var(--border-light)] bg-[var(--bg-paper)]">
-                <div className="main-container px-6 py-4 flex items-center justify-between">
+                <div className="main-container px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
                     {/* Left: Exit */}
                     <button
                         onClick={onExit}
-                        className="bg-transparent border-none px-4 py-2.5 font-mono text-sm text-[var(--text-tertiary)] cursor-pointer flex items-center gap-2 transition-colors duration-150 hover:text-[var(--accent)]"
+                        className="bg-transparent border-none px-2 md:px-4 py-2 md:py-2.5 font-mono text-sm text-[var(--text-tertiary)] cursor-pointer flex items-center gap-1.5 md:gap-2 transition-colors duration-150 hover:text-[var(--accent)]"
                     >
                         <IconArrowLeft size={18} />
                         {'<'} exit
@@ -56,9 +56,9 @@ export function StudyQuizViewer({
 
                     {/* Center: Progress (Store 모드) */}
                     {!isSingleNote && (
-                        <div className="flex items-center gap-4">
-                            {/* 모드 표시 */}
-                            <span className="font-mono text-xs text-[var(--text-tertiary)] px-2 py-1 border border-[var(--border-light)]">
+                        <div className="flex items-center gap-2 md:gap-4">
+                            {/* 모드 표시 - 데스크톱만 */}
+                            <span className="hidden sm:inline font-mono text-xs text-[var(--text-tertiary)] px-2 py-1 border border-[var(--border-light)]">
                                 {studyMode}
                             </span>
 
@@ -68,7 +68,7 @@ export function StudyQuizViewer({
                             </span>
 
                             {/* 진행률 바 */}
-                            <div className="w-32 h-1.5 bg-[var(--bg-secondary)] overflow-hidden">
+                            <div className="w-20 md:w-32 h-1.5 bg-[var(--bg-secondary)] overflow-hidden">
                                 <div
                                     className="h-full bg-[var(--accent)] transition-all duration-300"
                                     style={{ width: `${progress}%` }}
@@ -79,8 +79,8 @@ export function StudyQuizViewer({
 
                     {/* Right: 모드 표시 */}
                     {studyMode && (
-                        <span className="font-mono text-xs text-[var(--text-tertiary)] px-2 py-1 border border-[var(--border-light)]">
-                            {studyMode} · {modeLabel}
+                        <span className="font-mono text-xs text-[var(--text-tertiary)] px-1.5 md:px-2 py-1 border border-[var(--border-light)]">
+                            <span className="hidden sm:inline">{studyMode} · </span>{modeLabel}
                         </span>
                     )}
                 </div>

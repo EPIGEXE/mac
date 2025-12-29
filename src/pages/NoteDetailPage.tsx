@@ -190,7 +190,7 @@ export function NoteDetailPage() {
                 />
 
                 {/* 메인 콘텐츠 */}
-                <div className="main-container px-6">
+                <div className="main-container px-4 md:px-6">
                     <ErrorBoundary fallback={(error, reset) => <ErrorFallback error={error} onReset={reset} />}>
                         <MarkdownEditor
                             initialContent={note?.content || ''}
@@ -211,7 +211,7 @@ export function NoteDetailPage() {
                             {contentLength.toLocaleString()} / {MAX_CONTENT_LENGTH.toLocaleString()}자
                         </span>
                         {contentLength > MAX_CONTENT_LENGTH && (
-                            <span className="text-red-400">(제한 초과 - 저장 불가)</span>
+                            <span className="text-red-400 hidden sm:inline">(제한 초과 - 저장 불가)</span>
                         )}
                     </div>
                 </div>

@@ -203,9 +203,17 @@
         @apply font-mono text-xs text-[var(--text-secondary)];
     }
 
-
     .border-highlight-button {
         @apply border border-[var(--border-light)] bg-transparent text-[var(--text-tertiary)] flex items-center justify-center cursor-pointer transition-all duration-150 hover:border-[var(--accent)] hover:text-[var(--accent)];
+    }
+
+    /* 스크롤바 숨기기 유틸리티 */
+    .scrollbar-none {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
     }
 }
 

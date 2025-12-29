@@ -118,9 +118,9 @@ export function MainHeader({ viewMode, onViewModeChange, topicFilter, onTopicFil
                             </motion.p>
                         </div>
 
-                        {/* Topic 필터 (스크롤 시 인라인으로 표시) */}
+                        {/* Topic 필터 (스크롤 시 인라인으로 표시 - md 이상에서만) */}
                         <motion.div
-                            className="flex items-center gap-1 overflow-hidden"
+                            className="hidden md:flex items-center gap-1 overflow-hidden"
                             initial={false}
                             animate={{
                                 width: isCompact ? 'auto' : 0,
@@ -148,9 +148,19 @@ export function MainHeader({ viewMode, onViewModeChange, topicFilter, onTopicFil
                     </div>
 
                     {/* 우측: View Mode + 테마 + 학습 */}
-                    <div className="flex items-center gap-3">
-                        {/* View Mode - 터미널 스타일 */}
-                        <div className="flex font-mono text-[var(--text-tertiary)]">
+                    <div className="flex items-center gap-1.5 md:gap-3">
+                        {/* View Mode - 모바일: 아이콘 토글, 데스크톱: 터미널 스타일 */}
+                        {/* 모바일 뷰 모드 토글 */}
+                        <button
+                            onClick={() => onViewModeChange(viewMode === 'list' ? 'roadmap' : 'list')}
+                            className="md:hidden border-highlight-button w-8 h-8 font-mono text-xs"
+                            aria-label={viewMode === 'list' ? '맵 뷰로 전환' : '리스트 뷰로 전환'}
+                        >
+                            {viewMode === 'list' ? '≡' : '◈'}
+                        </button>
+
+                        {/* 데스크톱 뷰 모드 */}
+                        <div className="hidden md:flex font-mono text-[var(--text-tertiary)]">
                             <span className="mr-2">view:</span>
                             <button
                                 onClick={() => onViewModeChange('list')}
@@ -186,23 +196,23 @@ export function MainHeader({ viewMode, onViewModeChange, topicFilter, onTopicFil
                             {theme === 'light' ? <IconMoon size={16} /> : <IconSun size={16} />}
                         </button>
 
-                        {/* Study 버튼 (스크롤 시에만 표시) */}
+                        {/* Study 버튼 (스크롤 시에만 표시, 모바일에서는 아이콘만) */}
                         <motion.button
                             onClick={handleStudyClick}
-                            className="flex items-center gap-1.5 font-mono text-sm font-medium bg-[var(--accent)] text-white border-none cursor-pointer transition-colors duration-150 hover:bg-[var(--accent-hover)] overflow-hidden whitespace-nowrap"
+                            className="flex items-center justify-center gap-1.5 font-mono text-sm font-medium bg-[var(--accent)] text-white border-none cursor-pointer transition-colors duration-150 hover:bg-[var(--accent-hover)] overflow-hidden whitespace-nowrap"
                             initial={false}
                             animate={{
                                 width: isCompact ? 'auto' : 0,
                                 opacity: isCompact ? 1 : 0,
-                                paddingLeft: isCompact ? 12 : 0,
-                                paddingRight: isCompact ? 12 : 0,
+                                paddingLeft: isCompact ? 8 : 0,
+                                paddingRight: isCompact ? 8 : 0,
                                 paddingTop: isCompact ? 6 : 0,
                                 paddingBottom: isCompact ? 6 : 0,
                             }}
                             transition={{ duration: 0.3, ease: 'easeOut' }}
                         >
                             <IconPlayerPlay size={14} />
-                            <span>학습</span>
+                            <span className="hidden md:inline">학습</span>
                         </motion.button>
                     </div>
                 </div>
@@ -213,24 +223,24 @@ export function MainHeader({ viewMode, onViewModeChange, topicFilter, onTopicFil
                     initial={false}
                     animate={{
                         height: isCompact ? 0 : 'auto',
-                        marginTop: isCompact ? 0 : 24,
+                        marginTop: isCompact ? 0 : 16,
                         opacity: isCompact ? 0 : 1,
                     }}
                     transition={{ duration: 0.3, ease: 'easeOut' }}
                 >
-                    <div className="flex items-center border-b border-[var(--border-light)]">
-                        <div className="flex flex-1">
+                    <div className="flex items-center border-b border-[var(--border-light)] overflow-x-auto scrollbar-none">
+                        <div className="flex">
                             {topicButtons.map((topic) => {
                                 const isActive = topicFilter === topic.value
                                 return (
                                     <button
                                         key={topic.value}
                                         onClick={() => handleTopicChange(topic.value)}
-                                        className={`py-3 px-5 bg-transparent border-none -mb-px cursor-pointer transition-colors duration-150 ${
+                                        className={`py-2 px-2.5 md:py-3 md:px-5 bg-transparent border-none -mb-px cursor-pointer transition-colors duration-150 whitespace-nowrap shrink-0 ${
                                             isActive ? 'border-b-2 border-b-[var(--accent)]' : 'border-b-2 border-b-transparent'
                                         }`}
                                     >
-                                        <span className="font-mono text-sm text-[var(--text-tertiary)] mr-1.5">
+                                        <span className="font-mono text-sm text-[var(--text-tertiary)] mr-1.5 hidden sm:inline">
                                             {topic.mono}
                                         </span>
                                         <span

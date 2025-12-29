@@ -22,15 +22,15 @@ interface EditableProps extends BaseProps {
 type NoteHeaderProps = ReadOnlyProps | EditableProps
 
 const TITLE_CLASSNAME =
-    'font-display text-[32px] font-normal text-[var(--text-primary)] mb-6 leading-[1.3] tracking-wide'
+    'font-display text-2xl md:text-[32px] font-normal text-[var(--text-primary)] mb-4 md:mb-6 leading-[1.3] tracking-wide'
 
 export function NoteHeader(props: NoteHeaderProps) {
     const { category, title, tag } = props
 
     return (
-        <div className="main-container px-6 py-12">
+        <div className="main-container px-4 md:px-6 py-8 md:py-12">
             {/* 카테고리 */}
-            <div className="flex items-center gap-2 mb-5">
+            <div className="flex items-center gap-2 mb-3 md:mb-5">
                 <span className="font-mono text-xs text-[var(--accent)]">#</span>
                 <span className="font-mono text-xs text-[var(--text-tertiary)]">
                     {category}
@@ -51,10 +51,10 @@ export function NoteHeader(props: NoteHeaderProps) {
             )}
 
             {/* 태그 */}
-            <NoteTags tag={tag} className="mb-8" />
+            <NoteTags tag={tag} className="mb-6 md:mb-8" />
 
             {/* 구분선 */}
-            <div className="border-t border-dashed border-[var(--border-light)] mb-8" />
+            <div className="border-t border-dashed border-[var(--border-light)] mb-6 md:mb-8" />
         </div>
     )
 }
