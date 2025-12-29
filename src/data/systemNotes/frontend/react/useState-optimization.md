@@ -38,7 +38,7 @@ setState(prevCount => prevCount + 1);
 
 ### 3. 상태 구조 설계
 
-#### 관련 상태 그룹화
+**관련 상태 그룹화** 
 
 ```jsx
 // ❌ 항상 함께 변경되는 상태를 분리
@@ -49,7 +49,7 @@ const [y, setY] = useState(0);
 const [position, setPosition] = useState({ x: 0, y: 0 });
 ```
 
-#### 독립적인 상태 분리
+**독립적인 상태 분리**
 
 ```jsx
 // ❌ 독립적인 상태를 하나로 묶음 → 불필요한 리렌더링
@@ -61,7 +61,7 @@ const [age, setAge] = useState(0);
 const [theme, setTheme] = useState('light');
 ```
 
-#### 판단 기준
+**판단 기준**
 
 | 상황 | 권장 |
 |------|------|
@@ -139,7 +139,7 @@ setTimeout(() => {
 
 ### 1. 의존성 배열 올바르게 사용
 
-#### 규칙
+**규칙**
 
 - effect 내에서 사용하는 **모든 반응형 값**을 포함
 - 반응형 값: props, state, 이들로부터 계산된 값
@@ -158,13 +158,13 @@ useEffect(() => {
 }, [count]);
 ```
 
-#### ESLint 규칙 활용
+**ESLint 규칙 활용**
 
 `eslint-plugin-react-hooks`의 `exhaustive-deps` 규칙이 의존성 누락을 경고합니다. **경고를 무시하지 말고 해결**하세요.
 
 ### 2. 불필요한 effect 피하기
 
-#### 렌더링 중 계산 가능한 것
+**렌더링 중 계산 가능한 것**
 
 ```jsx
 // ❌ 불필요한 effect
@@ -180,7 +180,7 @@ useEffect(() => {
 const fullName = firstName + ' ' + lastName;
 ```
 
-#### props/state 변경에 따른 state 리셋
+**props/state 변경에 따른 state 리셋** 
 
 ```jsx
 // ❌ effect로 동기화 (불필요한 렌더링)
@@ -192,7 +192,7 @@ useEffect(() => {
 <List items={items} key={items.id} />
 ```
 
-#### 이벤트에 대한 반응
+**이벤트에 대한 반응**
 
 ```jsx
 // ❌ effect로 이벤트 처리
@@ -232,7 +232,7 @@ useEffect(() => {
 
 ### 5. 무한 루프 방지
 
-#### 객체/배열/함수 의존성
+**객체/배열/함수 의존성**
 
 ```jsx
 // ❌ 매 렌더링마다 새 객체 → 무한 루프
@@ -252,7 +252,7 @@ useEffect(() => {
 }, [options]);
 ```
 
-#### effect 안에서 setState
+**effect 안에서 setState**
 
 ```jsx
 // ❌ 무한 루프
