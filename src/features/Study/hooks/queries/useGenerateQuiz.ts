@@ -2,10 +2,12 @@
  * Quiz 생성 Query Hook
  * - TanStack Query를 사용한 퀴즈 생성 API 호출
  * - 자동 캐싱 및 중복 요청 방지
+ * - AppError 기반 재시도 제어
  */
 import { useQuery } from '@tanstack/react-query'
 import { studyKeys } from './keys'
 import { generateQuiz } from '../../services/studyApi'
+import { AppError, FirebaseError } from '../../../../errors'
 import type { StudyModeType, GenerateQuizResponse } from '../../types'
 
 export interface UseGenerateQuizParams {
@@ -30,19 +32,30 @@ export interface UseGenerateQuizOptions {
  * )
  */
 export function useGenerateQuiz(params: UseGenerateQuizParams, options?: UseGenerateQuizOptions) {
-    return useQuery<GenerateQuizResponse, Error>({
+    return useQuery<GenerateQuizResponse, AppError>({
         queryKey: studyKeys.quiz(params.noteId, params.mode),
-        queryFn: () =>
-            generateQuiz({
-                noteId: params.noteId,
-                noteContent: params.noteContent,
-                noteTitle: params.noteTitle,
-                mode: params.mode,
-                blankCount: params.blankCount ?? 5,
-            }),
+        queryFn: async () => {
+            try {
+                return await generateQuiz({
+                    noteId: params.noteId,
+                    noteContent: params.noteContent,
+                    noteTitle: params.noteTitle,
+                    mode: params.mode,
+                    blankCount: params.blankCount ?? 5,
+                })
+            } catch (e) {
+                throw FirebaseError.fromFunctionsError(e)
+            }
+        },
         enabled: options?.enabled ?? true,
         staleTime: 30 * 60 * 1000, // 30분 (기존 캐시 TTL과 동일)
         gcTime: 60 * 60 * 1000, // 1시간
-        retry: 1,
+        retry: (failureCount, error) => {
+            // retryable한 에러만 재시도
+            if (AppError.isAppError(error) && !error.retryable) {
+                return false
+            }
+            return failureCount < 1
+        },
     })
 }

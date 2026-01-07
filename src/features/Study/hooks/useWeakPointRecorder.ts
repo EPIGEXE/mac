@@ -1,15 +1,24 @@
 /**
  * 약점 기록 Hooks
  * - 모드별 취약점 기록 (word, sentence, essay)
- * - 새로운 weakPointService API 사용
+ * - 에러는 상태로 반환, Toast는 컴포넌트에서 처리
  */
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import {
     addWordWeakPoint,
     addSentenceWeakPoint,
     addEssayWeakPoint,
 } from '../../../db/study/weakPointService'
-import { terminalToast } from '../../Toast/toast'
+import { AppError } from '../../../errors'
+
+// ============================================================================
+// 공통 타입
+// ============================================================================
+
+interface WeakPointRecorderResult {
+    success: boolean
+    error?: AppError
+}
 
 // ============================================================================
 // 단어 모드 약점 기록 Hook
@@ -27,10 +36,16 @@ interface RecordWordWeakPointParams {
 }
 
 export function useWordWeakPointRecorder({ noteId, noteType }: UseWordWeakPointRecorderProps) {
+    const [error, setError] = useState<AppError | null>(null)
+
     /**
      * 단어 약점 기록
      */
-    const recordWordWeakPoint = useCallback(async (params: RecordWordWeakPointParams) => {
+    const recordWordWeakPoint = useCallback(async (
+        params: RecordWordWeakPointParams
+    ): Promise<WeakPointRecorderResult> => {
+        setError(null)
+
         try {
             await addWordWeakPoint({
                 noteId,
@@ -39,9 +54,12 @@ export function useWordWeakPointRecorder({ noteId, noteType }: UseWordWeakPointR
                 hint: params.hint,
                 userAnswer: params.userAnswer,
             })
+            return { success: true }
         } catch (e) {
-            console.error('Failed to record word weak point:', e)
-            terminalToast.warning('약점 기록에 실패했습니다.')
+            const appError = AppError.from(e)
+            console.error('[WeakPointRecorder:word]', appError.code, e)
+            setError(appError)
+            return { success: false, error: appError }
         }
     }, [noteId, noteType])
 
@@ -51,15 +69,20 @@ export function useWordWeakPointRecorder({ noteId, noteType }: UseWordWeakPointR
     const recordWordIfWrong = useCallback(async (
         isCorrect: boolean,
         params: RecordWordWeakPointParams
-    ) => {
+    ): Promise<WeakPointRecorderResult> => {
         if (!isCorrect) {
-            await recordWordWeakPoint(params)
+            return await recordWordWeakPoint(params)
         }
+        return { success: true }
     }, [recordWordWeakPoint])
 
+    const clearError = useCallback(() => setError(null), [])
+
     return {
+        error,
         recordWordWeakPoint,
         recordWordIfWrong,
+        clearError,
     }
 }
 
@@ -81,10 +104,16 @@ interface RecordSentenceWeakPointParams {
 }
 
 export function useSentenceWeakPointRecorder({ noteId, noteType }: UseSentenceWeakPointRecorderProps) {
+    const [error, setError] = useState<AppError | null>(null)
+
     /**
      * 문장 약점 기록
      */
-    const recordSentenceWeakPoint = useCallback(async (params: RecordSentenceWeakPointParams) => {
+    const recordSentenceWeakPoint = useCallback(async (
+        params: RecordSentenceWeakPointParams
+    ): Promise<WeakPointRecorderResult> => {
+        setError(null)
+
         try {
             await addSentenceWeakPoint({
                 noteId,
@@ -95,9 +124,12 @@ export function useSentenceWeakPointRecorder({ noteId, noteType }: UseSentenceWe
                 keyPoints: params.keyPoints,
                 missedPoints: params.missedPoints,
             })
+            return { success: true }
         } catch (e) {
-            console.error('Failed to record sentence weak point:', e)
-            terminalToast.warning('약점 기록에 실패했습니다.')
+            const appError = AppError.from(e)
+            console.error('[WeakPointRecorder:sentence]', appError.code, e)
+            setError(appError)
+            return { success: false, error: appError }
         }
     }, [noteId, noteType])
 
@@ -107,15 +139,20 @@ export function useSentenceWeakPointRecorder({ noteId, noteType }: UseSentenceWe
     const recordSentenceIfWrong = useCallback(async (
         isCorrect: boolean,
         params: RecordSentenceWeakPointParams
-    ) => {
+    ): Promise<WeakPointRecorderResult> => {
         if (!isCorrect) {
-            await recordSentenceWeakPoint(params)
+            return await recordSentenceWeakPoint(params)
         }
+        return { success: true }
     }, [recordSentenceWeakPoint])
 
+    const clearError = useCallback(() => setError(null), [])
+
     return {
+        error,
         recordSentenceWeakPoint,
         recordSentenceIfWrong,
+        clearError,
     }
 }
 
@@ -136,11 +173,20 @@ interface RecordEssayWeakPointParams {
     missedPoints: string[]
 }
 
+/** 서술형 오답 기준 점수 */
+const ESSAY_WRONG_THRESHOLD = 70
+
 export function useEssayWeakPointRecorder({ noteId, noteType }: UseEssayWeakPointRecorderProps) {
+    const [error, setError] = useState<AppError | null>(null)
+
     /**
      * 서술형 약점 기록
      */
-    const recordEssayWeakPoint = useCallback(async (params: RecordEssayWeakPointParams) => {
+    const recordEssayWeakPoint = useCallback(async (
+        params: RecordEssayWeakPointParams
+    ): Promise<WeakPointRecorderResult> => {
+        setError(null)
+
         try {
             await addEssayWeakPoint({
                 noteId,
@@ -151,9 +197,12 @@ export function useEssayWeakPointRecorder({ noteId, noteType }: UseEssayWeakPoin
                 expectedPoints: params.expectedPoints,
                 missedPoints: params.missedPoints,
             })
+            return { success: true }
         } catch (e) {
-            console.error('Failed to record essay weak point:', e)
-            terminalToast.warning('약점 기록에 실패했습니다.')
+            const appError = AppError.from(e)
+            console.error('[WeakPointRecorder:essay]', appError.code, e)
+            setError(appError)
+            return { success: false, error: appError }
         }
     }, [noteId, noteType])
 
@@ -163,14 +212,19 @@ export function useEssayWeakPointRecorder({ noteId, noteType }: UseEssayWeakPoin
     const recordEssayIfWrong = useCallback(async (
         score: number,
         params: RecordEssayWeakPointParams
-    ) => {
-        if (score < 70) {
-            await recordEssayWeakPoint(params)
+    ): Promise<WeakPointRecorderResult> => {
+        if (score < ESSAY_WRONG_THRESHOLD) {
+            return await recordEssayWeakPoint(params)
         }
+        return { success: true }
     }, [recordEssayWeakPoint])
 
+    const clearError = useCallback(() => setError(null), [])
+
     return {
+        error,
         recordEssayWeakPoint,
         recordEssayIfWrong,
+        clearError,
     }
 }

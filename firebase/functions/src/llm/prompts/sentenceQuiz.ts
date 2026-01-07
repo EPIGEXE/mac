@@ -29,31 +29,14 @@ ${content}
    - Focus on concepts frequently asked in interviews
 
 2. **Question Types (use variety!) - 중복 금지!**
+   ⚠️ 아래는 질문 유형 설명을 위한 형식 예시입니다. 이 예시들을 그대로 사용하지 마세요!
+   반드시 위 Document의 내용에서만 질문을 만드세요.
 
-   **Type A: 비교 질문 (A vs B)**
-   - "defer와 async의 차이점은?"
-   - "Reflow와 Repaint는 어떻게 다른가요?"
-   - Answer: 두 개념의 핵심 차이점
-
-   **Type B: 조건/시점 질문 (When)**
-   - "언제 Reflow가 발생하나요?"
-   - "CORS preflight 요청이 발생하는 조건은?"
-   - Answer: 특정 조건이나 시점 설명
-
-   **Type C: 목적/이유 질문 (Why)**
-   - "왜 Virtual DOM을 사용하나요?"
-   - "CORS가 필요한 이유는?"
-   - Answer: 목적이나 이점 설명
-
-   **Type D: 해결/방법 질문 (How to)**
-   - "CORS 에러를 해결하는 방법은?"
-   - "Reflow를 최소화하려면 어떻게 해야 하나요?"
-   - Answer: 구체적인 해결책이나 방법
-
-   **Type E: 결과/영향 질문 (What happens)**
-   - "JavaScript가 DOM을 수정하면 어떤 일이 발생하나요?"
-   - "async 스크립트가 먼저 로드되면?"
-   - Answer: 결과나 영향 설명
+   **Type A: 비교 질문 (A vs B)** - "[개념1]와 [개념2]의 차이점은?" 형식
+   **Type B: 조건/시점 질문 (When)** - "언제 [현상]이 발생하나요?" 형식
+   **Type C: 목적/이유 질문 (Why)** - "왜 [기술/방법]을 사용하나요?" 형식
+   **Type D: 해결/방법 질문 (How to)** - "[문제]를 해결하는 방법은?" 형식
+   **Type E: 결과/영향 질문 (What happens)** - "[동작]을 하면 어떤 일이 발생하나요?" 형식
 
    ⚠️ IMPORTANT: 같은 개념에 대해 여러 유형의 질문을 만들지 마세요!
    - ❌ "CORS란?" + "CORS의 원리는?" (중복 - 답변이 비슷함)
@@ -99,26 +82,21 @@ Return ONLY valid JSON:
   ]
 }
 
-## GOOD Examples:
-✅ Q: "defer와 async의 차이점은?" (Type A - 비교)
-   A: "defer는 순서를 보장하고, async는 먼저 로드된 순서로 실행됩니다"
+## Rules for Good Questions:
+✅ Type A (비교): 문서에 나온 두 개념의 차이점을 묻는 질문
+✅ Type B (조건): 특정 현상이 발생하는 조건/시점을 묻는 질문
+✅ Type C (목적): 특정 기술/방법을 사용하는 이유를 묻는 질문
+✅ Type D (해결): 문제 해결 방법을 묻는 질문
+✅ 답변은 20-80자의 완전한 문장
 
-✅ Q: "언제 Reflow가 발생하나요?" (Type B - 조건)
-   A: "요소의 크기나 위치가 변경될 때 발생합니다"
-
-✅ Q: "Virtual DOM을 사용하는 이유는?" (Type C - 목적)
-   A: "실제 DOM 조작을 최소화하여 성능을 향상시키기 위해"
-
-✅ Q: "CORS 에러를 해결하는 방법은?" (Type D - 해결)
-   A: "서버에서 Access-Control-Allow-Origin 헤더를 설정합니다"
-
-## BAD Examples:
-❌ Q: "DOM이란?" + "DOM의 원리는?" (중복 - 같은 개념, 비슷한 답변)
-❌ Q: "CORS란?" + "CORS를 설명하세요" (중복 - 표현만 다름)
-❌ Q: "DOM이 뭔가요?" A: "DOM" (단어만 - 너무 짧음)
-❌ Q: "다음 빈칸을 채우세요: [___]은 트리 구조이다" (빈칸 채우기 형식 X)
+## Avoid:
+❌ 같은 개념에 대해 여러 질문 생성 (중복)
+❌ 단어만으로 답변 (너무 짧음)
+❌ 빈칸 채우기 형식
+❌ 문서에 없는 내용으로 질문 생성
 
 CRITICAL:
+- 🚨 오직 위 Document 내용에서만 질문을 생성하세요! 프롬프트의 형식 예시를 문제로 사용하지 마세요!
 - 같은 개념에 대해 1개의 질문만 생성 (중복 금지!)
 - Questions must be answerable without seeing the original document
 - Each answer must be a COMPLETE sentence (20-80 chars)

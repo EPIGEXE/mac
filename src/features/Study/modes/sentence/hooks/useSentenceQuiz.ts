@@ -8,11 +8,11 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import type { SentenceQuestionInfo, SentenceEvaluationResult } from '../../../types'
-import { handleStudyApiError } from '../../../services/studyApi'
 import { useSentenceWeakPointRecorder } from '../../../hooks/useWeakPointRecorder'
 import { useGenerateQuiz } from '../../../hooks/queries/useGenerateQuiz'
 import { useEvaluateSentence } from '../../../hooks/queries/useEvaluateSentence'
 import { studyKeys } from '../../../hooks/queries/keys'
+import { AppError, ERROR_MESSAGES } from '../../../../../errors'
 
 type SentenceQuizPhase = 'loading' | 'quiz' | 'result'
 
@@ -31,7 +31,7 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
     const [phase, setPhase] = useState<SentenceQuizPhase>('loading') // 퀴즈 단계
     const [answers, setAnswers] = useState<Record<string, string>>({}) // 답변 목록
     const [results, setResults] = useState<Record<string, boolean | null>>({}) // 결과 목록
-    const [error, setError] = useState<string | null>(null) // 에러
+    const [error, setError] = useState<AppError | null>(null) // 에러
 
     // 문장 모드 전용 상태
     const [evaluationResults, setEvaluationResults] = useState<SentenceEvaluationResult[]>([]) // 평가 결과 목록
@@ -69,9 +69,12 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
     // Query 에러 처리
     useEffect(() => {
         if (queryError) {
-            setError(queryError.message)
+            setError(queryError)
         }
     }, [queryError])
+
+    // 에러 메시지 (사용자 표시용)
+    const errorMessage = error ? ERROR_MESSAGES[error.code] : null
 
     // ================================ 상수 ================================
     const questions = useMemo(() => (quizResponse?.questions || []) as SentenceQuestionInfo[], [quizResponse?.questions])
@@ -173,8 +176,9 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
 
             setPhase('result')
         } catch (err) {
-            console.error('[Sentence Mode] Evaluation error:', err)
-            setError(handleStudyApiError(err))
+            const appError = AppError.isAppError(err) ? err : AppError.from(err, 'EVALUATION_FAILED')
+            console.error('[useSentenceQuiz] Evaluation error:', appError.code, err)
+            setError(appError)
         }
     }, [questions, answers, evaluateMutation, recordSentenceIfWrong])
 
@@ -196,6 +200,7 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
         results,
         isEvaluating: evaluateMutation.isPending,
         error,
+        errorMessage,
 
         // 문장 모드 전용
         evaluationResults,

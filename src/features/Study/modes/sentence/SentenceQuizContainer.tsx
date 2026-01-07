@@ -33,7 +33,7 @@ export function SentenceQuizContainer({
         answers, // 답변 목록
 
         isEvaluating, // 평가 중인지
-        error, // 에러
+        errorMessage, // 에러 메시지 (사용자 표시용)
 
         evaluationResults, // 평가 결과 목록
         totalScore, // 총 점수
@@ -109,7 +109,7 @@ export function SentenceQuizContainer({
 
     // 로딩 화면
     if (phase === 'loading') {
-        return <GenerateingQuizLoading error={error} />
+        return <GenerateingQuizLoading error={errorMessage} />
     }
 
     // 결과 화면

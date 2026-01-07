@@ -12,6 +12,7 @@ import { evaluateBlankAnswer, validateAndCreateBlindedContent } from '../../../s
 import { useWordWeakPointRecorder } from '../../../hooks/useWeakPointRecorder'
 import { useGenerateQuiz } from '../../../hooks/queries/useGenerateQuiz'
 import { studyKeys } from '../../../hooks/queries/keys'
+import { ERROR_MESSAGES } from '../../../../../errors'
 
 type WordQuizPhase = 'loading' | 'quiz' | 'result'
 
@@ -48,8 +49,9 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
         { enabled }
     )
 
-    // 에러 메시지 변환
-    const error = queryError?.message ?? null
+    // 에러 상태 (AppError 또는 null)
+    const error = queryError ?? null
+    const errorMessage = error ? ERROR_MESSAGES[error.code] : null
 
     // ================================ Hooks ================================
     const { recordWordIfWrong } = useWordWeakPointRecorder({ noteId, noteType }) // 약점 기록 훅
@@ -213,6 +215,7 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
         results,
         isEvaluating,
         error,
+        errorMessage,
 
         // 계산된 값
         correctCount,

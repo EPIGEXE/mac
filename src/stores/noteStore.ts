@@ -9,7 +9,7 @@ import {
     resetToOriginal as resetToOriginalService,
 } from '../db/note/noteService'
 import { terminalToast } from '../features/Toast/toast'
-import { getErrorMessage } from '../utils/errorHandler'
+import { AppError } from '../errors'
 
 interface NoteStore {
     notes: Note[] // 노트 목록
@@ -50,9 +50,9 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
             const notes = await getAllNotes()
             set({ notes, isLoaded: true })
         } catch (error) {
-            const message = getErrorMessage(error)
-            terminalToast.error('노트를 불러오는데 실패했습니다. ' + message)
-            console.error('[noteStore.loadNotes]', error)
+            const appError = AppError.from(error)
+            terminalToast.error(appError.userMessage)
+            console.error('[noteStore.loadNotes]', appError.code, error)
         }
     },
 

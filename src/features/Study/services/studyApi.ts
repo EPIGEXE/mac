@@ -217,31 +217,3 @@ export async function evaluateSentenceAnswers(params: {
     return result.data
 }
 
-// ================================ 에러 처리 ================================
-
-/**
- * Firebase Functions 에러 처리
- */
-export function handleStudyApiError(error: unknown): string {
-    if (error instanceof Error) {
-        // Firebase Functions 에러
-        if ('code' in error) {
-            const code = (error as { code: string }).code
-
-            switch (code) {
-                case 'functions/resource-exhausted':
-                    return '요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요.'
-                case 'functions/invalid-argument':
-                    return '잘못된 요청입니다.'
-                case 'functions/internal':
-                    return '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
-                default:
-                    return error.message
-            }
-        }
-
-        return error.message
-    }
-
-    return '알 수 없는 오류가 발생했습니다.'
-}

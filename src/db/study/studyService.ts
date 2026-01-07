@@ -18,8 +18,8 @@ import type {
     SessionFilter,
     SessionModeDetail,
 } from './types';
-import { NotFoundError, InvalidInputError, withErrorHandling } from '../core/errors';
 import { generateId } from '../utils/idGenerator';
+import { InvalidInputError, NotFoundError, withErrorHandling } from '../../errors';
 
 // Re-export for backward compatibility
 export type { RecordStudyInput } from './types';

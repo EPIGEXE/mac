@@ -15,6 +15,7 @@ import {
     recordSentenceStudy,
     recordEssayStudy,
 } from '../db/study/studyService'
+import { AppError } from '../errors'
 
 // ================================ 타입 정의 ================================
 
@@ -60,6 +61,9 @@ interface StudySession {
 
     // DB 세션 ID
     dbSessionId: string | null      // DB에 저장된 세션 ID
+
+    // 에러 상태
+    error: AppError | null          // 세션 저장 에러
 }
 
 /** Store 액션 */
@@ -91,6 +95,9 @@ interface StudySessionActions {
     completeSession: () => Promise<void>
     resetSession: () => void
 
+    // 에러 클리어
+    clearError: () => void
+
     // DB 세션 ID getter
     getDbSessionId: () => string | null
 }
@@ -109,6 +116,7 @@ const initialState: StudySession = {
     startedAt: null,
     completedAt: null,
     dbSessionId: null,
+    error: null,
 }
 
 // ================================ Store 생성 ================================
@@ -134,6 +142,7 @@ export const useStudySessionStore = create<StudySessionStore>()(
                     startedAt: Date.now(),
                     completedAt: null,
                     dbSessionId: null, // 완료 시에만 DB 세션 생성
+                    error: null, // 에러 초기화
                 })
 
                 console.log('[StudySessionStore] startSession completed (memory only)')
@@ -280,7 +289,9 @@ export const useStudySessionStore = create<StudySessionStore>()(
 
                         console.log('[StudySessionStore] DB session closed', { dbSessionId: dbSession.id })
                     } catch (e) {
-                        console.error('Failed to save session to DB:', e)
+                        const appError = AppError.from(e)
+                        console.error('[StudySessionStore] Failed to save session:', appError.code, e)
+                        set({ error: appError })
                     }
                 }
 
@@ -297,6 +308,13 @@ export const useStudySessionStore = create<StudySessionStore>()(
              */
             resetSession: () => {
                 set(initialState)
+            },
+
+            /**
+             * 에러 클리어
+             */
+            clearError: () => {
+                set({ error: null })
             },
 
             /**

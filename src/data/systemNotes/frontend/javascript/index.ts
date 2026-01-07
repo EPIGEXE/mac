@@ -11,6 +11,7 @@ import thisContent from './this-binding.md?raw'
 import prototypeContent from './prototype.md?raw'
 import memoryManagementContent from './memory-management.md?raw'
 import dataStructureContent from './data-structure.md?raw'
+import JavascriptRuntimeContent from './javascript-runtime.md?raw'
 
 export const javascriptNotes: SystemNote[] = [
     {
@@ -153,4 +154,18 @@ export const javascriptNotes: SystemNote[] = [
         order: 10,
         createdAt: Date.now(),
     },
+    {
+        id: 'sys-js-javascript-runtime',
+        version: 1,
+        title: 'JavaScript Runtime',
+        content: JavascriptRuntimeContent,
+        category: CATEGORY.JavaScript,
+        tag: {
+            level: TAG.LEVEL.intermediate,
+            importance: TAG.IMPORTANCE.core,
+            interview: TAG.INTERVIEW.common,
+        },
+        order: 11,
+        createdAt: Date.now(),
+    }
 ]

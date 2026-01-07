@@ -7,7 +7,7 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import type { EssayQuestionInfo, EvaluateEssayResponse } from '../../../types'
-import { handleStudyApiError } from '../../../services/studyApi'
+import { AppError, ERROR_MESSAGES } from '../../../../../errors'
 import { useEssayWeakPointRecorder } from '../../../hooks/useWeakPointRecorder'
 import { useEvaluateEssay } from '../../../hooks/queries/useEvaluateEssay'
 import { useGenerateQuiz } from '../../../hooks/queries/useGenerateQuiz'
@@ -30,7 +30,7 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
     const [phase, setPhase] = useState<EssayQuizPhase>('loading')
     const [answer, setAnswer] = useState('')
     const [result, setResult] = useState<EvaluateEssayResponse | null>(null)
-    const [error, setError] = useState<string | null>(null)
+    const [error, setError] = useState<AppError | null>(null)
 
     // ================================ Ref ================================
     const startTimeRef = useRef<number>(Date.now())
@@ -62,9 +62,12 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
     // Query 에러 처리
     useEffect(() => {
         if (queryError) {
-            setError(queryError.message)
+            setError(queryError)
         }
     }, [queryError])
+
+    // 에러 메시지 (사용자 표시용)
+    const errorMessage = error ? ERROR_MESSAGES[error.code] : null
 
     // ================================ 상수 ================================
     const question = useMemo(() => quizResponse?.essay as EssayQuestionInfo | undefined, [quizResponse?.essay])
@@ -125,8 +128,9 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
 
             setPhase('result')
         } catch (err) {
-            console.error('[Essay Mode] Evaluation error:', err)
-            setError(handleStudyApiError(err))
+            const appError = AppError.isAppError(err) ? err : AppError.from(err, 'EVALUATION_FAILED')
+            console.error('[useEssayQuiz] Evaluation error:', appError.code, err)
+            setError(appError)
         }
     }, [question, answer, evaluateMutation, recordEssayIfWrong])
 
@@ -158,6 +162,7 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
         result,
         isEvaluating: evaluateMutation.isPending,
         error,
+        errorMessage,
 
         // 계산된 값
         isCorrect,

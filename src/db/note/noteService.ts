@@ -2,8 +2,8 @@ import { db } from '../core/db';
 import type { Note, UserNote, UserOverride, SystemNote } from '../schema/note';
 import { initializeSystemNotes, getAllSystemNotes, getSystemNoteById } from './systemNoteService';
 import type { CreateNoteInput, UpdateNoteInput, GetAllNotesOptions } from './types';
-import { NotFoundError, InvalidInputError, withErrorHandling } from '../core/errors';
 import { generateId } from '../utils/idGenerator';
+import { InvalidInputError, NotFoundError, withErrorHandling } from '../../errors';
 
 // ============================================================================
 // Helper

@@ -38,7 +38,7 @@ export function WordQuizContainer({ note, onNext }: WordQuizContainerProps) {
         results, // 결과 목록
         isEvaluating, // 평가 중
 
-        error, // 에러
+        errorMessage, // 에러 메시지 (사용자 표시용)
         correctCount, // 정답 개수
         wrongCount, // 오답 개수
         answeredCount, // 답변 개수
@@ -120,7 +120,7 @@ export function WordQuizContainer({ note, onNext }: WordQuizContainerProps) {
 
     // 로딩 화면
     if (phase === 'loading') {
-        return <GenerateingQuizLoading error={error} />
+        return <GenerateingQuizLoading error={errorMessage} />
     }
 
     // 결과 화면

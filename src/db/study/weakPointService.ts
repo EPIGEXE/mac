@@ -13,8 +13,8 @@ import type {
     WeakPointFilter,
     WeakPointSummary,
 } from './types';
-import { NotFoundError, InvalidInputError, withErrorHandling } from '../core/errors';
 import { generateId } from '../utils/idGenerator';
+import { InvalidInputError, NotFoundError, withErrorHandling } from '../../errors';
 
 // ============================================================================
 // WeakPoint Service - 모드별 취약점 관리

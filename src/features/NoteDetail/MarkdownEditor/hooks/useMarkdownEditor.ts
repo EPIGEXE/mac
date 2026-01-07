@@ -15,7 +15,6 @@ import { createNodeViews } from '../editor/nodeViews/nodeViews'
 import { placeholderPlugin, focusPlugin, slashCommandPlugin, blockDragDropPlugin, autoJoinListsPlugin } from '../editor/plugins'
 import type { SlashCommandState } from '../editor/plugins'
 import { createCodeHighlightPlugin } from '../editor/plugins/codeHighlightPlugin'
-import { createImagePlugin } from '../editor/plugins/imagePlugin'
 import { createTableHandlesPlugin, type TableHandlesState } from '../editor/nodeViews/table/TableHandlesPlugin'
 import { TableView } from '../editor/nodeViews/table/TableView'
 
@@ -101,7 +100,6 @@ export function useMarkdownEditor({
                 tableEditing({ allowTableNodeSelection: true }), // 테이블 노드 선택 허용
                 createTableHandlesPlugin(setTableHandlesState), // 테이블 핸들 플러그인
                 createCodeHighlightPlugin(), // 코드 블록 syntax highlighting
-                createImagePlugin(), // 이미지 드롭/붙여넣기 플러그인
                 placeholderPlugin(placeholder), // 플레이스홀더 플러그인
                 focusPlugin(), // 포커스 플러그인
             ],

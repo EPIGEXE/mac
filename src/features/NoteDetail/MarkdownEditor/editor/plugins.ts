@@ -1,7 +1,6 @@
 import { Plugin, PluginKey, NodeSelection, TextSelection } from 'prosemirror-state'
 import { Decoration, DecorationSet, EditorView } from 'prosemirror-view'
 import { schema } from './schema'
-import { saveImageFromFile } from '../../../../db/image/imageService'
 
 /**
  * 슬래시 커맨드 메뉴 아이템 정의
@@ -291,43 +290,43 @@ export const defaultSlashCommands: SlashCommandItem[] = [
             dispatch(tr)
         },
     },
-    {
-        id: 'image',
-        label: '이미지',
-        description: '이미지 삽입',
-        icon: '🖼',
-        action: (view) => {
-            // 파일 선택 다이얼로그 열기
-            const input = document.createElement('input')
-            input.type = 'file'
-            input.accept = 'image/*'
-            input.onchange = async (e) => {
-                const file = (e.target as HTMLInputElement).files?.[0]
-                if (!file) return
+    // {
+    //     id: 'image',
+    //     label: '이미지',
+    //     description: '이미지 삽입',
+    //     icon: '🖼',
+    //     action: (view) => {
+    //         // 파일 선택 다이얼로그 열기
+    //         const input = document.createElement('input')
+    //         input.type = 'file'
+    //         input.accept = 'image/*'
+    //         input.onchange = async (e) => {
+    //             const file = (e.target as HTMLInputElement).files?.[0]
+    //             if (!file) return
 
-                try {
-                    // IndexedDB에 저장하고 local:// URL 받기
-                    const localURL = await saveImageFromFile(file)
+    //             try {
+    //                 // IndexedDB에 저장하고 local:// URL 받기
+    //                 const localURL = await saveImageFromFile(file)
 
-                    const { state, dispatch } = view
-                    const imageNode = schema.nodes.image.create({
-                        src: localURL,
-                        alt: file.name,
-                        title: file.name,
-                    })
+    //                 const { state, dispatch } = view
+    //                 const imageNode = schema.nodes.image.create({
+    //                     src: localURL,
+    //                     alt: file.name,
+    //                     title: file.name,
+    //                 })
 
-                    // 현재 블록을 이미지로 교체
-                    const $from = state.selection.$from
-                    const tr = state.tr.replaceWith($from.before($from.depth), $from.after($from.depth), imageNode)
-                    dispatch(tr)
-                    view.focus()
-                } catch (error) {
-                    console.error('이미지 삽입 실패:', error)
-                }
-            }
-            input.click()
-        },
-    },
+    //                 // 현재 블록을 이미지로 교체
+    //                 const $from = state.selection.$from
+    //                 const tr = state.tr.replaceWith($from.before($from.depth), $from.after($from.depth), imageNode)
+    //                 dispatch(tr)
+    //                 view.focus()
+    //             } catch (error) {
+    //                 console.error('이미지 삽입 실패:', error)
+    //             }
+    //         }
+    //         input.click()
+    //     },
+    // },
 ]
 
 export function slashCommandPlugin(onStateChange?: (state: SlashCommandState) => void) {

@@ -395,17 +395,19 @@ describe('useEssayQuiz', () => {
 
     describe('에러 처리', () => {
         it('에러가 있으면 error 반환', () => {
+            const mockError = new Error('API Error')
             mockUseGenerateQuiz.mockReturnValue({
                 data: null,
                 isLoading: false,
-                error: new Error('API Error'),
+                error: mockError,
             } as unknown as ReturnType<typeof useGenerateQuiz>)
 
             const { result } = renderHook(() => useEssayQuiz(defaultProps), {
                 wrapper: createWrapper(),
             })
 
-            expect(result.current.error).toBe('API Error')
+            // error는 AppError 객체, errorMessage가 사용자용 메시지
+            expect(result.current.error).toBe(mockError)
         })
     })
 })

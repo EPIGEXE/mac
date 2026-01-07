@@ -18,7 +18,7 @@ export const mainCategories = [
         id: 'cs',
         label: 'CS',
         roadmapLabel: 'CS 기초',
-        categories: ['HardwareSystem', 'Algorithms'] as const,
+        categories: ['HardwareSystem', 'Algorithms', 'Network'] as const,
         roadmap: {
             hardwareSystem: {
                 label: '하드웨어 & 시스템'

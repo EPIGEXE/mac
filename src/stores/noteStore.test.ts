@@ -150,7 +150,8 @@ describe('noteStore', () => {
                 await useNoteStore.getState().loadNotes()
             })
 
-            expect(mockTerminalToast.error).toHaveBeenCalledWith('노트를 불러오는데 실패했습니다. Load failed')
+            // AppError.from()이 unknown 에러를 UNKNOWN 코드로 래핑하므로 userMessage 사용
+            expect(mockTerminalToast.error).toHaveBeenCalledWith('알 수 없는 오류가 발생했습니다.')
         })
     })
 
