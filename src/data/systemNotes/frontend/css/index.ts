@@ -1,4 +1,3 @@
-import type { SystemNote } from '../../../../db/schema/note'
 import { CATEGORY, TAG } from '../../../categories'
 
 import boxmodelContent from './boxmodel.md?raw'
@@ -6,6 +5,7 @@ import layoutSystemContent from './layoutSystem.md?raw'
 import specificityContent from './specificity.md?raw'
 import positionContent from './position.md?raw'
 import responsiveDesignContent from './responsiveDesign.md?raw'
+import type { SystemNote } from '../../../../db/core/schema'
 
 export const cssNotes: SystemNote[] = [
     {

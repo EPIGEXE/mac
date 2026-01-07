@@ -3,7 +3,7 @@ import { SectionTitle } from '../../components/common/SectionTitle'
 import { DashboardGrid } from '../../components/common/DashboardGrid'
 import { DashboardCard } from '../../components/common/DashboardCard'
 import { formatDuration } from '../../utils/funtion'
-import type { OverallStats } from '../../db/study/types'
+import type { OverallStats } from '../../db/service/types'
 import { IconChecks, IconX } from '@tabler/icons-react'
 
 export function StudyStatisticsSection({ overallStats }: { overallStats: OverallStats | null }) {

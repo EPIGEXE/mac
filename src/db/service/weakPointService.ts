@@ -1,28 +1,24 @@
 import { db } from '../core/db';
 import type {
-    WeakPoint,
-    WordWeakPoint,
-    SentenceWeakPoint,
-    EssayWeakPoint,
-    StudyModeType,
-} from '../schema/study';
-import type {
-    AddWordWeakPointInput,
-    AddSentenceWeakPointInput,
-    AddEssayWeakPointInput,
     WeakPointFilter,
     WeakPointSummary,
 } from './types';
 import { generateId } from '../utils/idGenerator';
 import { InvalidInputError, NotFoundError, withErrorHandling } from '../../errors';
+import type { EssayWeakPoint, NoteType, SentenceWeakPoint, WeakPoint, WordWeakPoint } from '../core/schema';
+import type { StudyModeType } from '../../features/Study/types';
 
 // ============================================================================
 // WeakPoint Service - 모드별 취약점 관리
 // ============================================================================
 
-// ============================================================================
-// 취약점 추가 - 모드별
-// ============================================================================
+interface AddWordWeakPointInput {
+    noteId: string;
+    noteType: NoteType;
+    keyword: string;
+    hint: string;
+    userAnswer: string;
+}
 
 /**
  * 단어 모드 취약점 추가/업데이트
@@ -83,6 +79,16 @@ export async function addWordWeakPoint(input: AddWordWeakPointInput): Promise<Wo
     });
 }
 
+interface AddSentenceWeakPointInput {
+    noteId: string;
+    noteType: NoteType;
+    questionId: string;
+    question: string;
+    correctAnswer: string;
+    keyPoints: string[];
+    missedPoints: string[];
+}
+
 /**
  * 문장 모드 취약점 추가/업데이트
  */
@@ -135,6 +141,16 @@ export async function addSentenceWeakPoint(input: AddSentenceWeakPointInput): Pr
         await db.weakPoints.add(weakPoint);
         return weakPoint;
     });
+}
+
+interface AddEssayWeakPointInput {
+    noteId: string;
+    noteType: NoteType;
+    company: string;
+    question: string;
+    questionType: string;
+    expectedPoints: string[];
+    missedPoints: string[];
 }
 
 /**

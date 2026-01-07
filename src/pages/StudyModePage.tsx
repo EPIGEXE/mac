@@ -7,10 +7,10 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { StudyQuizViewer } from '../features/Study/StudyQuizViewer'
 import { useStudySessionStore } from '../stores/studySessionStore'
-import { findNoteById } from '../db/note/noteService'
-import type { Note } from '../db/schema/note'
+import { findNoteById } from '../db/service/noteService'
 import { ErrorBoundary } from '../components/ErrorBoundary/ErrorBoundary'
 import { ErrorFallback } from '../components/ErrorBoundary/ErrorFallback'
+import type { Note } from '../db/core/schema'
 
 export type StudyOrder = 'sequential' | 'random'
 

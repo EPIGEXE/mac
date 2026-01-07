@@ -4,7 +4,6 @@
  * - 키보드 네비게이션 (Tab/Shift+Tab)
  */
 import { useEffect } from 'react'
-import type { Note } from '../../../../db/schema/note'
 import { useWordQuiz } from './hooks/useWordQuiz'
 import { useQuizNavigation } from '../../hooks/useQuizNavigation'
 import { useStudySessionStore } from '../../../../stores/studySessionStore'
@@ -14,6 +13,7 @@ import { AnswerInput } from './components/AnswerInput'
 import { WordQuizResult } from './components/WordQuizResult'
 import { GenerateingQuizLoading } from '../../components/GenerateingQuizLoading'
 import { QuizProgressSidebar } from './components/QuizProgressSidebar'
+import type { Note } from '../../../../db/core/schema'
 
 interface WordQuizContainerProps {
     note: Note

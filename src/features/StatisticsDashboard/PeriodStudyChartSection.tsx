@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { SectionTitle } from '../../components/common/SectionTitle'
 import { IconTrendingUp } from '@tabler/icons-react'
 import { Bar, BarChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import type { PeriodStats } from '../../db/study/types'
+import type { PeriodStats } from '../../db/service/types'
 
 interface PeriodStudyChartSectionProps {
     periodDays: 7 | 14 | 30

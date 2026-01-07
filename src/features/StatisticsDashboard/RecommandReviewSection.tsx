@@ -1,6 +1,6 @@
 import { IconAlertTriangle } from '@tabler/icons-react'
 import { motion } from 'framer-motion'
-import type { RecommendedNote } from '../../db/study/types'
+import type { RecommendedNote } from '../../db/service/types'
 import { formatDate } from '../../utils/funtion'
 import { useNavigate } from 'react-router-dom'
 

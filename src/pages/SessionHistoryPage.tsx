@@ -10,12 +10,12 @@ import {
     IconHistory,
     IconCalendar,
 } from '@tabler/icons-react'
-import { getSessionHistory, getStudyRecordsBySession } from '../db/study/studyService'
-import { findNoteById } from '../db/note/noteService'
-import type { StudyModeType, StudyRecord } from '../db/schema/study'
-import type { SessionHistoryItem } from '../db/study/types'
+import { getSessionHistory, getStudyRecordsBySession } from '../db/service/studyService'
+import { findNoteById } from '../db/service/noteService'
+import type { SessionHistoryItem } from '../db/service/types'
 import { SessionCalendar } from '../features/SessionHistory/SessionCalendar'
 import { StudyRecordSection } from '../features/SessionHistory/StudyRecordSection'
+import type { StudyModeType, StudyRecord } from '../db/core/schema'
 
 export function SessionHistoryPage() {
     const navigate = useNavigate()

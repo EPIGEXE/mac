@@ -1,38 +1,24 @@
 import { db } from '../core/db';
+
 import type {
-    StudyRecord,
-    StudySession,
-    WordStudyRecord,
-    SentenceStudyRecord,
-    EssayStudyRecord,
-    StudyModeType,
-    SessionSummary,
-} from '../schema/study';
-import type {
-    RecordStudyInput,
-    RecordWordStudyInput,
-    RecordSentenceStudyInput,
-    RecordEssayStudyInput,
-    StartSessionInput,
     SessionHistoryItem,
     SessionFilter,
     SessionModeDetail,
 } from './types';
 import { generateId } from '../utils/idGenerator';
 import { InvalidInputError, NotFoundError, withErrorHandling } from '../../errors';
-
-// Re-export for backward compatibility
-export type { RecordStudyInput } from './types';
-
-// ============================================================================
-// Study Service
-// - 학습 기록 관리 (모드별)
-// - 세션 관리
-// ============================================================================
+import type { EssayStudyRecord, NoteType, SentenceQuestionDetail, SentenceStudyRecord, SessionSummary, StudyRecord, StudySession, WordBlankDetail, WordStudyRecord } from '../core/schema';
+import type { StudyModeType } from '../../features/Study/types';
 
 // ============================================================================
 // 세션 관리
 // ============================================================================
+
+interface StartSessionInput {
+    mode: StudyModeType;
+    order: 'sequential' | 'random';
+    noteIds: string[];
+}
 
 /**
  * 새 학습 세션 시작 (NEW - 모드/순서 포함)
@@ -224,6 +210,14 @@ export async function getSessionHistory(filter?: SessionFilter): Promise<Session
 // 학습 기록 - 모드별
 // ============================================================================
 
+interface RecordWordStudyInput {
+    noteId: string;
+    noteType: NoteType;
+    sessionId: string;
+    duration: number;
+    blanks: WordBlankDetail[];
+}
+
 /**
  * 단어 모드 학습 기록 저장
  */
@@ -266,6 +260,16 @@ export async function recordWordStudy(input: RecordWordStudyInput): Promise<Word
 
         return record;
     });
+}
+
+interface RecordSentenceStudyInput {
+    noteId: string;
+    noteType: NoteType;
+    sessionId: string;
+    duration: number;
+    questions: SentenceQuestionDetail[];
+    totalScore: number;
+    overallFeedback: string;
 }
 
 /**
@@ -313,6 +317,25 @@ export async function recordSentenceStudy(input: RecordSentenceStudyInput): Prom
     });
 }
 
+interface RecordEssayStudyInput {
+    noteId: string;
+    noteType: NoteType;
+    sessionId: string;
+    duration: number;
+    company: string;
+    question: string;
+    questionType: string;
+    userAnswer: string;
+    score: number;
+    grade: 'PASS' | 'BORDERLINE' | 'NEEDS_WORK';
+    matchedPoints: string[];
+    missedPoints: string[];
+    strengths: string[];
+    improvements: string[];
+    feedback: string;
+    tip: string;
+}
+
 /**
  * 서술형 모드 학습 기록 저장
  */
@@ -355,49 +378,6 @@ export async function recordEssayStudy(input: RecordEssayStudyInput): Promise<Es
                 improvements: input.improvements,
                 feedback: input.feedback,
                 tip: input.tip,
-            },
-        };
-
-        await db.studyRecords.add(record);
-        await addNoteToSession(input.sessionId, input.noteId);
-
-        return record;
-    });
-}
-
-/**
- * 학습 기록 저장 (Legacy - 호환성 유지)
- * @deprecated recordWordStudy, recordSentenceStudy, recordEssayStudy 사용 권장
- */
-export async function recordStudy(input: RecordStudyInput): Promise<StudyRecord> {
-    if (!input.noteId) {
-        throw new InvalidInputError('noteId is required', 'noteId');
-    }
-    if (!input.sessionId) {
-        throw new InvalidInputError('sessionId is required', 'sessionId');
-    }
-
-    return withErrorHandling('recordStudy', async () => {
-        const now = Date.now();
-        const score = input.totalQuestions > 0
-            ? Math.round((input.correctCount / input.totalQuestions) * 100)
-            : 0;
-
-        const record: WordStudyRecord = {
-            id: generateId('record'),
-            noteId: input.noteId,
-            noteType: input.noteType,
-            sessionId: input.sessionId,
-            mode: 'word',
-            totalQuestions: input.totalQuestions,
-            correctCount: input.correctCount,
-            wrongCount: input.wrongCount,
-            score,
-            duration: input.duration,
-            createdAt: now,
-            completedAt: now,
-            details: {
-                blanks: [],
             },
         };
 

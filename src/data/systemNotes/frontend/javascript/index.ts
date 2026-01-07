@@ -1,4 +1,3 @@
-import type { SystemNote } from '../../../../db/schema/note'
 import { CATEGORY, TAG } from '../../../categories'
 
 import closureContent from './closure.md?raw'
@@ -12,6 +11,7 @@ import prototypeContent from './prototype.md?raw'
 import memoryManagementContent from './memory-management.md?raw'
 import dataStructureContent from './data-structure.md?raw'
 import JavascriptRuntimeContent from './javascript-runtime.md?raw'
+import type { SystemNote } from '../../../../db/core/schema'
 
 export const javascriptNotes: SystemNote[] = [
     {

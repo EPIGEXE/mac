@@ -3,7 +3,7 @@ import { act } from '@testing-library/react'
 import { useNoteStore } from './noteStore'
 
 // 의존성 모킹
-vi.mock('../db/note/noteService', () => ({
+vi.mock('../db/service/noteService', () => ({
     initializeNoteService: vi.fn().mockResolvedValue(undefined),
     getAllNotes: vi.fn().mockResolvedValue([]),
     createNote: vi.fn().mockResolvedValue({
@@ -59,7 +59,7 @@ import {
     updateNote as updateNoteService,
     deleteNote as deleteNoteService,
     resetToOriginal as resetToOriginalService,
-} from '../db/note/noteService'
+} from '../db/service/noteService'
 import { terminalToast } from '../features/Toast/toast'
 
 const mockInitializeNoteService = vi.mocked(initializeNoteService)

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { modeConfig } from './const'
 import { formatDate, formatDuration } from '../../utils/funtion'
-import type { SessionHistoryItem } from '../../db/study/types'
+import type { SessionHistoryItem } from '../../db/service/types'
 
 export function CurrentHistorySection({ recentSessions }: { recentSessions: SessionHistoryItem[] }) {
     const navigate = useNavigate()

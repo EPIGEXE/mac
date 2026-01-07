@@ -7,15 +7,15 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { StudyModeType } from '../features/Study/types'
-import type { WordBlankDetail, SentenceQuestionDetail, EssayStudyRecord } from '../db/schema/study'
 import {
     saveSession,
     closeSession,
     recordWordStudy,
     recordSentenceStudy,
     recordEssayStudy,
-} from '../db/study/studyService'
+} from '../db/service/studyService'
 import { AppError } from '../errors'
+import type { EssayStudyRecord, SentenceQuestionDetail, WordBlankDetail } from '../db/core/schema'
 
 // ================================ 타입 정의 ================================
 

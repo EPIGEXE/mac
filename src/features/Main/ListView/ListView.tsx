@@ -3,7 +3,7 @@ import { mainCategories } from '../../../data/categories'
 import { CategorySection } from './CategorySection'
 import { SidebarNav } from './SidebarNav'
 import { Badge } from '../../../components/common/Badge'
-import type { Note } from '../../../db/schema/note'
+import type { Note } from '../../../db/core/schema'
 
 interface ListViewProps {
     notes: Note[] // 노트 목록

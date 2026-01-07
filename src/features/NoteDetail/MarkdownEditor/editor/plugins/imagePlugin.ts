@@ -7,7 +7,7 @@
 import { Plugin } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
 import { terminalToast } from '../../../../Toast/toast'
-import { saveImageFromFile } from '../../../../../db/image/imageService'
+import { saveImageFromFile } from '../../../../../db/service/imageService'
 import { parseMarkdown } from '../markdown'
 
 /**

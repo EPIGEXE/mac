@@ -1,9 +1,9 @@
-import type { SystemNote } from '../../../../db/schema/note'
 import { CATEGORY, TAG } from '../../../categories'
 
 import processThreadContent from './process-thread.md?raw'
 import deadlockContent from './deadlock.md?raw'
 import virtualMemoryContent from './virtual-memory.md?raw'
+import type { SystemNote } from '../../../../db/core/schema'
 
 export const systemsAndArchitectureNotes: SystemNote[] = [
 

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { SectionTitle } from '../../components/common/SectionTitle'
 import { modeConfig } from './const'
-import type { ModeStats } from '../../db/study/types'
+import type { ModeStats } from '../../db/service/types'
 
 export function ModeStatisticsSection({ modeStats }: { modeStats: ModeStats[] }) {
     return (

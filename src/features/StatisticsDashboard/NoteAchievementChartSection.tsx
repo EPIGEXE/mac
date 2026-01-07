@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { SectionTitle } from '../../components/common/SectionTitle'
 import { Bar, BarChart, Cell, ResponsiveContainer, XAxis, YAxis } from 'recharts'
 import { formatDate } from '../../utils/funtion'
-import type { NoteStats } from '../../db/study/types'
+import type { NoteStats } from '../../db/service/types'
 import { useMemo } from 'react'
 
 export function NoteAchievementChartSection({

@@ -12,7 +12,7 @@ import {
  * vi.mock()은 import 시점에 모듈을 가짜로 대체한다.
  * - weakPointService: DB 저장 함수들 → 실제 IndexedDB 접근 방지
  */
-vi.mock('../../../db/study/weakPointService', () => ({
+vi.mock('../../../db/service/weakPointService', () => ({
     addWordWeakPoint: vi.fn().mockResolvedValue(undefined),
     addSentenceWeakPoint: vi.fn().mockResolvedValue(undefined),
     addEssayWeakPoint: vi.fn().mockResolvedValue(undefined),
@@ -23,7 +23,7 @@ import {
     addWordWeakPoint,
     addSentenceWeakPoint,
     addEssayWeakPoint,
-} from '../../../db/study/weakPointService'
+} from '../../../db/service/weakPointService'
 
 describe('useWeakPointRecorder', () => {
     beforeEach(() => {

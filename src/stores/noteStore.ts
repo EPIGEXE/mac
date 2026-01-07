@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import type { Note } from '../db/schema/note'
 import {
     initializeNoteService,
     getAllNotes,
@@ -7,9 +6,10 @@ import {
     updateNote as updateNoteService,
     deleteNote as deleteNoteService,
     resetToOriginal as resetToOriginalService,
-} from '../db/note/noteService'
+} from '../db/service/noteService'
 import { terminalToast } from '../features/Toast/toast'
 import { AppError } from '../errors'
+import type { Note } from '../db/core/schema'
 
 interface NoteStore {
     notes: Note[] // 노트 목록

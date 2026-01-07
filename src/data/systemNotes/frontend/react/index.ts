@@ -1,4 +1,3 @@
-import type { SystemNote } from '../../../../db/schema/note'
 import { CATEGORY, TAG } from '../../../categories'
 
 import virtualdomContent from './virtualdom.md?raw'
@@ -17,6 +16,7 @@ import suspenseContent from './suspense.md?raw'
 import react19Content from './react19.md?raw'
 import reduxContent from './redux.md?raw'
 import canvasContent from './canvas.md?raw'
+import type { SystemNote } from '../../../../db/core/schema'
 
 export const reactNotes: SystemNote[] = [
     {

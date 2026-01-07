@@ -1,10 +1,10 @@
-import type { SystemNote } from '../../../../db/schema/note'
 import { CATEGORY, TAG } from '../../../categories'
 
 import hashTableContent from './hash-table.md?raw'
 import stackQueueContent from './stack-queue.md?raw'
 import treeGraphContent from './tree-graph.md?raw'
 import sortingContent from './sorting.md?raw'
+import type { SystemNote } from '../../../../db/core/schema'
 
 export const algorithmsNotes: SystemNote[] = [
     {

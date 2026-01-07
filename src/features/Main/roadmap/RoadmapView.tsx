@@ -5,7 +5,7 @@ import { buildRoadmapData } from './layout';
 import { SectionNode } from './nodes/SectionNode';
 import { CategoryNode } from './nodes/CategoryNode';
 import type { TopicFilter } from '../MainHeader';
-import type { Note } from '../../../db/schema/note';
+import type { Note } from '../../../db/core/schema';
 
 
 // 컴포넌트 Props

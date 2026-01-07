@@ -1,4 +1,3 @@
-import type { SystemNote } from '../../../../db/schema/note'
 import { CATEGORY, TAG } from '../../../categories'
 
 import semanticContent from './semantic.md?raw'
@@ -6,6 +5,7 @@ import doctypeContent from './doctype.md?raw'
 import metaTagContent from './metatags.md?raw'
 import resourceHintContent from './resourceHint.md?raw'
 import scriptAsyncDeferContent from './scriptAsyncDefer.md?raw'
+import type { SystemNote } from '../../../../db/core/schema'
 
 export const htmlNotes: SystemNote[] = [
     {

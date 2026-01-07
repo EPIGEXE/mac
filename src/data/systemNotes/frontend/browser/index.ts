@@ -1,4 +1,3 @@
-import type { SystemNote } from '../../../../db/schema/note'
 import { CATEGORY, TAG } from '../../../categories'
 import browserRenderingContent from './browserRendering.md?raw'
 import crpOptimizationContent from './criticalRenderingPath.md?raw'
@@ -11,6 +10,7 @@ import csrAndSsrContent from './csrAndSsr.md?raw'
 import eventPropagationContent from './eventPropagation.md?raw'
 import websocketContent from './websocket.md?raw'
 import httpContent from './http.md?raw'
+import type { SystemNote } from '../../../../db/core/schema'
 
 export const browserNotes: SystemNote[] = [
     {

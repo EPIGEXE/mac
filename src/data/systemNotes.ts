@@ -4,7 +4,7 @@
 // - 기존 import 경로 호환성을 위해 유지
 // ============================================================================
 
-import type { SystemNote } from "../db/schema/note";
+import type { SystemNote } from "../db/core/schema";
 import { securityNotes } from "./systemNotes/backend/security";
 import { algorithmsNotes } from "./systemNotes/cs/algorithms";
 import { networkNotes } from "./systemNotes/cs/network";

@@ -1,4 +1,4 @@
-import type { EssayWeakPoint, SentenceWeakPoint, WeakPoint, WordWeakPoint } from "../../db/schema/study"
+import type { EssayWeakPoint, SentenceWeakPoint, WeakPoint, WordWeakPoint } from "../../db/core/schema"
 import { modeConfig } from "../StatisticsDashboard/const"
 import { IconCheck } from "@tabler/icons-react"
 

@@ -21,12 +21,11 @@ import {
     type PeriodStats,
     type RecommendedNote,
     type ModeStats,
-} from '../db/study/statisticsService'
-import { getWeakPointSummary, getTopWeakPoints } from '../db/study/weakPointService'
-import { getSessionHistory } from '../db/study/studyService'
-import type { WeakPoint } from '../db/schema/study'
-import type { WeakPointSummary, SessionHistoryItem } from '../db/study/types'
-import { findNoteById } from '../db/note/noteService'
+} from '../db/service/statisticsService'
+import { getWeakPointSummary, getTopWeakPoints } from '../db/service/weakPointService'
+import { getSessionHistory } from '../db/service/studyService'
+import type { WeakPointSummary, SessionHistoryItem } from '../db/service/types'
+import { findNoteById } from '../db/service/noteService'
 import { TodayStudySection } from '../features/StatisticsDashboard/TodayStudySection'
 import { StudyStatisticsSection } from '../features/StatisticsDashboard/StudyStatisticsSection'
 import { ModeStatisticsSection } from '../features/StatisticsDashboard/ModeStatisticsSection'
@@ -35,6 +34,7 @@ import { RecommandReviewSection } from '../features/StatisticsDashboard/Recomman
 import { NoteAchievementChartSection } from '../features/StatisticsDashboard/NoteAchievementChartSection'
 import { WeakPointSection } from '../features/StatisticsDashboard/WeakPointSection'
 import { CurrentHistorySection } from '../features/StatisticsDashboard/CurrentHistorySection'
+import type { WeakPoint } from '../db/core/schema'
 
 export function StatisticsDashboardPage() {
     const navigate = useNavigate()

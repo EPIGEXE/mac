@@ -1,5 +1,6 @@
+import type { StudyModeType } from '../../features/Study/types';
 import { db } from '../core/db';
-import type { StudyRecord, WeakPoint, StudySession, StudyModeType } from '../schema/study';
+import type { StudyRecord, StudySession, WeakPoint } from '../core/schema';
 import type { OverallStats, NoteStats, PeriodStats, RecommendedNote, ModeStats } from './types';
 
 // Re-export for backward compatibility

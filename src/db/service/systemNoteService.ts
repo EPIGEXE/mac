@@ -1,6 +1,6 @@
 import { db } from '../core/db';
-import type { SystemNote } from '../schema/note';
 import { systemNotesData } from '../../data/systemNotes';
+import type { SystemNote } from '../core/schema';
 
 // ============================================================================
 // System Note Service

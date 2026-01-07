@@ -7,7 +7,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react'
 import { mainCategories, type Category } from '../../../data/categories'
-import type { Note } from '../../../db/schema/note'
+import type { Note } from '../../../db/core/schema'
 
 const MAX_SELECTION = 10
 

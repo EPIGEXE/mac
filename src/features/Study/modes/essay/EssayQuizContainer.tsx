@@ -4,12 +4,12 @@
  * - LLM 평가 제출
  */
 import { useEffect } from 'react'
-import type { Note } from '../../../../db/schema/note'
 import { useEssayQuiz } from './hooks/useEssayQuiz'
 import { useStudySessionStore } from '../../../../stores/studySessionStore'
 import { EssayQuizResult } from './components/EssayQuizResult'
 import { EssayQuizQuestion } from './components/EssayQuizQuestion'
 import { GenerateingQuizLoading } from '../../components/GenerateingQuizLoading'
+import type { Note } from '../../../../db/core/schema'
 
 interface EssayQuizContainerProps {
     note: Note

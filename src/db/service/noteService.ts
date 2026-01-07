@@ -1,9 +1,8 @@
-import { db } from '../core/db';
-import type { Note, UserNote, UserOverride, SystemNote } from '../schema/note';
-import { initializeSystemNotes, getAllSystemNotes, getSystemNoteById } from './systemNoteService';
-import type { CreateNoteInput, UpdateNoteInput, GetAllNotesOptions } from './types';
-import { generateId } from '../utils/idGenerator';
-import { InvalidInputError, NotFoundError, withErrorHandling } from '../../errors';
+import { db } from '../core/db'
+import { initializeSystemNotes, getAllSystemNotes, getSystemNoteById } from './systemNoteService'
+import { generateId } from '../utils/idGenerator'
+import { InvalidInputError, NotFoundError, withErrorHandling } from '../../errors'
+import type { Note, SystemNote, UserNote, UserOverride } from '../core/schema'
 
 // ============================================================================
 // Helper
@@ -19,17 +18,20 @@ function extractFirstLine(content: string): string {
     const firstLine = content.split('\n').find((line) => {
         const trimmed = line.trim()
         // 빈 줄, 제목, 구분선, 코드블록 시작, 테이블 제외
-        return trimmed
-            && !trimmed.startsWith('#')
-            && !trimmed.match(/^(-{3,}|_{3,}|\*{3,})$/)
-            && !trimmed.startsWith('```')
-            && !trimmed.startsWith('|')  // 테이블
+        return (
+            trimmed &&
+            !trimmed.startsWith('#') &&
+            !trimmed.match(/^(-{3,}|_{3,}|\*{3,})$/) &&
+            !trimmed.startsWith('```') &&
+            !trimmed.startsWith('|')
+        ) // 테이블
     })
 
     if (!firstLine) return ''
 
     // 마크다운 문법 제거
-    const text = firstLine.trim()
+    const text = firstLine
+        .trim()
         // 굵게/기울임 제거: **text**, *text*, __text__, _text_
         .replace(/(\*\*|__)(.*?)\1/g, '$2')
         .replace(/(\*|_)(.*?)\1/g, '$2')
@@ -61,7 +63,11 @@ function extractFirstLine(content: string): string {
  * - 앱 시작 시 호출
  */
 export async function initializeNoteService(): Promise<void> {
-    await initializeSystemNotes();
+    await initializeSystemNotes()
+}
+
+export interface GetAllNotesOptions {
+    category?: string;
 }
 
 /**
@@ -69,37 +75,30 @@ export async function initializeNoteService(): Promise<void> {
  */
 export async function getAllNotes(options: GetAllNotesOptions = {}): Promise<Note[]> {
     return withErrorHandling('getAllNotes', async () => {
-        const { includeHidden = false, category } = options;
+        const { category } = options
 
         // 1. System Notes 로드
-        let systemNotes: SystemNote[];
+        let systemNotes: SystemNote[]
         if (category) {
-            systemNotes = await db.systemNotes.where('category').equals(category).sortBy('order');
+            systemNotes = await db.systemNotes.where('category').equals(category).sortBy('order')
         } else {
-            systemNotes = await getAllSystemNotes();
+            systemNotes = await getAllSystemNotes()
         }
 
         // 2. User Overrides 로드
-        const overrides = await db.userOverrides.toArray();
-        const overrideMap = new Map(overrides.map(o => [o.systemNoteId, o]));
+        const overrides = await db.userOverrides.toArray()
+        const overrideMap = new Map(overrides.map((o) => [o.systemNoteId, o]))
 
         // 3. System Notes를 Note로 변환 (override 적용)
         const systemNotesAsNotes: Note[] = systemNotes
-            .map(sn => {
-                const override = overrideMap.get(sn.id);
+            .map((sn) => {
+                const override = overrideMap.get(sn.id)
 
-                // 숨김 처리
-                if (override?.isHidden && !includeHidden) {
-                    return null;
-                }
-
-                const isCustomized = !!(override?.customTitle || override?.customContent);
-                const content = override?.customContent ?? sn.content;
+                const isCustomized = !!(override?.customTitle || override?.customContent)
+                const content = override?.customContent ?? sn.content
 
                 // firstLine: 커스터마이징 시 재계산, 없으면 생성
-                const firstLine = isCustomized
-                    ? extractFirstLine(content)
-                    : (sn.firstLine ?? extractFirstLine(content));
+                const firstLine = isCustomized ? extractFirstLine(content) : (sn.firstLine ?? extractFirstLine(content))
 
                 return {
                     id: sn.id,
@@ -115,20 +114,20 @@ export async function getAllNotes(options: GetAllNotesOptions = {}): Promise<Not
                     createdAt: sn.createdAt,
                     updatedAt: override?.updatedAt,
                     order: sn.order,
-                };
+                }
             })
-            .filter((n): n is NonNullable<typeof n> => n !== null);
+            .filter((n): n is NonNullable<typeof n> => n !== null)
 
         // 4. User Notes 로드
-        let userNotes: UserNote[];
+        let userNotes: UserNote[]
         if (category) {
-            userNotes = await db.userNotes.where('category').equals(category).toArray();
+            userNotes = await db.userNotes.where('category').equals(category).toArray()
         } else {
-            userNotes = await db.userNotes.toArray();
+            userNotes = await db.userNotes.toArray()
         }
 
         // 5. User Notes를 Note로 변환
-        const userNotesAsNotes: Note[] = userNotes.map(un => ({
+        const userNotesAsNotes: Note[] = userNotes.map((un) => ({
             id: un.id,
             type: 'user' as const,
             title: un.title,
@@ -139,17 +138,17 @@ export async function getAllNotes(options: GetAllNotesOptions = {}): Promise<Not
             isCustomized: false,
             createdAt: un.createdAt,
             updatedAt: un.updatedAt,
-        }));
+        }))
 
         // 6. 통합 및 정렬
         // System 노트를 먼저, 그 다음 User 노트 (각각 updatedAt 기준 내림차순)
         const allNotes = [
             ...systemNotesAsNotes.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
             ...userNotesAsNotes.sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0)),
-        ];
+        ]
 
-        return allNotes;
-    });
+        return allNotes
+    })
 }
 
 /**
@@ -158,17 +157,17 @@ export async function getAllNotes(options: GetAllNotesOptions = {}): Promise<Not
 export async function getNoteById(id: string, type: 'system' | 'user'): Promise<Note | null> {
     return withErrorHandling('getNoteById', async () => {
         if (type === 'system') {
-            const systemNote = await getSystemNoteById(id);
-            if (!systemNote) return null;
+            const systemNote = await getSystemNoteById(id)
+            if (!systemNote) return null
 
-            const override = await db.userOverrides.get(id);
-            const isCustomized = !!(override?.customTitle || override?.customContent);
-            const content = override?.customContent ?? systemNote.content;
+            const override = await db.userOverrides.get(id)
+            const isCustomized = !!(override?.customTitle || override?.customContent)
+            const content = override?.customContent ?? systemNote.content
 
             // firstLine: 커스터마이징 시 재계산, 없으면 생성
             const firstLine = isCustomized
                 ? extractFirstLine(content)
-                : (systemNote.firstLine ?? extractFirstLine(content));
+                : (systemNote.firstLine ?? extractFirstLine(content))
 
             return {
                 id: systemNote.id,
@@ -184,10 +183,10 @@ export async function getNoteById(id: string, type: 'system' | 'user'): Promise<
                 createdAt: systemNote.createdAt,
                 updatedAt: override?.updatedAt,
                 order: systemNote.order,
-            };
+            }
         } else {
-            const userNote = await db.userNotes.get(id);
-            if (!userNote) return null;
+            const userNote = await db.userNotes.get(id)
+            if (!userNote) return null
 
             return {
                 id: userNote.id,
@@ -200,9 +199,9 @@ export async function getNoteById(id: string, type: 'system' | 'user'): Promise<
                 isCustomized: false,
                 createdAt: userNote.createdAt,
                 updatedAt: userNote.updatedAt,
-            };
+            }
         }
-    });
+    })
 }
 
 /**
@@ -211,19 +210,26 @@ export async function getNoteById(id: string, type: 'system' | 'user'): Promise<
 export async function findNoteById(id: string): Promise<Note | null> {
     return withErrorHandling('findNoteById', async () => {
         // System Note 먼저 확인
-        const systemNote = await getSystemNoteById(id);
+        const systemNote = await getSystemNoteById(id)
         if (systemNote) {
-            return getNoteById(id, 'system');
+            return getNoteById(id, 'system')
         }
 
         // User Note 확인
-        const userNote = await db.userNotes.get(id);
+        const userNote = await db.userNotes.get(id)
         if (userNote) {
-            return getNoteById(id, 'user');
+            return getNoteById(id, 'user')
         }
 
-        return null;
-    });
+        return null
+    })
+}
+
+interface CreateNoteInput {
+    title?: string // 생성할 노트 제목
+    content?: string // 생성할 노트 콘텐츠
+    category: string // 생성할 노트 카테고리
+    tags?: string[] // 생성할 노트 태그
 }
 
 /**
@@ -231,12 +237,12 @@ export async function findNoteById(id: string): Promise<Note | null> {
  */
 export async function createNote(input: CreateNoteInput): Promise<Note> {
     if (!input.category) {
-        throw new InvalidInputError('category is required', 'category');
+        throw new InvalidInputError('category is required', 'category')
     }
 
     return withErrorHandling('createNote', async () => {
-        const now = Date.now();
-        const content = input.content ?? '';
+        const now = Date.now()
+        const content = input.content ?? ''
 
         const newNote: UserNote = {
             id: generateId('note'),
@@ -247,9 +253,9 @@ export async function createNote(input: CreateNoteInput): Promise<Note> {
             tags: input.tags ?? [],
             createdAt: now,
             updatedAt: now,
-        };
+        }
 
-        await db.userNotes.add(newNote);
+        await db.userNotes.add(newNote)
 
         return {
             id: newNote.id,
@@ -262,102 +268,93 @@ export async function createNote(input: CreateNoteInput): Promise<Note> {
             isCustomized: false,
             createdAt: newNote.createdAt,
             updatedAt: newNote.updatedAt,
-        };
-    });
+        }
+    })
+}
+
+interface UpdateNoteInput {
+    title?: string
+    content?: string
+    category?: string
 }
 
 /**
  * 노트 수정
  */
-export async function updateNote(
-    id: string,
-    type: 'system' | 'user',
-    input: UpdateNoteInput
-): Promise<Note | null> {
+export async function updateNote(id: string, type: 'system' | 'user', input: UpdateNoteInput): Promise<Note | null> {
     return withErrorHandling('updateNote', async () => {
-        const now = Date.now();
+        const now = Date.now()
 
         if (type === 'system') {
             // System Note는 UserOverride에 저장
-            const systemNote = await getSystemNoteById(id);
+            const systemNote = await getSystemNoteById(id)
             if (!systemNote) {
-                throw new NotFoundError('SystemNote', id);
+                throw new NotFoundError('SystemNote', id)
             }
 
-            const existingOverride = await db.userOverrides.get(id);
+            const existingOverride = await db.userOverrides.get(id)
 
             // 원본과 비교하여 변경된 것만 저장
-            const customTitle = input.title !== undefined && input.title !== systemNote.title
-                ? input.title
-                : existingOverride?.customTitle ?? null;
+            const customTitle =
+                input.title !== undefined && input.title !== systemNote.title
+                    ? input.title
+                    : (existingOverride?.customTitle ?? null)
 
-            const customContent = input.content !== undefined && input.content !== systemNote.content
-                ? input.content
-                : existingOverride?.customContent ?? null;
+            const customContent =
+                input.content !== undefined && input.content !== systemNote.content
+                    ? input.content
+                    : (existingOverride?.customContent ?? null)
 
             const override: UserOverride = {
                 systemNoteId: id,
                 customTitle,
                 customContent,
-                isHidden: existingOverride?.isHidden ?? false,
                 updatedAt: now,
-            };
+            }
 
-            await db.userOverrides.put(override);
+            await db.userOverrides.put(override)
 
-            return getNoteById(id, 'system');
+            return getNoteById(id, 'system')
         } else {
             // User Note는 직접 수정
-            const userNote = await db.userNotes.get(id);
+            const userNote = await db.userNotes.get(id)
             if (!userNote) {
-                throw new NotFoundError('UserNote', id);
+                throw new NotFoundError('UserNote', id)
             }
 
             // content가 변경되면 firstLine도 업데이트
-            const firstLine = input.content !== undefined
-                ? extractFirstLine(input.content)
-                : userNote.firstLine;
+            const firstLine = input.content !== undefined ? extractFirstLine(input.content) : userNote.firstLine
 
             const updates: Partial<UserNote> = {
                 ...input,
                 firstLine,
                 updatedAt: now,
-            };
+            }
 
-            await db.userNotes.update(id, updates);
+            await db.userNotes.update(id, updates)
 
-            return getNoteById(id, 'user');
+            return getNoteById(id, 'user')
         }
-    });
+    })
 }
 
 /**
  * 노트 삭제
  * - User Note: 실제 삭제
- * - System Note: 숨김 처리
+ * - System Note: UserOverride 삭제 (원본으로 복원)
  */
 export async function deleteNote(id: string, type: 'system' | 'user'): Promise<boolean> {
     return withErrorHandling('deleteNote', async () => {
         if (type === 'system') {
-            // System Note는 숨김 처리
-            const existingOverride = await db.userOverrides.get(id);
-
-            const override: UserOverride = {
-                systemNoteId: id,
-                customTitle: existingOverride?.customTitle ?? null,
-                customContent: existingOverride?.customContent ?? null,
-                isHidden: true,
-                updatedAt: Date.now(),
-            };
-
-            await db.userOverrides.put(override);
-            return true;
+            // System Note는 UserOverride 삭제 (원본으로 복원)
+            await db.userOverrides.delete(id)
+            return true
         } else {
             // User Note는 실제 삭제
-            await db.userNotes.delete(id);
-            return true;
+            await db.userNotes.delete(id)
+            return true
         }
-    });
+    })
 }
 
 /**
@@ -366,27 +363,9 @@ export async function deleteNote(id: string, type: 'system' | 'user'): Promise<b
  */
 export async function resetToOriginal(systemNoteId: string): Promise<Note | null> {
     return withErrorHandling('resetToOriginal', async () => {
-        await db.userOverrides.delete(systemNoteId);
-        return getNoteById(systemNoteId, 'system');
-    });
-}
-
-/**
- * 숨긴 System Note 복원
- */
-export async function unhideSystemNote(systemNoteId: string): Promise<Note | null> {
-    return withErrorHandling('unhideSystemNote', async () => {
-        const existingOverride = await db.userOverrides.get(systemNoteId);
-
-        if (existingOverride) {
-            await db.userOverrides.update(systemNoteId, {
-                isHidden: false,
-                updatedAt: Date.now(),
-            });
-        }
-
-        return getNoteById(systemNoteId, 'system');
-    });
+        await db.userOverrides.delete(systemNoteId)
+        return getNoteById(systemNoteId, 'system')
+    })
 }
 
 /**
@@ -394,14 +373,11 @@ export async function unhideSystemNote(systemNoteId: string): Promise<Note | nul
  */
 export async function getCategories(): Promise<string[]> {
     return withErrorHandling('getCategories', async () => {
-        const systemCategories = await db.systemNotes.orderBy('category').uniqueKeys();
-        const userCategories = await db.userNotes.orderBy('category').uniqueKeys();
+        const systemCategories = await db.systemNotes.orderBy('category').uniqueKeys()
+        const userCategories = await db.userNotes.orderBy('category').uniqueKeys()
 
-        const allCategories = new Set([
-            ...systemCategories as string[],
-            ...userCategories as string[],
-        ]);
+        const allCategories = new Set([...(systemCategories as string[]), ...(userCategories as string[])])
 
-        return Array.from(allCategories).sort();
-    });
+        return Array.from(allCategories).sort()
+    })
 }

@@ -14,7 +14,7 @@ import {
     deleteNote,
     getAllNotes,
     getCategories,
-} from './noteService'
+} from '../service/noteService'
 
 describe('noteService', () => {
     beforeEach(async () => {

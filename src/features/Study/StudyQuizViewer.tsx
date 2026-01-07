@@ -5,13 +5,13 @@
  * - 진행률 표시 (Store 모드)
  */
 import { IconArrowLeft } from '@tabler/icons-react'
-import type { Note } from '../../db/schema/note'
 import type { StudyModeType } from './types'
 import '../NoteDetail/MarkdownEditor/styles/editor.css'
 import { WordQuizContainer } from './modes/word/WordQuizContainer'
 import { SentenceQuizContainer } from './modes/sentence/SentenceQuizContainer'
 import { EssayQuizContainer } from './modes/essay/EssayQuizContainer'
 import { useStudyProgress, useStudyProgressText, useStudySessionStore } from '../../stores/studySessionStore'
+import type { Note } from '../../db/core/schema'
 
 interface StudyQuizViewerProps {
     note: Note

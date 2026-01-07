@@ -4,7 +4,6 @@ import { NoteHeader } from '../components/common/NoteHeader'
 import { MarkdownEditor } from '../features/NoteDetail/MarkdownEditor/MarkdownEditor'
 import { TableOfContents } from '../features/NoteDetail/TableOfContents'
 import type { StudyModeType } from '../features/Study/types'
-import type { Note } from '../db/schema/note'
 import { StudyModeSelectModal } from '../features/NoteDetail/StudyModeSelectModal'
 import { ErrorBoundary } from '../components/ErrorBoundary/ErrorBoundary'
 import { ErrorFallback } from '../components/ErrorBoundary/ErrorFallback'
@@ -15,6 +14,7 @@ import { UnsavedChangesModal } from '../features/NoteDetail/UnsavedChangesModal'
 import { DeleteConfirmModal } from '../features/NoteDetail/DeleteConfirmModal'
 import { analytics } from '../lib/analytics'
 import { terminalToast } from '../features/Toast/toast'
+import type { Note } from '../db/core/schema'
 
 export function NoteDetailPage() {
     // ==================================== Hooks =====================================

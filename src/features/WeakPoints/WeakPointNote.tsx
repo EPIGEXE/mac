@@ -1,6 +1,5 @@
 import { useCallback, useState, type CSSProperties } from 'react'
-import type { ModeBreakdownStats, NoteStats } from '../../db/study/types'
-import type { WeakPoint } from '../../db/schema/study'
+import type { ModeBreakdownStats, NoteStats } from '../../db/service/types'
 import { getAccuracyColor } from './const'
 import { IconAlertTriangle, IconChevronDown, IconChevronUp, IconClock } from '@tabler/icons-react'
 import { formatDate, formatDuration } from '../../utils/funtion'
@@ -11,6 +10,7 @@ import { SectionTitle } from '../../components/common/SectionTitle'
 import type { StudyModeType } from '../Study/types'
 import { List } from 'react-window'
 import { WeakPointItem } from './WeakPointItem'
+import type { WeakPoint } from '../../db/core/schema'
 
 const WEAK_POINT_ITEM_HEIGHT = 120
 

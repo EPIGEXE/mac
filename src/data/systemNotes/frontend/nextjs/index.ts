@@ -1,4 +1,4 @@
-import type { SystemNote } from "../../../../db/schema/note";
+import type { SystemNote } from "../../../../db/core/schema";
 import { CATEGORY, TAG } from "../../../categories";
 
 import basicContent from './basic.md?raw'

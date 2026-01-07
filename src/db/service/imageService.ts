@@ -6,7 +6,7 @@
  */
 import { InvalidInputError, withErrorHandling } from '../../errors';
 import { db } from '../core/db';
-import type { ImageBlob } from '../schema/image';
+import type { ImageBlob } from '../core/schema';
 import { generateId } from '../utils/idGenerator';
 
 // ObjectURL 캐시 (메모리에서 관리)

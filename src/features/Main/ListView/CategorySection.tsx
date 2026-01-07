@@ -1,6 +1,6 @@
 import { forwardRef } from 'react'
-import type { Note } from '../../../db/schema/note'
 import { NoteTags } from '../../../components/common/NoteTags'
+import type { Note } from '../../../db/core/schema'
 
 export interface CategorySectionProps {
     category: string // 카테고리 이름

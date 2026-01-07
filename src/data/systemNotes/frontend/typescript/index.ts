@@ -1,8 +1,8 @@
-import type { SystemNote } from '../../../../db/schema/note'
 import { CATEGORY, TAG } from '../../../categories'
 
 import basicsContent from './basics.md?raw'
 import advancedContent from './advanced.md?raw'
+import type { SystemNote } from '../../../../db/core/schema'
 
 export const typescriptNotes: SystemNote[] = [
     {

@@ -2,7 +2,7 @@ import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 import { modeConfig } from '../StatisticsDashboard/const'
 import { useMemo, useState } from 'react'
 import type { StudyModeType } from '../Study/types'
-import type { SessionHistoryItem } from '../../db/study/types'
+import type { SessionHistoryItem } from '../../db/service/types'
 
 // 요일 라벨
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']

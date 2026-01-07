@@ -8,7 +8,7 @@ import {
     addWordWeakPoint,
     addSentenceWeakPoint,
     addEssayWeakPoint,
-} from '../../../db/study/weakPointService'
+} from '../../../db/service/weakPointService'
 import { AppError } from '../../../errors'
 
 // ============================================================================

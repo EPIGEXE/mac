@@ -17,13 +17,13 @@ import {
     IconSortAscending,
     IconSortDescending,
 } from '@tabler/icons-react'
-import { getWeakNotes, getAllNoteStats } from '../db/study/statisticsService'
-import { getWeakPointsByNote, resolveWeakPoint } from '../db/study/weakPointService'
-import { findNoteById } from '../db/note/noteService'
-import type { NoteStats } from '../db/study/types'
-import type {  WeakPoint } from '../db/schema/study'
+import { getWeakNotes, getAllNoteStats } from '../db/service/statisticsService'
+import { getWeakPointsByNote, resolveWeakPoint } from '../db/service/weakPointService'
+import { findNoteById } from '../db/service/noteService'
+import type { NoteStats } from '../db/service/types'
 import { WeakPointNote } from '../features/WeakPoints/WeakPointNote'
 import { Pagenation } from '../features/WeakPoints/Pagenation'
+import type { WeakPoint } from '../db/core/schema'
 
 // ================================ 상수 ================================
 const NOTES_PER_PAGE = 10

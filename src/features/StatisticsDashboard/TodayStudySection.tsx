@@ -3,7 +3,7 @@ import { SectionTitle } from '../../components/common/SectionTitle'
 import { DashboardGrid } from '../../components/common/DashboardGrid'
 import { DashboardCard } from '../../components/common/DashboardCard'
 import { formatDuration } from '../../utils/funtion'
-import type { PeriodStats } from '../../db/study/types'
+import type { PeriodStats } from '../../db/service/types'
 
 export function TodayStudySection({ todayStats }: { todayStats: PeriodStats | null }) {
     return (

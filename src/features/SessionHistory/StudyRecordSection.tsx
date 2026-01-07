@@ -1,8 +1,8 @@
 import { IconBook, IconCalendar, IconChecks, IconChevronDown, IconChevronUp, IconClock, IconX } from '@tabler/icons-react'
 import { motion } from 'framer-motion'
 import { modeConfig } from '../StatisticsDashboard/const'
-import type { SessionHistoryItem } from '../../db/study/types'
-import type { StudyRecord } from '../../db/schema/study'
+import type { SessionHistoryItem } from '../../db/service/types'
+import type { StudyRecord } from '../../db/core/schema'
 
 interface StudyRecordSectionProps {
     selectedDate: string

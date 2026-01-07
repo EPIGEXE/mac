@@ -1,4 +1,3 @@
-import type { SystemNote } from "../../../../db/schema/note";
 import { CATEGORY, TAG } from "../../../categories";
 import OsiModelContent from './osi-model.md?raw';
 import IpAddressContent from './ip-address.md?raw';
@@ -9,6 +8,7 @@ import HttpsTlsContent from './https-tls.md?raw';
 import DnsContent from './dns.md?raw';
 import RealtimeContent from './realtime.md?raw';
 import WebSecurityContent from './web-security.md?raw';
+import type { SystemNote } from "../../../../db/core/schema";
 
 export const networkNotes: SystemNote[] = [
 

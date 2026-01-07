@@ -5,13 +5,13 @@
  */
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
-import type { Note } from '../../../../db/schema/note'
 import { useSentenceQuiz } from './hooks/useSentenceQuiz'
 import { useStudySessionStore } from '../../../../stores/studySessionStore'
 import { SentenceQuizResult } from './components/SentenceQuizResult'
 import { SentenceAnswerInput } from './components/SentenceAnswerInput'
 import { GenerateingQuizLoading } from '../../components/GenerateingQuizLoading'
 import { TerminalButton } from '../../../../components/common/TerminalButton'
+import type { Note } from '../../../../db/core/schema'
 
 interface SentenceQuizContainerProps {
     note: Note

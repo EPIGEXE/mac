@@ -1,6 +1,5 @@
 import { Position, MarkerType, type Node, type Edge } from 'reactflow';
 import dagre from 'dagre';
-import type { Note } from '../../../db/schema/note';
 import type { RoadmapData, LayoutData, SectionDef, CategoryNodeDef } from './types';
 import {
     categoryMapping,
@@ -10,6 +9,7 @@ import {
     sectionRootNodes,
     LAYOUT,
 } from './config';
+import type { Note } from '../../../db/core/schema';
 
 // 노드 높이 계산 (노트 개수에 따라)
 function getNodeHeight(noteCount: number): number {

@@ -2,8 +2,8 @@ import { IconAlertTriangle, IconChevronRight } from '@tabler/icons-react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { modeConfig } from './const'
-import type { WeakPointSummary } from '../../db/study/types'
-import type { WeakPoint } from '../../db/schema/study'
+import type { WeakPointSummary } from '../../db/service/types'
+import type { WeakPoint } from '../../db/core/schema'
 
 export function WeakPointSection({
     weakPointSummary,
