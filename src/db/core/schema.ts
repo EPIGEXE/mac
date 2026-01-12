@@ -103,7 +103,7 @@ export interface SentenceStudyRecord extends StudyRecordBase {
     }
 }
 
-/** 서술형 모드 - 면접 상세 */
+/** 서술형 모드 - 면접 상세 (실무 시나리오 기반) */
 export interface EssayStudyRecord extends StudyRecordBase {
     mode: 'essay'
     details: {
@@ -113,12 +113,18 @@ export interface EssayStudyRecord extends StudyRecordBase {
         userAnswer: string
         score: number
         grade: 'PASS' | 'BORDERLINE' | 'NEEDS_WORK'
+        analysis: {
+            situationUnderstanding: string
+            solutionQuality: string
+            technicalAccuracy: string
+            depthOfThinking: string
+        }
         matchedPoints: string[]
         missedPoints: string[]
         strengths: string[]
         improvements: string[]
         feedback: string
-        tip: string
+        betterAnswer: string
     }
 }
 

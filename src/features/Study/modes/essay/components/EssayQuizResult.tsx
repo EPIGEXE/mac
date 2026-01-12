@@ -170,12 +170,42 @@ export function EssayQuizResult({ question, userAnswer, result, onNext }: EssayQ
 
                 <SectionTitle size="lg" className="mb-6">피드백</SectionTitle>
 
+                {/*  상세 분석  */}
+                {result.analysis && (
+                    <motion.div
+                        className="mb-8"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.2, delay: 0.25 }}
+                    >
+                        <div className="font-mono text-sm text-[var(--text-secondary)] mb-3">// analysis</div>
+                        <div className="pl-4 space-y-3 border-l-2 border-[var(--border-medium)]">
+                            <div>
+                                <span className="font-mono text-xs text-[var(--text-tertiary)]">상황 이해: </span>
+                                <span className="text-sm text-[var(--text-primary)]">{result.analysis.situationUnderstanding}</span>
+                            </div>
+                            <div>
+                                <span className="font-mono text-xs text-[var(--text-tertiary)]">해결책: </span>
+                                <span className="text-sm text-[var(--text-primary)]">{result.analysis.solutionQuality}</span>
+                            </div>
+                            <div>
+                                <span className="font-mono text-xs text-[var(--text-tertiary)]">기술 정확성: </span>
+                                <span className="text-sm text-[var(--text-primary)]">{result.analysis.technicalAccuracy}</span>
+                            </div>
+                            <div>
+                                <span className="font-mono text-xs text-[var(--text-tertiary)]">사고의 깊이: </span>
+                                <span className="text-sm text-[var(--text-primary)]">{result.analysis.depthOfThinking}</span>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+
                 {/*  면접관 피드백  */}
                 <motion.div
                     className="mb-8"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 0.2, delay: 0.25 }}
+                    transition={{ duration: 0.2, delay: 0.3 }}
                 >
                     <div className="font-mono text-sm text-[var(--accent)] mb-3">// feedback</div>
                     <p className="text-base text-[var(--text-primary)] leading-relaxed pl-4 border-l-2 border-[var(--accent)]">
@@ -183,17 +213,17 @@ export function EssayQuizResult({ question, userAnswer, result, onNext }: EssayQ
                     </p>
                 </motion.div>
 
-                {/*  면접 팁  */}
-                {result.tip && (
+                {/*  모범 답변 방향  */}
+                {result.betterAnswer && (
                     <motion.div
                         className="mb-8"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ duration: 0.2, delay: 0.3 }}
+                        transition={{ duration: 0.2, delay: 0.35 }}
                     >
-                        <div className="font-mono text-sm text-[var(--text-secondary)] mb-3">// tip</div>
-                        <p className="text-base text-[var(--text-secondary)] leading-relaxed pl-4 italic">
-                            {result.tip}
+                        <div className="font-mono text-sm text-[var(--success)] mb-3">// better answer</div>
+                        <p className="text-base text-[var(--text-primary)] leading-relaxed pl-4 border-l-2 border-[var(--success)]">
+                            {result.betterAnswer}
                         </p>
                     </motion.div>
                 )}
@@ -203,7 +233,7 @@ export function EssayQuizResult({ question, userAnswer, result, onNext }: EssayQ
                     className="mb-8 space-y-4"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 0.2, delay: 0.35 }}
+                    transition={{ duration: 0.2, delay: 0.4 }}
                 >
                     {/* 내 답변 보기 */}
                     <div>
@@ -286,7 +316,7 @@ export function EssayQuizResult({ question, userAnswer, result, onNext }: EssayQ
                     className="pt-6 border-t border-[var(--border-light)]"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2, delay: 0.4 }}
+                    transition={{ duration: 0.2, delay: 0.45 }}
                 >
                     <div className="flex gap-3">
                         <button

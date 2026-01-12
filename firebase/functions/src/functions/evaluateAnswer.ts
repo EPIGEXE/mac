@@ -44,6 +44,7 @@ export const evaluateAnswer = onCall(
                 question: data.question,
                 questionType: data.questionType || 'concept',
                 expectedPoints: data.expectedPoints,
+                evaluationCriteria: data.evaluationCriteria,
                 answerGuide: data.answerGuide || '',
                 userAnswer: data.userAnswer,
             })
@@ -59,12 +60,13 @@ export const evaluateAnswer = onCall(
             return {
                 score: llmResponse.score,
                 grade: llmResponse.grade,
+                analysis: llmResponse.analysis,
                 matchedPoints: llmResponse.matchedPoints,
                 missedPoints: llmResponse.missedPoints,
                 strengths: llmResponse.strengths,
                 improvements: llmResponse.improvements,
                 feedback: llmResponse.feedback,
-                tip: llmResponse.tip,
+                betterAnswer: llmResponse.betterAnswer,
             }
         } catch (error) {
             console.error('Failed to evaluate answer:', error)

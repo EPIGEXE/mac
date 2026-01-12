@@ -79,12 +79,13 @@ export function EssayQuizContainer({
                     userAnswer: answer,
                     score: result.score,
                     grade: result.grade,
+                    analysis: result.analysis,
                     matchedPoints: result.matchedPoints,
                     missedPoints: result.missedPoints,
                     strengths: result.strengths,
                     improvements: result.improvements,
                     feedback: result.feedback,
-                    tip: result.tip,
+                    betterAnswer: result.betterAnswer,
                 },
             })
         }

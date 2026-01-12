@@ -117,6 +117,7 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
         startTimeRef.current = Date.now()
 
         // 캐시 확인 - 캐시가 있으면 바로 퀴즈 데이터 처리
+        // gcTime 동안 캐시가 유지되므로, 캐시가 있으면 바로 퀴즈 데이터 사용
         const cachedData = queryClient.getQueryData(studyKeys.quiz(noteId, 'word')) as { blanks?: BlankInfo[] } | undefined
 
         if (cachedData?.blanks) {

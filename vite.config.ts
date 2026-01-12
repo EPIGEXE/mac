@@ -25,23 +25,23 @@ export default defineConfig(({ mode }) => ({
                     if (id.includes('react-dom') || id.includes('/react/')) {
                         return 'vendor-react'
                     }
-                    // reactflow (RoadmapView에서만 사용, ~200KB)
+                    // reactflow (RoadmapView에서만 사용)
                     if (id.includes('reactflow') || id.includes('@reactflow') || id.includes('dagre')) {
                         return 'vendor-reactflow'
                     }
-                    // recharts (통계 페이지에서만 사용, ~150KB)
+                    // recharts (통계 페이지에서만 사용)
                     if (id.includes('recharts') || id.includes('d3-')) {
                         return 'vendor-recharts'
                     }
-                    // prosemirror (에디터용, ~100KB)
+                    // prosemirror (에디터용)
                     if (id.includes('prosemirror')) {
                         return 'vendor-prosemirror'
                     }
-                    // firebase (인증/DB, ~100KB)
+                    // firebase (인증/DB)
                     if (id.includes('firebase') || id.includes('@firebase')) {
                         return 'vendor-firebase'
                     }
-                    // highlight.js (코드 하이라이트, ~50KB)
+                    // highlight.js (코드 하이라이트)
                     if (id.includes('highlight.js') || id.includes('lowlight')) {
                         return 'vendor-highlight'
                     }

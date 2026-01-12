@@ -48,8 +48,8 @@ export function useGenerateQuiz(params: UseGenerateQuizParams, options?: UseGene
             }
         },
         enabled: options?.enabled ?? true,
-        staleTime: 30 * 60 * 1000, // 30분 (기존 캐시 TTL과 동일)
-        gcTime: 60 * 60 * 1000, // 1시간
+        staleTime: 5 * 60 * 1000, // 5분
+        gcTime: 10 * 60 * 1000, // 10분
         retry: (failureCount, error) => {
             // retryable한 에러만 재시도
             if (AppError.isAppError(error) && !error.retryable) {

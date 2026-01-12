@@ -75,15 +75,15 @@ export function EssayQuizQuestion({
                     <span className={`font-mono text-sm font-bold ${companyStyle.text}`}>
                         {question.company} 기술 면접
                     </span>
-                    <span className="font-mono text-sm text-[var(--text-tertiary)] ml-2">[{questionTypeLabel}] 분야</span>
+                    <span className="font-mono text-sm text-[var(--text-tertiary)] ml-2">
+                        [{questionTypeLabel}] 분야
+                    </span>
                 </div>
 
                 {/* 면접 질문 */}
-                <div
-                    className="mb-8"
-                >
+                <div className="mb-8">
                     <div className="font-mono text-sm text-[var(--text-secondary)] mb-3">// interviewer question</div>
-                    <p className="font-display text-xl text-[var(--text-primary)] leading-relaxed">
+                    <p className="font-display text-lg text-[var(--text-primary)] leading-loose tracking-wide">
                         "{question.question}"
                     </p>
                 </div>
@@ -130,9 +130,7 @@ export function EssayQuizQuestion({
                 )}
 
                 {/* 답변 입력 영역 */}
-                <div
-                    className="mb-6"
-                >
+                <div className="mb-6">
                     <div className="font-mono text-sm text-[var(--text-secondary)] mb-3">// your answer</div>
 
                     <div className="relative">
@@ -183,9 +181,7 @@ export function EssayQuizQuestion({
                 </div>
 
                 {/* 안내 문구 */}
-                <div
-                    className="mb-6 p-3 bg-[var(--bg-secondary)] border-l-2 border-[var(--accent)]"
-                >
+                <div className="mb-6 p-3 bg-[var(--bg-secondary)] border-l-2 border-[var(--accent)]">
                     <p className="font-mono text-xs text-[var(--text-secondary)]">
                         <span className="text-[var(--accent)]">tip:</span> 면접에서는 "왜"와 "어떻게"를 설명하는 것이
                         중요합니다. 단순히 정의만 말하기보다 실제 경험이나 구체적인 예시를 함께 설명해보세요.
@@ -193,9 +189,7 @@ export function EssayQuizQuestion({
                 </div>
 
                 {/* 제출 버튼 */}
-                <div
-                    className="flex justify-end"
-                >
+                <div className="flex justify-end">
                     <button
                         onClick={onSubmit}
                         disabled={isEvaluating || answer.trim().length < 50}

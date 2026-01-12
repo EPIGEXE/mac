@@ -3,7 +3,7 @@
  * - h1 ~ h3 추출
  * - 터미널 스타일: // toc 라벨 + 미니맵 바 + hover 시 전체 목차
  */
-import { useMemo, useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 export interface HeadingItem {
     id: string
@@ -17,35 +17,28 @@ interface TableOfContentsProps {
 }
 
 /**
- * 마크다운 콘텐츠에서 헤딩(h1~h3) 추출
+ * DOM에서 실제 렌더링된 헤딩(h1~h3) 추출
+ * - 코드 블럭 내의 #은 <h1>~<h3>로 렌더링되지 않으므로 자동 제외
+ * - ProseMirror/마크다운 렌더러의 파싱 결과를 그대로 활용
  */
-function extractHeadings(content: string): HeadingItem[] {
+function extractHeadingsFromDOM(): HeadingItem[] {
     const headings: HeadingItem[] = []
 
-    if (!content) {
-        return headings
-    }
+    const editorContent = document.querySelector('.markdown-content, .ProseMirror')
+    if (!editorContent) return headings
 
-    // Windows 줄바꿈(\r\n) 정규화
-    // 정규화하지 않으면 #~### 패턴 매칭이 제대로 안될 수 있음
-    const normalizedContent = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
-    const lines = normalizedContent.split('\n')
+    const domHeadings = editorContent.querySelectorAll('h1, h2, h3')
 
-    lines.forEach((line, index) => {
-        // # ~ ### 패턴 매칭
-        const match = line.match(/^(#{1,3})\s+(.+)$/)
-        if (match) {
-            const level = match[1].length as 1 | 2 | 3
-            const text = match[2].trim()
+    domHeadings.forEach((heading, index) => {
+        const tagName = heading.tagName.toLowerCase()
+        const level = (tagName === 'h1' ? 1 : tagName === 'h2' ? 2 : 3) as 1 | 2 | 3
+        const text = heading.textContent?.trim() || ''
 
-            // 빈 텍스트는 스킵
-            if (!text) return
+        if (!text) return
 
-            // ID 생성: 텍스트 기반 + 인덱스 (중복 방지)
-            const id = `heading-${index}-${text.toLowerCase().replace(/[^a-z0-9가-힣]/g, '-').replace(/-+/g, '-')}`
+        const id = `heading-${index}-${text.toLowerCase().replace(/[^a-z0-9가-힣]/g, '-').replace(/-+/g, '-')}`
 
-            headings.push({ id, text, level })
-        }
+        headings.push({ id, text, level })
     })
 
     return headings
@@ -54,13 +47,22 @@ function extractHeadings(content: string): HeadingItem[] {
 export function TableOfContents({ content, onHeadingClick }: TableOfContentsProps) {
     // ==================================== 상태 관리 =====================================
     // 마우스 오버 상태, hover 시 전체 목차 표시
-    const [isHovered, setIsHovered] = useState(false) 
+    const [isHovered, setIsHovered] = useState(false)
     // 현재 활성 헤딩 인덱스, 스크롤 위치에 따라 업데이트 / 클릭 시 활성 헤딩 인덱스 업데이트
-    const [activeIndex, setActiveIndex] = useState(0) 
+    const [activeIndex, setActiveIndex] = useState(0)
+    // DOM에서 추출한 헤딩 목록
+    const [headings, setHeadings] = useState<HeadingItem[]>([])
 
-    // ==================================== 상수 =====================================
-    // 컨텐츠에서 감지된 heading 추출
-    const headings = useMemo(() => extractHeadings(content), [content])
+    // ==================================== DOM 기반 헤딩 추출 =====================================
+    // content 변경 시 DOM이 업데이트된 후 헤딩 추출
+    useEffect(() => {
+        // DOM 렌더링 완료 후 실행되도록 약간의 지연
+        const timer = setTimeout(() => {
+            setHeadings(extractHeadingsFromDOM())
+        }, 100)
+
+        return () => clearTimeout(timer)
+    }, [content])
 
     // 스크롤 위치에 따라 현재 활성 헤딩 추적용
     const updateActiveHeading = useCallback(() => {

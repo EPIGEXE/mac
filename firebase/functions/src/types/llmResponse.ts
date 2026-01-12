@@ -42,37 +42,58 @@ export interface SentenceQuizLLMResponse {
     questions: SentenceQuestion[]
 }
 
-// 서술형 모드 LLM 응답 타입 (한국 테크기업 면접 스타일)
+// 서술형 모드 LLM 응답 타입 (한국 테크기업 면접 스타일 - 실무 시나리오 기반)
 export interface EssayQuizLLMResponse {
     company: string
     question: string
-    questionType: 'concept' | 'comparison' | 'application' | 'optimization' | 'troubleshooting' | 'architecture'
+    questionType: 'concept' | 'comparison' | 'application' | 'troubleshooting' | 'tradeoff'
+    scenario?: {
+        situation: string
+        constraint: string
+        challenge: string
+    }
     followUpQuestions: string[]
     expectedPoints: string[]
+    evaluationCriteria?: {
+        excellent: string[]
+        good: string[]
+        poor: string[]
+    }
     answerGuide: string
 }
 
 // ==================================== 답변 평가 요청에 대한 요청 타입 및 LLM 응답 타입 ====================================
-// 서술형 답변 평가 요청 타입 (한국 테크기업 면접 스타일)
+// 서술형 답변 평가 요청 타입 (한국 테크기업 면접 스타일 - 실무 시나리오 기반)
 export interface EvaluateEssayRequest {
     company: string
     question: string
     questionType: string
     expectedPoints: string[]
+    evaluationCriteria?: {
+        excellent: string[]
+        good: string[]
+        poor: string[]
+    }
     answerGuide: string
     userAnswer: string
 }
 
-// 서술형 평가 LLM 응답 타입
+// 서술형 평가 LLM 응답 타입 (실무 시나리오 기반)
 export interface EssayEvaluationResponse {
     score: number
     grade: 'PASS' | 'BORDERLINE' | 'NEEDS_WORK'
+    analysis: {
+        situationUnderstanding: string
+        solutionQuality: string
+        technicalAccuracy: string
+        depthOfThinking: string
+    }
     matchedPoints: string[]
     missedPoints: string[]
     strengths: string[]
     improvements: string[]
     feedback: string
-    tip: string
+    betterAnswer: string
 }
 
 // 문장 모드 요청 타입

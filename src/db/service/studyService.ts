@@ -328,12 +328,18 @@ interface RecordEssayStudyInput {
     userAnswer: string;
     score: number;
     grade: 'PASS' | 'BORDERLINE' | 'NEEDS_WORK';
+    analysis: {
+        situationUnderstanding: string;
+        solutionQuality: string;
+        technicalAccuracy: string;
+        depthOfThinking: string;
+    };
     matchedPoints: string[];
     missedPoints: string[];
     strengths: string[];
     improvements: string[];
     feedback: string;
-    tip: string;
+    betterAnswer: string;
 }
 
 /**
@@ -372,12 +378,13 @@ export async function recordEssayStudy(input: RecordEssayStudyInput): Promise<Es
                 userAnswer: input.userAnswer,
                 score: input.score,
                 grade: input.grade,
+                analysis: input.analysis,
                 matchedPoints: input.matchedPoints,
                 missedPoints: input.missedPoints,
                 strengths: input.strengths,
                 improvements: input.improvements,
                 feedback: input.feedback,
-                tip: input.tip,
+                betterAnswer: input.betterAnswer,
             },
         };
 

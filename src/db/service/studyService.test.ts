@@ -304,12 +304,18 @@ describe('studyService', () => {
                 userAnswer: 'CRP is...',
                 score: 85,
                 grade: 'PASS',
+                analysis: {
+                    situationUnderstanding: '상황을 잘 파악함',
+                    solutionQuality: '해결책이 적합함',
+                    technicalAccuracy: '기술적으로 정확함',
+                    depthOfThinking: '깊이 있는 사고',
+                },
                 matchedPoints: ['Point 1'],
                 missedPoints: [],
                 strengths: ['Good'],
                 improvements: [],
                 feedback: 'Well done',
-                tip: 'Keep it up',
+                betterAnswer: 'Keep it up',
             })
 
             expect(record.mode).toBe('essay')
@@ -336,12 +342,18 @@ describe('studyService', () => {
                 userAnswer: 'REST is...',
                 score: 40,
                 grade: 'NEEDS_WORK',
+                analysis: {
+                    situationUnderstanding: '상황 파악 부족',
+                    solutionQuality: '해결책이 불완전함',
+                    technicalAccuracy: '일부 오개념 있음',
+                    depthOfThinking: '깊이가 부족함',
+                },
                 matchedPoints: [],
                 missedPoints: ['Point 1'],
                 strengths: [],
                 improvements: ['Need more detail'],
                 feedback: 'Try again',
-                tip: 'Study more',
+                betterAnswer: 'Study more',
             })
 
             expect(record.correctCount).toBe(0)

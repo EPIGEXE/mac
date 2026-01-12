@@ -74,8 +74,8 @@ export function StudyFinalResultPage() {
 
     // 나가기
     const handleExit = () => {
-        resetSession()
         navigate('/')
+        resetSession()
     }
 
     // 다시 학습

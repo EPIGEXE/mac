@@ -13,6 +13,11 @@ export interface EvaluateEssayParams {
     question: string
     questionType: string
     expectedPoints: string[]
+    evaluationCriteria?: {
+        excellent: string[]
+        good: string[]
+        poor: string[]
+    }
     answerGuide: string
     userAnswer: string
 }

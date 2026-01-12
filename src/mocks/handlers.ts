@@ -95,6 +95,12 @@ const MOCK_ESSAY_QUIZ: GenerateQuizResponse = {
 const MOCK_ESSAY_RESULT: EvaluateEssayResponse = {
     score: 30,
     grade: 'NEEDS_WORK',
+    analysis: {
+        situationUnderstanding: '질문의 상황을 파악했으나 제약 조건에 대한 고려가 부족합니다.',
+        solutionQuality: 'CRP 최적화 기법을 나열했으나 해당 상황에 맞는 구체적 적용 방안이 부족합니다.',
+        technicalAccuracy: '기술적 개념은 정확하나 실무 적용 관점이 부족합니다.',
+        depthOfThinking: '트레이드오프나 대안에 대한 고려가 없습니다.',
+    },
     matchedPoints: [
         'CRP 단계에 대한 기본 이해',
         'defer/async 속성 활용',
@@ -113,7 +119,7 @@ const MOCK_ESSAY_RESULT: EvaluateEssayResponse = {
         '실제 프로젝트에서 적용한 사례를 더 구체적으로 설명해보세요',
     ],
     feedback: '전반적으로 CRP에 대한 이해도가 좋습니다. 다만 실무에서는 "얼마나 개선됐는지"를 수치로 보여주는 것이 중요합니다. FCP가 3초에서 1.5초로 단축됐다는 식의 구체적인 결과를 말할 수 있으면 더 좋은 인상을 줄 수 있습니다.',
-    tip: '면접에서 성능 최적화를 말할 때는 항상 Before/After 수치를 준비하세요. 측정 없는 최적화는 설득력이 떨어집니다.',
+    betterAnswer: 'CRP 최적화를 위해 먼저 Lighthouse로 현재 FCP/LCP를 측정하고, CSS 인라인화와 JS defer 적용 후 FCP가 2.5초에서 1.2초로 개선된 경험을 구체적으로 설명하면 좋습니다.',
 }
 
 const MOCK_SENTENCE_RESULT: EvaluateSentenceAnswersResponse = {

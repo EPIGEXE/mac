@@ -7,7 +7,6 @@ import { useEffect } from 'react'
 import { useWordQuiz } from './hooks/useWordQuiz'
 import { useQuizNavigation } from '../../hooks/useQuizNavigation'
 import { useStudySessionStore } from '../../../../stores/studySessionStore'
-import { NoteHeader } from '../../../../components/common/NoteHeader'
 import { BlindedMarkdownContent } from './components/BlindedMarkdownContent'
 import { AnswerInput } from './components/AnswerInput'
 import { WordQuizResult } from './components/WordQuizResult'
@@ -143,7 +142,6 @@ export function WordQuizContainer({ note, onNext }: WordQuizContainerProps) {
         <>
             {/* Content */}
             <div className="flex-1 overflow-y-auto">
-                <NoteHeader category={note.category} title={note.title} tag={note.tag} />
 
                 {/* 퀴즈 레이아웃 - 사이드바와 메인 콘텐츠 */}
                 <div className="flex justify-center">

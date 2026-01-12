@@ -111,6 +111,7 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
                 question: question.question,
                 questionType: question.questionType,
                 expectedPoints: question.expectedPoints,
+                evaluationCriteria: question.evaluationCriteria,
                 answerGuide: question.answerGuide,
                 userAnswer: answer,
             })
