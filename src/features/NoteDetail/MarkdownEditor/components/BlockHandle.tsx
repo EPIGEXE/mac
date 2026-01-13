@@ -2,8 +2,8 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import type { EditorView } from 'prosemirror-view'
 import { NodeSelection, TextSelection } from 'prosemirror-state'
 import { Slice, Fragment, type Node as ProseMirrorNode } from 'prosemirror-model'
-import { Plus, GripVertical } from 'lucide-react'
 import { schema } from '../editor/schema'
+import { IconGripVertical, IconPlus } from '@tabler/icons-react'
 
 interface DragHandleState {
     hoveredBlockPos: number
@@ -383,7 +383,7 @@ export function BlockHandle({ view, containerRef }: BlockHandleProps) {
                         onClick={handleAddClick}
                         title="블록 추가"
                     >
-                        <Plus size={14} strokeWidth={2.5} />
+                        <IconPlus size={14} strokeWidth={2.5} />
                     </div>
 
                     {/* 드래그 핸들 */}
@@ -395,7 +395,7 @@ export function BlockHandle({ view, containerRef }: BlockHandleProps) {
                         onDragEnd={onDragEnd}
                         title="클릭하여 선택, 드래그하여 이동"
                     >
-                        <GripVertical size={14} />
+                        <IconGripVertical size={14} />
                     </div>
             </div>
     )

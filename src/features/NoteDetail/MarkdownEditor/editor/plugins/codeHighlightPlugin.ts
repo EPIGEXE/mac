@@ -7,6 +7,7 @@ import { Plugin, PluginKey } from 'prosemirror-state';
 import { Decoration, DecorationSet } from 'prosemirror-view';
 import { Node as ProseMirrorNode } from 'prosemirror-model';
 import { createLowlight, common } from 'lowlight';
+import type { RootContent } from 'hast';
 
 // lowlight 인스턴스 생성 (common: 주요 언어들 포함)
 const lowlight = createLowlight(common);
@@ -51,7 +52,7 @@ const MAX_DEPTH = 50;
  * lowlight의 AST 노드를 ProseMirror Decoration으로 변환
  */
 function parseHighlightNodes(
-  nodes: any[],
+  nodes: RootContent[],
   startPos: number,
   depth: number = 0
 ): { decorations: Decoration[]; endPos: number } {
@@ -78,7 +79,8 @@ function parseHighlightNodes(
       currentPos += node.value.length;
     } else if (node.type === 'element') {
       // 요소 노드: 클래스명으로 decoration 생성
-      const className = node.properties?.className?.join(' ') || '';
+      const classNames = node.properties?.className;
+      const className = Array.isArray(classNames) ? classNames.join(' ') : '';
 
       // 자식 노드 재귀 처리
       const childResult = parseHighlightNodes(node.children || [], currentPos, depth + 1);

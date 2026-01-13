@@ -27,7 +27,6 @@
 @import './features/NoteDetail/MarkdownEditor/styles/editor.css';
 @import './features/NoteDetail/MarkdownEditor/styles/blockHandle.css';
 @import './features/NoteDetail/MarkdownEditor/styles/slashCommandMenu.css';
-@import './features/NoteDetail/MarkdownEditor/styles/tableMenu.css';
 
 /* ==============================================
     ailwind v4 Theme Configuration

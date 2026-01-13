@@ -2,6 +2,7 @@
  * 테이블 행/열 핸들 버튼
  * 클릭 시 행/열 전체 선택 + 컨텍스트 메뉴 표시 (BlockNote 스타일)
  */
+import { IconGripVertical } from '@tabler/icons-react';
 import { useRef, useCallback } from 'react';
 
 interface TableHandleProps {
@@ -39,7 +40,7 @@ export function TableHandle({
       onClick={handleClick}
       title={isRow ? '행 옵션' : '열 옵션'}
     >
-      ⠿
+      <IconGripVertical size={14} />
     </button>
   );
 }

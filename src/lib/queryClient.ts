@@ -8,8 +8,8 @@ import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persi
 export const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
-            staleTime: 5 * 60 * 1000, // 5분
-            gcTime: 30 * 60 * 1000, // 30분 (persist용으로 충분히 길게)
+            staleTime: 10 * 60 * 1000, // 10분
+            gcTime: 30 * 60 * 1000, // 30분
             retry: 1,
             refetchOnWindowFocus: false,
         },
