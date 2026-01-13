@@ -149,7 +149,7 @@ export function WordQuizContainer({ note, onNext }: WordQuizContainerProps) {
                     <div className="w-[228px] shrink-0 hidden min-[1400px]:block" />
 
                     {/* 메인 콘텐츠 */}
-                    <main className="w-full max-w-[1000px] px-6">
+                    <main className="w-full max-w-[1000px] px-6 py-12">
                         <BlindedMarkdownContent
                             content={blindedContent}
                             blanks={blanks}

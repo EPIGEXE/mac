@@ -3,12 +3,15 @@
  * - TanStack Query를 사용한 퀴즈 생성 API 호출
  * - 자동 캐싱 및 중복 요청 방지
  * - AppError 기반 재시도 제어
+ * - 30초 타임아웃
  */
 import { useQuery } from '@tanstack/react-query'
 import { studyKeys } from './keys'
 import { generateQuiz } from '../../services/studyApi'
 import { AppError, FirebaseError } from '../../../../errors'
 import type { StudyModeType, GenerateQuizResponse } from '../../types'
+
+const QUIZ_GENERATION_TIMEOUT = 30 * 1000 // 30초
 
 export interface UseGenerateQuizParams {
     noteId: string
@@ -35,15 +38,27 @@ export function useGenerateQuiz(params: UseGenerateQuizParams, options?: UseGene
     return useQuery<GenerateQuizResponse, AppError>({
         queryKey: studyKeys.quiz(params.noteId, params.mode),
         queryFn: async () => {
+            // 타임아웃 처리
+            const timeoutPromise = new Promise<never>((_, reject) => {
+                setTimeout(() => {
+                    reject(new AppError('TIMEOUT', '퀴즈 생성 시간이 초과되었습니다.', null, true))
+                }, QUIZ_GENERATION_TIMEOUT)
+            })
+
             try {
-                return await generateQuiz({
-                    noteId: params.noteId,
-                    noteContent: params.noteContent,
-                    noteTitle: params.noteTitle,
-                    mode: params.mode,
-                    blankCount: params.blankCount ?? 5,
-                })
+                return await Promise.race([
+                    generateQuiz({
+                        noteId: params.noteId,
+                        noteContent: params.noteContent,
+                        noteTitle: params.noteTitle,
+                        mode: params.mode,
+                        blankCount: params.blankCount ?? 5,
+                    }),
+                    timeoutPromise,
+                ])
             } catch (e) {
+                // 이미 AppError면 그대로 throw
+                if (AppError.isAppError(e)) throw e
                 throw FirebaseError.fromFunctionsError(e)
             }
         },
