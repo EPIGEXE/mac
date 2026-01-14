@@ -47,6 +47,7 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
         data: quizResponse,
         isLoading,
         error: queryError,
+        refetch,
     } = useGenerateQuiz(
         { noteId, noteContent, noteTitle, mode: 'sentence', blankCount: 5 },
         { enabled }
@@ -187,6 +188,13 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
         return Math.floor((Date.now() - startTimeRef.current) / 1000)
     }, [])
 
+    // 퀴즈 생성 재시도 (에러 발생 시 API 다시 호출)
+    const retryGeneration = useCallback(async () => {
+        setError(null)
+        setPhase('loading')
+        await refetch()
+    }, [refetch])
+
     // 캐시 삭제 (퀴즈 완료 시 호출)
     const clearCache = useCallback(() => {
         queryClient.removeQueries({ queryKey: studyKeys.quiz(noteId, 'sentence') })
@@ -219,6 +227,7 @@ export function useSentenceQuiz({ noteId, noteContent, noteTitle, noteType }: Us
         updateAnswer,
         submitAllAnswers,
         setFocusedQuestionId,
+        retryGeneration,
         getDuration,
         setPhase,
         clearCache,

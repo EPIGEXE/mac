@@ -40,6 +40,7 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
         data: quizResponse,
         isLoading,
         error: queryError,
+        refetch,
     } = useGenerateQuiz(
         { noteId, noteContent, noteTitle, mode: 'essay', blankCount: 5 },
         { enabled }
@@ -135,12 +136,19 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
         }
     }, [question, answer, evaluateMutation, recordEssayIfWrong])
 
-    // 다시 풀기
+    // 다시 풀기 (결과 화면에서 같은 문제 다시 풀기)
     const retry = useCallback(() => {
         setAnswer('')
         setResult(null)
         setPhase('quiz')
     }, [])
+
+    // 퀴즈 생성 재시도 (에러 발생 시 API 다시 호출)
+    const retryGeneration = useCallback(async () => {
+        setError(null)
+        setPhase('loading')
+        await refetch()
+    }, [refetch])
 
     // 학습 시간 계산
     const getDuration = useCallback(() => {
@@ -174,6 +182,7 @@ export function useEssayQuiz({ noteId, noteContent, noteTitle, noteType }: UseEs
         setAnswer,
         submitAnswer,
         retry,
+        retryGeneration,
         getDuration,
         setPhase,
         clearCache,

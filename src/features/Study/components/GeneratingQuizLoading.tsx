@@ -88,7 +88,7 @@ function TypedLine({ prefix, text, delay }: { prefix: string; text: string; dela
             transition={{ delay, duration: 0.2 }}
         >
             <span className="text-[var(--text-tertiary)] mr-2 select-none w-4">{'>'}</span>
-            <span className="text-[var(--accent)]">{prefix}</span>
+            <span className="text-[var(--accent)] pr-2">{prefix}</span>
             <span className="text-[var(--text-primary)]">{displayText}</span>
             {showCursor && (
                 <motion.span
@@ -130,7 +130,7 @@ function FloatingParticles() {
     )
 }
 
-export function GenerateingQuizLoading({ error }: { error: string | null }) {
+export function GeneratingQuizLoading() {
     return (
         <div className="flex-1 flex items-center justify-center relative">
             <FloatingParticles />
@@ -169,17 +169,6 @@ export function GenerateingQuizLoading({ error }: { error: string | null }) {
                 >
                     // AI가 문제를 생성하고 있습니다...
                 </motion.div>
-
-                {/* 에러 표시 */}
-                {error && (
-                    <motion.div
-                        className="font-mono text-sm text-[var(--error)] bg-[var(--error)]/10 px-4 py-2 border border-[var(--error)]/30"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                    >
-                        // error: {error}
-                    </motion.div>
-                )}
             </motion.div>
         </div>
     )

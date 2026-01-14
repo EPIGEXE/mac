@@ -10,7 +10,8 @@ import { useStudySessionStore } from '../../../../stores/studySessionStore'
 import { BlindedMarkdownContent } from './components/BlindedMarkdownContent'
 import { AnswerInput } from './components/AnswerInput'
 import { WordQuizResult } from './components/WordQuizResult'
-import { GenerateingQuizLoading } from '../../components/GenerateingQuizLoading'
+import { GeneratingQuizLoading } from '../../components/GeneratingQuizLoading'
+import { QuizGenerationError } from '../../components/QuizGenerationError'
 import { QuizProgressSidebar } from './components/QuizProgressSidebar'
 import type { Note } from '../../../../db/core/schema'
 
@@ -37,7 +38,7 @@ export function WordQuizContainer({ note, onNext }: WordQuizContainerProps) {
         results, // 결과 목록
         isEvaluating, // 평가 중
 
-        errorMessage, // 에러 메시지 (사용자 표시용)
+        error, // 에러 객체
         correctCount, // 정답 개수
         wrongCount, // 오답 개수
         answeredCount, // 답변 개수
@@ -50,6 +51,7 @@ export function WordQuizContainer({ note, onNext }: WordQuizContainerProps) {
         setCurrentBlankIndex, // 빈칸 인덱스 설정
 
         showResult, // 결과 화면 진입
+        retryGeneration, // 퀴즈 생성 재시도
         getDuration, // 학습 시간 계산
     } = useWordQuiz({
         // 단어 퀴즈 훅 모든 단어 퀴즈 상태, 액션 담당
@@ -117,9 +119,20 @@ export function WordQuizContainer({ note, onNext }: WordQuizContainerProps) {
         }
     }, [phase, note.id, note.title, noteType, totalBlanks, correctCount, wrongCount, blanks, answers, results, getDuration, recordNoteResult])
 
+    // 에러 화면
+    if (error) {
+        return (
+            <QuizGenerationError
+                error={error}
+                onRetry={retryGeneration}
+                onSkip={onNext}
+            />
+        )
+    }
+
     // 로딩 화면
     if (phase === 'loading') {
-        return <GenerateingQuizLoading error={errorMessage} />
+        return <GeneratingQuizLoading />
     }
 
     // 결과 화면

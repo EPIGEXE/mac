@@ -44,6 +44,7 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
         data: quizResponse,
         isLoading,
         error: queryError,
+        refetch,
     } = useGenerateQuiz(
         { noteId, noteContent, noteTitle, mode: 'word', blankCount: 5 },
         { enabled }
@@ -194,6 +195,14 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
         setPhase('result')
     }, [])
 
+    // 퀴즈 생성 재시도 (에러 발생 시 API 다시 호출)
+    const retryGeneration = useCallback(async () => {
+        setPhase('loading')
+        setValidatedBlanks([])
+        setBlindedContent('')
+        await refetch()
+    }, [refetch])
+
     // 학습 시간 계산
     const getDuration = useCallback(() => {
         return Math.floor((Date.now() - startTimeRef.current) / 1000)
@@ -230,6 +239,7 @@ export function useWordQuiz({ noteId, noteContent, noteTitle, noteType }: UseWor
         goToBlank,
         setCurrentBlankIndex,
         showResult,
+        retryGeneration,
         getDuration,
         setPhase,
         clearCache,

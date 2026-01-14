@@ -9,7 +9,8 @@ import { useSentenceQuiz } from './hooks/useSentenceQuiz'
 import { useStudySessionStore } from '../../../../stores/studySessionStore'
 import { SentenceQuizResult } from './components/SentenceQuizResult'
 import { SentenceAnswerInput } from './components/SentenceAnswerInput'
-import { GenerateingQuizLoading } from '../../components/GenerateingQuizLoading'
+import { GeneratingQuizLoading } from '../../components/GeneratingQuizLoading'
+import { QuizGenerationError } from '../../components/QuizGenerationError'
 import { TerminalButton } from '../../../../components/common/TerminalButton'
 import type { Note } from '../../../../db/core/schema'
 
@@ -33,7 +34,7 @@ export function SentenceQuizContainer({
         answers, // 답변 목록
 
         isEvaluating, // 평가 중인지
-        errorMessage, // 에러 메시지 (사용자 표시용)
+        error, // 에러 객체
 
         evaluationResults, // 평가 결과 목록
         totalScore, // 총 점수
@@ -47,6 +48,7 @@ export function SentenceQuizContainer({
         updateAnswer, // 답변 변경
         submitAllAnswers, // 전체 답변 제출
         setFocusedQuestionId, // 포커스된 질문 ID 설정
+        retryGeneration, // 퀴즈 생성 재시도
         getDuration, // 학습 시간 계산
     } = useSentenceQuiz({
         noteId: note.id,
@@ -107,9 +109,20 @@ export function SentenceQuizContainer({
         }
     }, [phase, note.id, note.title, noteType, totalQuestions, correctCount, wrongCount, questions, answers, evaluationResults, totalScore, overallFeedback, getDuration, recordNoteResult])
 
+    // 에러 화면
+    if (error) {
+        return (
+            <QuizGenerationError
+                error={error}
+                onRetry={retryGeneration}
+                onSkip={onNext}
+            />
+        )
+    }
+
     // 로딩 화면
     if (phase === 'loading') {
-        return <GenerateingQuizLoading error={errorMessage} />
+        return <GeneratingQuizLoading />
     }
 
     // 결과 화면

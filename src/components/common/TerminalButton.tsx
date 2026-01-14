@@ -13,6 +13,8 @@ const buttonStyles = cva(
                     'bg-transparent border-[var(--accent)] text-[var(--accent)] hover:border-[var(--accent)] hover:text-[var(--accent)]',
                 filled:
                     'bg-[var(--accent)] border-[var(--accent)] text-white hover:opacity-90',
+                error:
+                    'bg-[var(--error)] border-[var(--error)] text-white hover:opacity-90',
             },
             active: {
                 true: 'border-[var(--accent)] text-[var(--accent)]',
@@ -35,7 +37,7 @@ interface TerminalButtonProps {
     children: React.ReactNode;
     onClick?: () => void;
     active?: boolean;
-    variant?: 'default' | 'accent' | 'danger' | 'filled';
+    variant?: 'default' | 'accent' | 'danger' | 'filled' | 'error';
     disabled?: boolean;
     type?: 'button' | 'submit';
     className?: string;

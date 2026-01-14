@@ -8,7 +8,8 @@ import { useEssayQuiz } from './hooks/useEssayQuiz'
 import { useStudySessionStore } from '../../../../stores/studySessionStore'
 import { EssayQuizResult } from './components/EssayQuizResult'
 import { EssayQuizQuestion } from './components/EssayQuizQuestion'
-import { GenerateingQuizLoading } from '../../components/GenerateingQuizLoading'
+import { GeneratingQuizLoading } from '../../components/GeneratingQuizLoading'
+import { QuizGenerationError } from '../../components/QuizGenerationError'
 import type { Note } from '../../../../db/core/schema'
 
 interface EssayQuizContainerProps {
@@ -30,12 +31,13 @@ export function EssayQuizContainer({
         result, // 결과
 
         isEvaluating, // 평가 중인지
-        errorMessage, // 에러 메시지 (사용자 표시용)
+        error, // 에러 객체
         isCorrect, // 정답 여부
 
-        startQuiz, // 퀴즈 시입
+        startQuiz, // 퀴즈 시작
         setAnswer, // 답변 변경
         submitAnswer, // 답변 제출
+        retryGeneration, // 퀴즈 생성 재시도
         getDuration, // 학습 시간 계산
     } = useEssayQuiz({
         noteId: note.id,
@@ -91,9 +93,20 @@ export function EssayQuizContainer({
         }
     }, [phase, result, question, answer, note.id, note.title, noteType, isCorrect, getDuration, recordNoteResult])
 
+    // 에러 화면
+    if (error) {
+        return (
+            <QuizGenerationError
+                error={error}
+                onRetry={retryGeneration}
+                onSkip={onNext}
+            />
+        )
+    }
+
     // 로딩 화면
     if (phase === 'loading') {
-        return <GenerateingQuizLoading error={errorMessage} />
+        return <GeneratingQuizLoading />
     }
 
     // 결과 화면
