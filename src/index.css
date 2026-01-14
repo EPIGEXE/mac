@@ -4,8 +4,6 @@
  * - D2Coding (코드): swap - 늦게라도 반드시 표시
  * - Rajdhani (결과): 지연 로드 - 메인페이지에서 불필요
  */
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css');
-@import url('https://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/d2coding.css');
 @import 'tailwindcss';
 
 /* Pretendard: optional - 시스템 폰트 대체 허용 */
